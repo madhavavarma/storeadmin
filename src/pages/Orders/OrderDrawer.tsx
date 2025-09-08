@@ -1,14 +1,4 @@
-  // Manual update handler for Update Order button
-  const handleUpdateOrder = async () => {
-    if (!cart?.id) return;
-    const updatedOrder: Partial<IOrder> = {
-      ...cart,
-      status: status as OrderStatus,
-      checkoutdata: formData,
-    };
-    await updateOrder(String(cart.id), updatedOrder);
-    toast.success("Order updated successfully!");
-  };
+  // ...existing code...
 import { useSelector, useDispatch } from "react-redux";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,8 +10,6 @@ import {
   MapPin,
   Wallet,
   Trash2,
-  Minus,
-  Plus,
   ShoppingBag,
   PackageCheck,
   RefreshCcw,
@@ -33,7 +21,7 @@ import { ProductActions } from "@/store/ProductSlice";
 import type { IState } from "@/store/interfaces/IState";
 import { updateOrder } from "../api";
 import { OrdersActions, type IOrder, OrderStatus } from "@/store/OrdersSlice";
-import type { IOption } from "@/interfaces/IProduct";
+// import type { IOption } from "@/interfaces/IProduct";
 
 
 
@@ -125,43 +113,7 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
     }));
   };
 
-  const handlePlaceOrder = async () => {
-    const { phone, email, address, city, pincode } = formData;
-    const errors: { [key: string]: boolean } = {};
-
-    if (!phone) errors.phone = true;
-    if (!email) errors.email = true;
-    if (!address) errors.address = true;
-    if (!city) errors.city = true;
-    if (!pincode) errors.pincode = true;
-
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors);
-      toast.error("Please fill all required fields");
-      return;
-    }
-
-    const orderId = cart?.id || "";
-
-    if (cart) {
-      console.log("Updating checkout data in store:", formData);
-      dispatch(OrdersActions.updateCheckoutData(formData));
-    }
-
-    var data = JSON.parse(JSON.stringify(cart)) as IOrder; // Deep clone to avoid mutating store
-    data.checkoutdata = formData;
-
-    updateOrder(orderId, data as IOrder).then((order: any) => {
-
-      if (!order) {
-        toast.error("Failed to update order. Please try again.");
-        return;
-      }
-
-      toast.success("Order updated successfully!");
-
-    });
-  };
+  // ...existing code...
 
   const handleRemoveItem = (item: any) => {
     dispatch(
@@ -172,26 +124,7 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
     );
   };
 
-  const handleUpdateQuantity = (
-    productId: number,
-    selectedOptions: { [variantName: string]: IOption },
-    isIncrease: boolean
-  ) => {
-    const item = cartitems.find(
-      (item) =>
-        item.product.id === productId &&
-        JSON.stringify(item.selectedOptions) === JSON.stringify(selectedOptions)
-    );
-    if (!item) return;
-
-    if (!isIncrease && item.quantity <= 1) return;
-
-    dispatch(
-      isIncrease
-        ? OrdersActions.increaseQuantity({ productId, selectedOptions })
-        : OrdersActions.decreaseQuantity({ productId, selectedOptions })
-    );
-  };
+  // ...existing code...
 
   // Status subtext mapping
   const statusSubtext: Record<string, string> = {
