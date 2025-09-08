@@ -35,18 +35,18 @@ export interface OrderRow {
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
-    Paid: "bg-green-200 text-green-800 border border-green-400",
-    Unpaid: "bg-gray-200 text-gray-800 border border-gray-400",
-    Refund: "bg-blue-200 text-blue-800 border border-blue-400",
-    Draft: "bg-gray-100 text-gray-700 border border-gray-300",
-    Packaging: "bg-yellow-200 text-yellow-800 border border-yellow-400",
-    Completed: "bg-emerald-200 text-emerald-800 border border-emerald-400",
-    Canceled: "bg-red-200 text-red-800 border border-red-400",
+    Paid: "bg-zinc-200 text-zinc-800 border border-zinc-400",
+    Unpaid: "bg-zinc-100 text-zinc-700 border border-zinc-300",
+    Refund: "bg-zinc-300 text-zinc-900 border border-zinc-400",
+    Draft: "bg-zinc-100 text-zinc-700 border border-zinc-300",
+    Packaging: "bg-zinc-200 text-zinc-800 border border-zinc-400",
+    Completed: "bg-zinc-300 text-zinc-900 border border-zinc-400",
+    Canceled: "bg-zinc-400 text-zinc-900 border border-zinc-500",
   };
   return (
     <span
       className={`inline-block px-2 py-1 text-xs font-bold rounded-full shadow-sm ${
-        colors[status] || "bg-gray-100 text-gray-700 border border-gray-300"
+  colors[status] || "bg-zinc-100 text-zinc-700 border border-zinc-300"
       }`}
     >
       {status}
@@ -151,7 +151,7 @@ export default function Orders() {
                 return (
                   <tr
                     key={order.id}
-                    className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer group"
+                    className="border-b border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer group"
                     onClick={e => {
                       // Only open drawer if not clicking the button
                       if ((e.target as HTMLElement).tagName === 'BUTTON') return;
@@ -162,14 +162,14 @@ export default function Orders() {
                   >
                     <td className="px-4 py-3 whitespace-nowrap w-auto text-left align-top">
                       <div className="flex flex-col gap-1">
-                        <span className="font-semibold text-gray-800">{order.id}</span>
+                        <span className="font-semibold text-zinc-800 dark:text-zinc-100">{order.id}</span>
                         <span className="mt-1"><StatusBadge status={order.orderStatus} /></span>
                       </div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap w-auto text-right align-top">
                       <div className="flex flex-col gap-1 items-end">
                         <span
-                          className="font-medium text-blue-600 max-w-[80px] truncate cursor-pointer"
+                          className="font-medium text-zinc-700 dark:text-zinc-200 max-w-[80px] truncate cursor-pointer"
                           title={order.customer}
                           tabIndex={0}
                           onTouchStart={e => {
@@ -183,23 +183,23 @@ export default function Orders() {
                         >
                           {order.customer.length > 10 ? order.customer.slice(0, 10) + '…' : order.customer}
                           <span
-                            className="absolute z-50 left-1/2 -translate-x-1/2 mt-6 px-2 py-1 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity pointer-events-none"
+                            className="absolute z-50 left-1/2 -translate-x-1/2 mt-6 px-2 py-1 bg-zinc-800 text-zinc-100 text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity pointer-events-none"
                             style={{ minWidth: 'max-content' }}
                           >
                             {order.customer}
                           </span>
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-zinc-500 dark:text-zinc-400">
                           {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}
                         </span>
                       </div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap w-auto align-top">
                       <div className="flex flex-col gap-1">
-                        <span className="font-semibold text-gray-800">{order.total}</span>
+                        <span className="font-semibold text-zinc-800 dark:text-zinc-100">{order.total}</span>
                         <span className="flex items-center gap-2">
                           <StatusBadge status={order.paymentStatus} />
-                          <span className="text-xs text-gray-500">{order.items} items</span>
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400">{order.items} items</span>
                         </span>
                       </div>
                     </td>
@@ -207,7 +207,7 @@ export default function Orders() {
                     <td className="px-4 py-3 whitespace-nowrap w-auto text-center align-top">
                       {nextStatus && (
                         <button
-                          className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-300 transition"
+                          className="px-2 py-1 text-xs rounded bg-zinc-200 text-zinc-800 hover:bg-zinc-300 border border-zinc-400 transition"
                           onClick={async (e) => {
                             e.stopPropagation();
                             await updateOrder(order.id, { status: nextStatus as OrderStatus });
@@ -253,7 +253,7 @@ export default function Orders() {
             onClick={e => e.stopPropagation()}
           >
             <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-2xl"
+              className="absolute top-2 right-2 text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 text-2xl"
               onClick={() => {
                 setDrawerVisible(false);
                 setTimeout(() => setDrawerOpen(false), 300);
