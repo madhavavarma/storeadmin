@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { LogIn, Bell, UserCog, LayoutDashboard, BarChart2, Settings, ShoppingCart, Package, Users, FileText, Tag } from "lucide-react"
+import { LayoutDashboard, Settings, ShoppingCart, Package, Users, Tag } from "lucide-react"
 
 const menuItems = [
   // { title: "Admin Login", url: "/admin/login", icon: LogIn },
@@ -16,14 +16,13 @@ const menuItems = [
 ];
 
 export default function AppSidebar() {
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  return (
+  // Sidebar content as a component for reuse
+  const SidebarContent = (
     <div
-      className={`h-screen ${
-        collapsed ? "w-20" : "w-64"
-      } bg-white text-gray-700 flex flex-col 
-      shadow-lg border-r border-gray-200 transition-all duration-300`}
+      className={`h-screen ${collapsed ? "w-20" : "w-64"} bg-white text-gray-700 flex flex-col shadow-lg border-r border-gray-200 transition-all duration-300`}
     >
       {/* Top Section (Company / Logo + collapse button) */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
@@ -38,12 +37,23 @@ export default function AppSidebar() {
             </select>
           )}
         </div>
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          {collapsed ? "➡" : "⬅"}
-        </button>
+        <div className="flex gap-2">
+          {/* Collapse button (always visible) */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            {collapsed ? "➡" : "⬅"}
+          </button>
+          {/* Close button for mobile overlay */}
+          <button
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            onClick={() => setIsMobileOpen(false)}
+            aria-label="Close sidebar"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       {/* Menu */}
@@ -116,5 +126,40 @@ export default function AppSidebar() {
         )}
       </div>
     </div>
-  )
+  );
+
+  // Responsive rendering
+  return (
+    <>
+      {/* Hamburger button for mobile */}
+      <button
+        className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-lg shadow-lg border border-gray-200"
+        onClick={() => setIsMobileOpen(true)}
+        aria-label="Open sidebar"
+      >
+        <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-menu"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+      </button>
+
+      {/* Sidebar overlay for mobile */}
+      {isMobileOpen && (
+        <div className="fixed inset-0 z-40 flex">
+          {/* Overlay background */}
+          <div
+            className="fixed inset-0 bg-black/40 transition-opacity"
+            onClick={() => setIsMobileOpen(false)}
+            aria-label="Close sidebar overlay"
+          />
+          {/* Sidebar slides in from left */}
+          <div className="relative z-50">
+            {SidebarContent}
+          </div>
+        </div>
+      )}
+
+      {/* Sidebar for desktop */}
+      <div className="hidden md:flex">
+        {SidebarContent}
+      </div>
+    </>
+  );
 }
