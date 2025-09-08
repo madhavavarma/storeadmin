@@ -1,9 +1,6 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
-  RefreshCcw,
   Package,
-  Clock,
-  DollarSign,
   ShoppingCart,
   Truck,
   Gift,
@@ -16,41 +13,18 @@ const summaryCards = [
   { title: "In Progress", value: 656, icon: Package },
 ]
 
-const sampleOrders = [
-  {
-    id: "#584388/80",
-    createdAt: "Apr 23 , 2024",
-    customer: "Gail C. Anderson",
-  // priority: "Normal",
-    total: "$1,230.00",
-    paymentStatus: "Unpaid",
-    items: 4,
-    deliveryNumber: "-",
-    orderStatus: "Draft",
-  },
-  {
-    id: "#456754/80",
-    createdAt: "Apr 20 , 2024",
-    customer: "Jung S. Ayala",
-  // priority: "Normal",
-    total: "$987.00",
-    paymentStatus: "Paid",
-    items: 2,
-    deliveryNumber: "-",
-    orderStatus: "Packaging",
-  },
-  {
-    id: "#578246/80",
-    createdAt: "Apr 19 , 2024",
-    customer: "David A. Arnold",
-  // priority: "High",
-    total: "$1,478.00",
-    paymentStatus: "Paid",
-    items: 5,
-    deliveryNumber: "#D-57837678",
-    orderStatus: "Completed",
-  },
-]
+import { getOrders } from "../api";
+
+export interface OrderRow {
+  id: string;
+  createdAt: string;
+  customer: string;
+  total: string;
+  paymentStatus: string;
+  items: number;
+  deliveryNumber?: string;
+  orderStatus: string;
+}
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
@@ -75,6 +49,26 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function Orders() {
   const [page, setPage] = useState(1)
+  const [orders, setOrders] = useState<OrderRow[]>([]);
+  useEffect(() => {
+    getOrders().then((data) => {
+      if (data) {
+        // Map API data to OrderRow structure if needed
+        setOrders(
+          data.map((order: any) => ({
+            id: order.id,
+            createdAt: order.created_at || order.createdAt || '',
+            customer: order.customer || (order.checkoutdata?.name || order.checkoutdata?.phone || 'Unknown'),
+            total: order.totalprice ? `₹${order.totalprice}` : '',
+            paymentStatus: order.paymentStatus || (order.checkoutdata?.paymentStatus || 'Unpaid'),
+            items: order.cartitems ? order.cartitems.length : order.items || 0,
+            deliveryNumber: order.deliveryNumber,
+            orderStatus: order.status || order.orderStatus || '',
+          }))
+        );
+      }
+    });
+  }, []);
 
   return (
     <div className="p-6 space-y-6">
@@ -120,7 +114,7 @@ export default function Orders() {
               </tr>
             </thead>
             <tbody>
-              {sampleOrders.map((order) => (
+              {orders.map((order) => (
                 <tr key={order.id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3 whitespace-nowrap w-auto text-left align-top">
                     <div className="flex flex-col gap-1">

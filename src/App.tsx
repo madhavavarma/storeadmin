@@ -1,4 +1,4 @@
-import { Route, Routes, BrowserRouter, HashRouter } from 'react-router-dom'
+import { Route, Routes, BrowserRouter } from 'react-router-dom'
 import './App.css'
 import AppSidebar from './pages/Layout/AppSitebar'
 import Orders from './pages/Orders/Orders'
