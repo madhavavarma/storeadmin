@@ -1,3 +1,14 @@
+  // Manual update handler for Update Order button
+  const handleUpdateOrder = async () => {
+    if (!cart?.id) return;
+    const updatedOrder: Partial<IOrder> = {
+      ...cart,
+      status: status as OrderStatus,
+      checkoutdata: formData,
+    };
+    await updateOrder(String(cart.id), updatedOrder);
+    toast.success("Order updated successfully!");
+  };
 import { useSelector, useDispatch } from "react-redux";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,21 +24,37 @@ import {
   Plus,
   ShoppingBag,
   PackageCheck,
+  RefreshCcw,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { ICheckout } from "@/interfaces/ICheckout";
 import { ProductActions } from "@/store/ProductSlice";
 import type { IState } from "@/store/interfaces/IState";
-import { deleteOrder, updateOrder } from "../api";
-import { OrdersActions, type IOrder } from "@/store/OrdersSlice";
+import { updateOrder } from "../api";
+import { OrdersActions, type IOrder, OrderStatus } from "@/store/OrdersSlice";
 import type { IOption } from "@/interfaces/IProduct";
-import { Dialog } from "@/components/ui/dialog";
-import { DialogContent, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
-export default function OrderSummary() {
-  const [showCancelDialog, setShowCancelDialog] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+
+
+interface OrderSummaryProps {
+  onClose?: () => void;
+}
+
+export default function OrderSummary({ onClose }: OrderSummaryProps) {
+  // Manual update handler for Update Order button
+  const handleUpdateOrder = async () => {
+    if (!cart?.id) return;
+    const updatedOrder: Partial<IOrder> = {
+      ...cart,
+      status: status as OrderStatus,
+      checkoutdata: formData,
+    };
+    await updateOrder(String(cart.id), updatedOrder);
+    toast.success("Order updated successfully!");
+    if (onClose) onClose();
+  };
+
 
   
   const cart = useSelector((state: IState) => state.Orders.showOrder);
@@ -35,27 +62,11 @@ export default function OrderSummary() {
   const totalAmount = cartitems?.reduce((acc, item) => acc + item.totalPrice, 0);
   const dispatch = useDispatch();
   const checkoutData = useSelector((state: IState) => state.Orders.showOrder?.checkoutdata);
-  const isPending = cart?.status === 'Pending';
-  
+  // All fields should be editable regardless of status
+  const isPending = true;
+  const [status, setStatus] = useState(cart?.status || 'Pending');
 
-  // Cancel order logic (copied from Orders.tsx)
-  const handleCancelOrder = async () => {
-    setDeleting(true);
-     deleteOrder(cart?.id || -1)
-    // await fetchOrders();
-    setTimeout(() => {
-      setDeleting(false);
-      setShowCancelDialog(false);
-      window.location.reload(); // Or dispatch an action to refresh orders
-    }, 1200);
-  };
-  
-
-  useEffect(() => {    
-    dispatch(ProductActions.setProductDetail(null));
-  }, []);
-
-  const [formData, setFormData] = useState<ICheckout>(
+    const [formData, setFormData] = useState<ICheckout>(
     checkoutData || {
       phone: "",
       email: "",
@@ -66,6 +77,32 @@ export default function OrderSummary() {
       paymentMethod: "cod",
     }
   );
+  
+
+  // Update order in Supabase whenever any field changes
+  useEffect(() => {
+    if (!cart?.id) return;
+    const updatedOrder: Partial<IOrder> = {
+      ...cart,
+      status: status as OrderStatus,
+      checkoutdata: formData,
+    };
+    updateOrder(String(cart.id), updatedOrder);
+    // Optionally, debounce this for performance
+    // eslint-disable-next-line
+  }, [status, formData, cart?.id]);
+
+  // Status change handler
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setStatus(e.target.value);
+  };
+  
+
+  useEffect(() => {    
+    dispatch(ProductActions.setProductDetail(null));
+  }, []);
+
+
 
   const [sameAsPhone, setSameAsPhone] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: boolean }>({});
@@ -159,10 +196,12 @@ export default function OrderSummary() {
   // Status subtext mapping
   const statusSubtext: Record<string, string> = {
     Pending: 'We are preparing your order',
+    Confirmed: 'Order confirmed',
+    Processing: 'Order is being processed',
     Shipped: 'Your order is on the way',
     Delivered: 'Your order has been delivered',
     Cancelled: 'Your order was cancelled',
-    // Add more as needed
+    Returned: 'Order returned',
   };
 
   return (
@@ -174,11 +213,26 @@ export default function OrderSummary() {
             <span className="text-sm text-gray-500">Order Number</span>
             <span className="text-xl font-bold text-green-700">#{cart?.id ?? '--'}</span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm text-gray-500">Status</span>
-            <span className="text-base font-semibold text-green-700">{cart?.status ?? '--'}</span>
-            <span className="text-xs text-gray-400">{statusSubtext[cart?.status ?? ''] ?? ''}</span>
+        </CardContent>
+      </Card>
+
+      {/* Status Update Card */}
+      <Card className="bg-white border shadow-sm mb-2">
+        <CardContent className="p-4 flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <RefreshCcw className="w-5 h-5 text-blue-500" />
+            <span className="text-sm text-gray-700 font-semibold">Order Status</span>
           </div>
+          <select
+            className="border rounded-md px-3 py-2 text-sm mt-2"
+            value={status}
+            onChange={handleStatusChange}
+          >
+            {Object.values(OrderStatus).map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+          <span className="text-xs text-gray-400 mt-1">{statusSubtext[status] ?? ''}</span>
         </CardContent>
       </Card>
       <div className="flex justify-between items-center">
@@ -230,102 +284,55 @@ export default function OrderSummary() {
                 </h2>
                 {cartitems.map((item, idx) => (
                   <div
-                  key={idx}
-                  className="flex gap-4 border-b py-4 text-sm relative"
-                >
-                  {/* Product Image */}
-                  <img
-                    src={item.product.imageUrls?.[0]}
-                    alt={item.product.name}
-                    className="w-16 h-16 object-cover rounded-md"
-                  />
-                
-                  {/* Product Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-800 truncate">
-                      {item.product.name}
-                    </p>
-                    {item.selectedOptions &&
-                      Object.entries(item.selectedOptions).map(([variantName, option]) => (
-                        <p key={variantName} className="text-gray-500 text-xs">
-                          {variantName}: <span className="font-medium">{option?.name}</span>
-                        </p>
-                      ))}
-                
-                    {/* Quantity & Price Section */}
-                    <div className="flex justify-between items-center mt-3 flex-wrap gap-2">
-                      {/* Quantity Controls */}
-                      <div className="flex items-center bg-gray-100 rounded-full px-2 py-1">
-                        <Button
-                          size="icon"
-                          className="w-7 h-7 bg-[#5DBF13] text-white rounded-full hover:bg-green-700"
-                          onClick={() =>
-                            handleUpdateQuantity(
-                              item.product.id || 0,
-                              item.selectedOptions,
-                              false
-                            )
-                          }
-                        >
-                          <Minus size={14} />
-                        </Button>
-                
-                        <span className="text-sm font-semibold w-6 text-center">
-                          {item.quantity}
-                        </span>
-                
-                        <Button
-                          size="icon"
-                          className="w-7 h-7 bg-[#5DBF13] text-white rounded-full hover:bg-green-700"
-                          onClick={() =>
-                            handleUpdateQuantity(
-                              item.product.id || 0,
-                              item.selectedOptions,
-                              true
-                            )
-                          }
-                        >
-                          <Plus size={14} />
-                        </Button>
-                      </div>
-                
-                      {/* Price */}
-                      <span className="text-sm font-extrabold text-white bg-green-500 px-3 py-1 rounded-md shadow-sm">
-                        ₹{item.totalPrice}
-                      </span>
-                    </div>
-                  </div>
-                
-                  {/* Delete Button */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-red-500 absolute top-2 right-2"
-                    onClick={() => handleRemoveItem(item)}
+                    key={idx}
+                    className="flex gap-4 border-b py-4 text-sm relative"
                   >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-                
-                
-                
+                    {/* Product Image */}
+                    <img
+                      src={item.product.imageUrls?.[0]}
+                      alt={item.product.name}
+                      className="w-16 h-16 object-cover rounded-md"
+                    />
+                    {/* Product Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-800 truncate">
+                        {item.product.name}
+                      </p>
+                      {item.selectedOptions &&
+                        Object.entries(item.selectedOptions).map(([variantName, option]) => (
+                          <p key={variantName} className="text-gray-500 text-xs">
+                            {variantName}: <span className="font-medium">{option?.name}</span>
+                          </p>
+                        ))}
+                      {/* Quantity & Price Section */}
+                      <div className="flex justify-between items-center mt-3 flex-wrap gap-2">
+                        {/* Quantity Controls */}
+                        <div className="flex items-center bg-gray-100 rounded-full px-2 py-1">
+                          <Button />
+                        </div>
+                      </div>
+                    </div>
+                    {/* Delete Button */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-red-500 absolute top-2 right-2"
+                      onClick={() => handleRemoveItem(item)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 ))}
-                 <div className="pt-2 flex items-center justify-between text-green-800 font-semibold gap-4 flex-wrap sm:flex-nowrap">
-  
-  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-    {/* Label */}
-    <span className="text-base whitespace-nowrap">Total</span>
-
-    
-  </div>
-
-  {/* Amount */}
-  <span className="text-sm font-extrabold text-white bg-green-500 px-3 py-1 rounded-md shadow-sm">
-    ₹{totalAmount}
-  </span>
-</div>
-
-
+                <div className="pt-2 flex items-center justify-between text-green-800 font-semibold gap-4 flex-wrap sm:flex-nowrap">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                    {/* Label */}
+                    <span className="text-base whitespace-nowrap">Total</span>
+                  </div>
+                  {/* Amount */}
+                  <span className="text-sm font-extrabold text-white bg-green-500 px-3 py-1 rounded-md shadow-sm">
+                    ₹{totalAmount}
+                  </span>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
@@ -429,54 +436,19 @@ export default function OrderSummary() {
             </CardContent>
           </Card>
 
-          {isPending && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.3 }}
-            >
-              <Button
-                onClick={handlePlaceOrder}
-                className="w-full bg-[#5DBF13] hover:bg-green-700 text-white rounded-xl"
-                disabled={cartitems.length === 0}
-              >
-              </Button>
-            </motion.div>
-          )}
-
-          {isPending && (
-        <>
-          <Button
-            className="w-full bg-red-500 hover:bg-red-700 text-white rounded-xl mb-4"
-            onClick={() => setShowCancelDialog(true)}
-            disabled={deleting}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.3 }}
           >
-            {deleting ? "Cancelling..." : "Cancel Order"}
-          </Button>
-          <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-            <DialogContent>
-              <DialogTitle>Cancel Order</DialogTitle>
-              <div className="py-4">Are you sure you want to cancel this order?</div>
-              <DialogFooter>
-                <button
-                  className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  onClick={() => setShowCancelDialog(false)}
-                  disabled={deleting}
-                >
-                  No
-                </button>
-                <button
-                  className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600"
-                  onClick={handleCancelOrder}
-                  disabled={deleting}
-                >
-                  {deleting ? "Cancelling..." : "Yes"}
-                </button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </>
-      )}
+            <Button
+              onClick={handleUpdateOrder}
+              className="w-full bg-[#5DBF13] hover:bg-green-700 text-white rounded-xl mt-4"
+              disabled={cartitems.length === 0}
+            >
+              Update Order
+            </Button>
+          </motion.div>
         </div>
       </div>
     </div>
