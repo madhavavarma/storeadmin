@@ -4,6 +4,7 @@ import ProductSlice from "./ProductSlice";
 import CategorySlice from "./CategorySlice";
 import AppSettingsSlice from "./AppSettingsSlice";
 import OrdersSlice from "./OrdersSlice";
+import HeaderSlice from "./HeaderSlice";
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
     Products: ProductSlice.reducer,
     Categories: CategorySlice.reducer,
     AppSettings: AppSettingsSlice.reducer,
-    Orders: OrdersSlice.reducer
+  Orders: OrdersSlice.reducer,
+  header: HeaderSlice
   },
 });
 

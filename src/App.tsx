@@ -2,8 +2,10 @@ import { Route, Routes, BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { store } from './store/Store'
 import './App.css'
+
 import AppSidebar from './pages/Layout/AppSitebar'
 import Orders from './pages/Orders/Orders'
+import Header from './components/Header'
 
 
 export default function App() {
@@ -12,12 +14,15 @@ export default function App() {
       <BrowserRouter>
         <div className="flex min-h-screen">
           <AppSidebar />
-          <main className="flex-1 bg-gray-50 max-w-[100%]">
-            <Routes>
-              <Route path="/orders" element={<Orders />} />
-              {/* Add more routes here as needed */}
-            </Routes>
-          </main>
+          <div className="flex-1 flex flex-col">
+            <Header />
+            <main className="flex-1 bg-gray-50 max-w-[100%]">
+              <Routes>
+                <Route path="/orders" element={<Orders />} />
+                {/* Add more routes here as needed */}
+              </Routes>
+            </main>
+          </div>
         </div>
       </BrowserRouter>
     </Provider>
