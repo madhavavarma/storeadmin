@@ -1,12 +1,23 @@
+
 import { Sun, Moon, User, ShoppingCart, Bell } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/store/Store";
 import { toggleTheme } from "@/store/HeaderSlice";
+import { useEffect } from "react";
 
 export default function Header() {
   const dispatch = useDispatch();
   const theme = useSelector((state: RootState) => state.header.theme);
   const user = useSelector((state: RootState) => state.header.user);
+
+  // Add or remove dark mode class on html element
+  useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [theme]);
   // Sidebar header: className="flex items-center justify-between p-4 border-b border-gray-200"
   return (
     <header className="w-full flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 dark:bg-gray-900" style={{ minHeight: 64 }}>

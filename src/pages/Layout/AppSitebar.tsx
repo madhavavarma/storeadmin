@@ -22,12 +22,12 @@ export default function AppSidebar() {
   // Sidebar content as a component for reuse
   const SidebarContent = (
     <div
-      className={`h-screen ${collapsed ? "w-20" : "w-64"} bg-white text-gray-700 flex flex-col shadow-lg border-r border-gray-200 transition-all duration-300`}
+      className={`h-screen ${collapsed ? "w-20" : "w-64"} bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 flex flex-col shadow-lg border-r border-gray-200 dark:border-gray-800 transition-all duration-300`}
     >
       {/* Top Section (Company / Logo + collapse button) */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+  <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center gap-3">
-          <span className="inline-flex w-10 h-10 bg-gray-200 rounded-full items-center justify-center font-bold">
+          <span className="inline-flex w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded-full items-center justify-center font-bold">
             A
           </span>
           {!collapsed && (
@@ -41,17 +41,17 @@ export default function AppSidebar() {
           {/* Collapse button (always visible) */}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200"
           >
-            {collapsed ? "➡" : "⬅"}
+            {collapsed ? <span className="text-lg">➡</span> : <span className="text-lg">⬅</span>}
           </button>
           {/* Close button for mobile overlay */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200"
             onClick={() => setIsMobileOpen(false)}
             aria-label="Close sidebar"
           >
-            ✕
+            <span className="text-lg">✕</span>
           </button>
         </div>
       </div>

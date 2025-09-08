@@ -96,7 +96,7 @@ export default function Orders() {
           return (
             <div
               key={card.title}
-              className="bg-white p-4 rounded-xl shadow-md border flex flex-col items-center justify-center"
+              className="bg-white dark:bg-gray-900 p-4 rounded-xl shadow-md border border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center"
             >
               <div className="p-3 rounded-full bg-orange-50 text-orange-500 mb-2">
                 <Icon className="w-6 h-6" />
@@ -109,7 +109,7 @@ export default function Orders() {
       </div>
 
       {/* Orders Table */}
-      <div className="bg-white shadow-md rounded-xl overflow-hidden">
+  <div className="bg-white dark:bg-gray-900 shadow-md rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800">
         <div className="p-4 border-b flex items-center justify-between">
           <h2 className="font-semibold text-lg">All Order List</h2>
           <select className="border rounded-md px-3 py-1 text-sm">
@@ -121,7 +121,7 @@ export default function Orders() {
         {/* Table Wrapper for Mobile */}
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
+            <thead className="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-200 text-xs uppercase">
               <tr>
                 <th className="px-4 py-3 whitespace-nowrap w-auto text-left">Order / Status</th>
                 <th className="px-4 py-3 whitespace-nowrap w-auto text-right">Customer / Date</th>
@@ -151,7 +151,7 @@ export default function Orders() {
                 return (
                   <tr
                     key={order.id}
-                    className="border-b hover:bg-gray-50 cursor-pointer group"
+                    className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer group"
                     onClick={e => {
                       // Only open drawer if not clicking the button
                       if ((e.target as HTMLElement).tagName === 'BUTTON') return;
