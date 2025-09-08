@@ -1,4 +1,4 @@
-import { Route, Routes, BrowserRouter } from 'react-router-dom'
+import { Route, Routes, HashRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { store } from './store/Store'
 import './App.css'
@@ -11,7 +11,7 @@ import Header from './components/Header'
 export default function App() {
   return (
     <Provider store={store}>
-      <BrowserRouter>
+  <HashRouter>
         <div className="flex min-h-screen">
           <AppSidebar />
           <div className="flex-1 flex flex-col">
@@ -24,7 +24,7 @@ export default function App() {
             </main>
           </div>
         </div>
-      </BrowserRouter>
+  </HashRouter>
     </Provider>
   );
 }

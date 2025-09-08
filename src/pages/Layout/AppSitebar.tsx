@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import { LayoutDashboard, Settings, ShoppingCart, Package, Users, Tag } from "lucide-react"
 
 const menuItems = [
@@ -70,9 +71,9 @@ export default function AppSidebar() {
           } as const;
           const badge = badgeMap[item.title as keyof typeof badgeMap];
           return (
-            <a
+            <Link
               key={item.title}
-              href={item.url}
+              to={item.url}
               className={`relative flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium group transition-all
                 ${collapsed ? "justify-center" : "hover:bg-gray-100 text-gray-700"}
                 ${active ? "bg-green-50 text-green-600 font-semibold" : ""}
@@ -106,7 +107,7 @@ export default function AppSidebar() {
                   )}
                 </span>
               )}
-            </a>
+            </Link>
           );
         })}
       </nav>
