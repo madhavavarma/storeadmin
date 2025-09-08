@@ -4,18 +4,23 @@ import { Sun, Moon, User, ShoppingCart, Bell, LogOut } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/store/Store";
 import { toggleTheme, setUser } from "@/store/HeaderSlice";
+
 import { useEffect, useState } from "react";
 
 
 import { supabase } from "@/supabaseClient";
+
 import AuthDrawer from "@/pages/Auth/AuthDrawer";
 
 
-export default function Header() {
+
+// export default function Header() {
+export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }) {
   const dispatch = useDispatch();
   const theme = useSelector((state: RootState) => state.header.theme);
   const user = useSelector((state: RootState) => state.header.user);
   const [authDrawerOpen, setAuthDrawerOpen] = useState(false);
+
 
   // Add or remove dark mode class on html element
   useEffect(() => {
@@ -26,9 +31,34 @@ export default function Header() {
     }
   }, [theme]);
   // Sidebar header: className="flex items-center justify-between p-4 border-b border-gray-200"
+  // On mount, check for Supabase user and update Redux user state
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) {
+        dispatch(setUser({ name: data.user.email || "User" }));
+      } else {
+        dispatch(setUser({ name: "" }));
+      }
+    });
+  }, []);
+
+  // After sign-in, update Redux user state
+  const handleAuthSuccess = () => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) {
+        dispatch(setUser({ name: data.user.email || "User" }));
+      }
+    });
+    if (onAuthSuccess) onAuthSuccess();
+  };
+
+  // On sign out, clear user and orders
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     dispatch(setUser({ name: "" }));
+    // Clear orders in OrdersSlice
+    const event = new CustomEvent('clearOrders');
+    window.dispatchEvent(event);
   };
 
   return (
@@ -72,7 +102,7 @@ export default function Header() {
           )}
         </div>
       </header>
-      <AuthDrawer open={authDrawerOpen} onClose={() => setAuthDrawerOpen(false)} />
+  <AuthDrawer open={authDrawerOpen} onClose={() => setAuthDrawerOpen(false)} onAuthSuccess={handleAuthSuccess} />
     </>
   );
 }

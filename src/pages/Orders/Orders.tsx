@@ -54,7 +54,13 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-export default function Orders() {
+export default function Orders({ refreshKey }: { refreshKey?: number }) {
+  // Listen for clearOrders event to clear orders on signout
+  useEffect(() => {
+    const clear = () => setOrders([]);
+    window.addEventListener('clearOrders', clear);
+    return () => window.removeEventListener('clearOrders', clear);
+  }, []);
   // const [page, setPage] = useState(1)
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -80,9 +86,10 @@ export default function Orders() {
     });
   }, []);
 
+
   useEffect(() => {
     fetchOrders();
-  }, [fetchOrders]);
+  }, [fetchOrders, refreshKey]);
 
   useOrdersRealtime(fetchOrders);
 
