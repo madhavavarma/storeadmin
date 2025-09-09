@@ -55,6 +55,7 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function Orders({ refreshKey }: { refreshKey?: number }) {
   const [orders, setOrders] = useState<OrderRow[]>([]);
+  const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
   // const [pendingStatus, setPendingStatus] = useState<{ [orderId: string]: string }>({});
@@ -68,6 +69,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
   }, []);
 
   const fetchOrders = useCallback(() => {
+    setLoading(true);
     getOrders().then((data) => {
       if (data) {
         setOrders(
@@ -88,6 +90,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
           }))
         );
       }
+      setLoading(false);
     });
   }, []);
 
@@ -96,6 +99,18 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
   }, [fetchOrders, refreshKey]);
 
   useOrdersRealtime(fetchOrders);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[200px] p-8">
+        <svg className="animate-spin h-8 w-8 text-green-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+        <span className="text-green-700 font-medium text-lg">Loading orders...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-8">
