@@ -1,4 +1,4 @@
-  // ...existing code...
+// ...existing code...
 import { useSelector, useDispatch } from "react-redux";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -67,19 +67,6 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
   );
   
 
-  // Update order in Supabase whenever any field changes
-  useEffect(() => {
-    if (!cart?.id) return;
-    const updatedOrder: Partial<IOrder> = {
-      ...cart,
-      status: status as OrderStatus,
-      checkoutdata: formData,
-    };
-    updateOrder(String(cart.id), updatedOrder);
-    // Optionally, debounce this for performance
-    // eslint-disable-next-line
-  }, [status, formData, cart?.id]);
-
   // Status change handler
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setStatus(e.target.value);
@@ -139,6 +126,15 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
 
   return (
     <div className="p-4 max-w-7xl mx-auto space-y-6">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-20 bg-white border-b flex items-center justify-between px-4 py-3">
+        <h1 className="text-lg font-bold text-green-700">Order Details</h1>
+        <Button variant="ghost" size="icon" onClick={onClose} className="text-gray-500 hover:text-red-500">
+          <span className="sr-only">Close</span>
+          &times;
+        </Button>
+      </div>
+
       {/* Order Details Card */}
       <Card className="bg-white border shadow-sm mb-2">
         <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -240,8 +236,25 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
                       {/* Quantity & Price Section */}
                       <div className="flex justify-between items-center mt-3 flex-wrap gap-2">
                         {/* Quantity Controls */}
-                        <div className="flex items-center bg-gray-100 rounded-full px-2 py-1">
-                          <Button />
+                        <div className="flex items-center bg-gray-100 rounded-full px-2 py-1 gap-2">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="text-lg"
+                            onClick={() => dispatch(OrdersActions.decreaseQuantity({ productId: item.product.id ?? 0, selectedOptions: item.selectedOptions }))}
+                            disabled={item.quantity <= 1}
+                          >
+                            -
+                          </Button>
+                          <span className="px-2 min-w-[24px] text-center font-semibold">{item.quantity}</span>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="text-lg"
+                            onClick={() => dispatch(OrdersActions.increaseQuantity({ productId: item.product.id ?? 0, selectedOptions: item.selectedOptions }))}
+                          >
+                            +
+                          </Button>
                         </div>
                       </div>
                     </div>

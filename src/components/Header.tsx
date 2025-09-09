@@ -65,7 +65,7 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
     <>
       <header className="w-full flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900" style={{ minHeight: 64 }}>
         <div className="flex items-center gap-4">
-          <span className="font-bold text-lg text-zinc-800 dark:text-zinc-100">Store Admin</span>
+          {/* <span className="font-bold text-lg text-zinc-800 dark:text-zinc-100">Store Admin</span> */}
         </div>
         <div className="flex items-center gap-4">
           <button
