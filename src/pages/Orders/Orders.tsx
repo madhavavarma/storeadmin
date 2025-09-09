@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
+import { supabase } from "@/supabaseClient"
 import { useOrdersRealtime } from "@/hooks/useOrdersRealtime"
 import { useDispatch } from "react-redux"
 import { OrdersActions, OrderStatus } from "@/store/OrdersSlice"
@@ -56,6 +57,7 @@ function StatusBadge({ status }: { status: string }) {
 export default function Orders({ refreshKey }: { refreshKey?: number }) {
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
   // const [pendingStatus, setPendingStatus] = useState<{ [orderId: string]: string }>({});
@@ -70,27 +72,36 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
 
   const fetchOrders = useCallback(() => {
     setLoading(true);
-    getOrders().then((data) => {
-      if (data) {
-        setOrders(
-          data.map((order: any) => ({
-            id: order.id,
-            createdAt: order.created_at || order.createdAt || "",
-            customer:
-              order.customer ||
-              order.checkoutdata?.name ||
-              order.checkoutdata?.phone ||
-              "Unknown",
-            total: order.totalprice ? `₹${order.totalprice}` : "",
-            paymentStatus: order.paymentStatus || order.checkoutdata?.paymentStatus || "Unpaid",
-            items: order.cartitems ? order.cartitems.length : order.items || 0,
-            deliveryNumber: order.deliveryNumber,
-            orderStatus: order.status || order.orderStatus || "",
-            raw: order,
-          }))
-        );
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) {
+        setIsLoggedIn(true);
+        getOrders().then((ordersData) => {
+          if (ordersData) {
+            setOrders(
+              ordersData.map((order: any) => ({
+                id: order.id,
+                createdAt: order.created_at || order.createdAt || "",
+                customer:
+                  order.customer ||
+                  order.checkoutdata?.name ||
+                  order.checkoutdata?.phone ||
+                  "Unknown",
+                total: order.totalprice ? `₹${order.totalprice}` : "",
+                paymentStatus: order.paymentStatus || order.checkoutdata?.paymentStatus || "Unpaid",
+                items: order.cartitems ? order.cartitems.length : order.items || 0,
+                deliveryNumber: order.deliveryNumber,
+                orderStatus: order.status || order.orderStatus || "",
+                raw: order,
+              }))
+            );
+          }
+          setLoading(false);
+        });
+      } else {
+        setIsLoggedIn(false);
+        setOrders([]);
+        setLoading(false);
       }
-      setLoading(false);
     });
   }, []);
 
@@ -110,6 +121,9 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
         <span className="text-green-700 font-medium text-lg">Loading orders...</span>
       </div>
     );
+  }
+  if (isLoggedIn === false) {
+    return <div className="p-8 text-center text-gray-500">Please log in to view orders.</div>;
   }
 
   return (
