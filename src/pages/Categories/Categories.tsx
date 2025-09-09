@@ -3,28 +3,40 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { ICategory } from "@/interfaces/ICategory"
 import { getCategories } from "../api"
+import { supabase } from "@/supabaseClient"
 
 
-export default function Categories() {
+export default function Categories({ refreshKey }: { refreshKey: number }) {
+
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const perPage = 6;
   const totalPages = Math.ceil(categories.length / perPage);
 
   useEffect(() => {
     setLoading(true);
-    getCategories()
-      .then((data) => {
-        setCategories(data || []);
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) {
+        setIsLoggedIn(true);
+        getCategories()
+          .then((data) => {
+            setCategories(data || []);
+            setLoading(false);
+          })
+          .catch(() => {
+            setError("Failed to load categories");
+            setLoading(false);
+          });
+      } else {
+        setIsLoggedIn(false);
+        setCategories([]);
         setLoading(false);
-      })
-      .catch((err) => {
-        setError("Failed to load categories");
-        setLoading(false);
-      });
-  }, []);
+      }
+    });
+  }, [refreshKey]);
 
   const paginated = categories.slice((currentPage - 1) * perPage, currentPage * perPage);
 
@@ -35,6 +47,9 @@ export default function Categories() {
 
   if (loading) {
     return <div className="p-8 text-center">Loading categories...</div>;
+  }
+  if (isLoggedIn === false) {
+    return <div className="p-8 text-center text-gray-500">Please log in to view categories.</div>;
   }
   if (error) {
     return <div className="p-8 text-center text-red-500">{error}</div>;

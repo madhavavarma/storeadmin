@@ -26,7 +26,7 @@ export default function App() {
             <main className="flex-1 bg-zinc-50 dark:bg-zinc-900 max-w-[100%]">
               <Routes>
                 <Route path="/orders" element={<Orders refreshKey={refreshKey} />} />
-                <Route path="/categories" element={<Categories categories={[]} />} />
+                <Route path="/categories" element={<Categories refreshKey={refreshKey} />} />
                 {/* Add more routes here as needed */}
               </Routes>
             </main>
