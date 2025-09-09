@@ -3,8 +3,10 @@ import { Provider } from 'react-redux'
 import { store } from './store/Store'
 import './App.css'
 
+
 import AppSidebar from './pages/Layout/AppSitebar'
 import Orders from './pages/Orders/Orders'
+import Categories from './pages/Categories/Categories'
 import Header from './components/Header'
 import { useState, useCallback } from 'react';
 
@@ -24,6 +26,7 @@ export default function App() {
             <main className="flex-1 bg-zinc-50 dark:bg-zinc-900 max-w-[100%]">
               <Routes>
                 <Route path="/orders" element={<Orders refreshKey={refreshKey} />} />
+                <Route path="/categories" element={<Categories categories={[]} />} />
                 {/* Add more routes here as needed */}
               </Routes>
             </main>
