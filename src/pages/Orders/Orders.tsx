@@ -296,39 +296,9 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
           </thead>
           <tbody>
             {getSortedOrders().map((order: OrderRow) => {
-  // Sorting logic
-  function handleSort(col: keyof OrderRow) {
-    if (sortCol === col) {
-      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortCol(col);
-      setSortDir('asc');
-    }
-  }
 
-  function getSortedOrders() {
-    if (!sortCol) return orders;
-    const sorted = [...orders].sort((a, b) => {
-      let aVal = a[sortCol];
-      let bVal = b[sortCol];
-      // Numeric sort for total
-      if (sortCol === 'total') {
-        aVal = parseFloat((aVal as string).replace(/[^\d.]/g, ''));
-        bVal = parseFloat((bVal as string).replace(/[^\d.]/g, ''));
-      }
-      // Date sort for createdAt
-      if (sortCol === 'createdAt') {
-        aVal = new Date(aVal as string).getTime();
-        bVal = new Date(bVal as string).getTime();
-      }
-      if (aVal === bVal) return 0;
-      if (aVal == null) return 1;
-      if (bVal == null) return -1;
-      if (aVal > bVal) return sortDir === 'asc' ? 1 : -1;
-      return sortDir === 'asc' ? -1 : 1;
-    });
-    return sorted;
-  }
+
+  
               const statusFlow = [
                 "Pending",
                 "Confirmed",
