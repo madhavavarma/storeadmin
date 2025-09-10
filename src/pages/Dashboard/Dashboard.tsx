@@ -204,7 +204,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
   return (
     <div className="p-6 space-y-8">
       {/* Top Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {/* Products Card */}
         <Card className="p-0 shadow-md border border-gray-100">
           <div className="flex items-center gap-4 p-4 pb-0">
