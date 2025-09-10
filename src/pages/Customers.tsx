@@ -217,11 +217,11 @@ export default function Customers({ refreshKey }: CustomersProps) {
   return (
     <div className="p-4 space-y-6">
       <h2 className="text-lg font-semibold mb-4">All Customers</h2>
-      <div className="bg-white shadow-sm rounded-xl p-4">
-        <div className="hidden md:block overflow-x-auto">
+      <div className="bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4">
+        <div className="hidden md:block bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-zinc-800 overflow-x-auto">
           <table className="w-full text-sm border-collapse">
             <thead>
-              <tr className="bg-green-50 text-left text-gray-600">
+              <tr className="bg-green-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
                 <th className="p-3 font-medium">User ID</th>
                 <th className="p-3 font-medium">First Order</th>
                 <th className="p-3 font-medium">Orders</th>
@@ -229,16 +229,20 @@ export default function Customers({ refreshKey }: CustomersProps) {
               </tr>
             </thead>
             <tbody>
-              {paginated.map((customer) => (
+              {paginated.map((customer, idx) => (
                 <tr
                   key={customer.userid}
-                  className="border-b hover:bg-green-50 cursor-pointer transition"
+                  className={`border-b hover:bg-green-50 dark:hover:bg-zinc-800 cursor-pointer transition ${
+                    idx % 2 === 0
+                      ? "bg-white dark:bg-zinc-900"
+                      : "bg-green-50 dark:bg-zinc-900"
+                  }`}
                   onClick={() => handleUserClick(customer)}
                 >
-                  <td className="p-3 font-medium text-gray-700">{customer.userid}</td>
-                  <td className="p-3">{new Date(customer.first_order).toLocaleDateString()}</td>
-                  <td className="p-3">{customer.orders}</td>
-                  <td className="p-3">₹{customer.total_spent.toLocaleString()}</td>
+                  <td className="p-3 font-medium text-gray-700 dark:text-green-200">{customer.userid}</td>
+                  <td className="p-3 text-gray-600 dark:text-gray-300">{new Date(customer.first_order).toLocaleDateString()}</td>
+                  <td className="p-3 text-gray-600 dark:text-gray-300">{customer.orders}</td>
+                  <td className="p-3 text-green-700 dark:text-green-300 font-bold">₹{customer.total_spent.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
