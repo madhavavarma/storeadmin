@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { LayoutDashboard, Settings, ShoppingCart, Package, Users, Tag } from "lucide-react"
+import { supabase } from "@/supabaseClient"
 
 
 export default function AppSidebar() {
@@ -8,17 +9,32 @@ export default function AppSidebar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
 
+  const [orderCount, setOrderCount] = useState<number | null>(null);
+  const [categoryCount, setCategoryCount] = useState<number | null>(null);
+  const [customerCount, setCustomerCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    const fetchCounts = () => {
+      supabase.from("orders").select("id", { count: "exact", head: true }).then(({ count }) => setOrderCount(count ?? 0));
+      supabase.from("categories").select("id", { count: "exact", head: true }).then(({ count }) => setCategoryCount(count ?? 0));
+      supabase.from("orders").select("userid", { count: "exact", head: false }).then(({ data }) => {
+        const unique = new Set((data || []).map((o: any) => o.userid));
+        setCustomerCount(unique.size);
+      });
+    };
+    fetchCounts();
+    interval = setInterval(fetchCounts, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
   const menuItems = [
-  // { title: "Admin Login", url: "/admin/login", icon: LogIn },
-  // { title: "Admin Management", url: "/admin/users", icon: UserCog },
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Orders", url: "/orders", icon: ShoppingCart },
-  { title: "Products", url: "/products", icon: Package },
-  { title: "Categories", url: "/categories", icon: Tag },
-  { title: "Customers", url: "/customers", icon: Users },
-  { title: "Settings", url: "/settings", icon: Settings },
-  // { title: "Content", url: "/content", icon: FileText },
-  // { title: "Reports & Analytics", url: "/reports", icon: BarChart2 },
+    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+    { title: "Orders", url: "/orders", icon: ShoppingCart, badge: orderCount },
+    { title: "Products", url: "/products", icon: Package },
+    { title: "Categories", url: "/categories", icon: Tag, badge: categoryCount },
+    { title: "Customers", url: "/customers", icon: Users, badge: customerCount },
+    { title: "Settings", url: "/settings", icon: Settings },
   ];
 
   // Sidebar content as a component for reuse
@@ -62,54 +78,46 @@ export default function AppSidebar() {
             const Icon = item.icon;
             // Determine active by matching the current path
             const active = location.pathname.startsWith(item.url);
-            // Example badge numbers (replace with real data as needed)
-              const badgeMap = {
-                Orders: 12,
-                Products: 8,
-                Categories: 4,
-                Customers: 27,
-              } as const;
-              const badge = badgeMap[item.title as keyof typeof badgeMap];
-              return (
-                <Link
-                  key={item.title}
-                  to={item.url}
-                  className={`relative flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium group transition-all
-                    ${collapsed ? "justify-center" : "hover:bg-gray-100 text-gray-700"}
-                    ${active ? "bg-green-50 text-green-600 font-semibold" : ""}
-                  `}
-                >
-                  <Icon
-                    className={`w-5 h-5 ${active ? "text-green-600" : "text-gray-500 group-hover:text-gray-700"}`}
-                  />
-                  {!collapsed && <span>{item.title}</span>}
-                  {/* Badge for specific menu items */}
-                  {!collapsed && badge !== undefined && (
-                    <span
-                      className="ml-auto min-w-[20px] px-2 py-0.5 text-[11px] font-semibold 
-                                bg-red-500 text-white rounded flex items-center justify-center 
-                                shadow-sm tracking-tight"
-                    >
-                      {badge}
-                    </span>
-                  )}
-                  {/* Tooltip for collapsed */}
-                  {collapsed && (
-                    <span
-                      className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded-md 
-                      opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10"
-                    >
-                      {item.title}
-                      {badge !== undefined && (
-                        <span className="ml-2 bg-red-500 text-white rounded-full px-2 font-semibold">
-                          {badge}
-                        </span>
-                      )}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
+            return (
+              <Link
+                key={item.title}
+                to={item.url}
+                className={`relative flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium group transition-all
+                  ${collapsed ? "justify-center" : "hover:bg-gray-100 text-gray-700"}
+                  ${active ? "bg-green-50 text-green-600 font-semibold" : ""}
+                `}
+              >
+                <Icon
+                  className={`w-5 h-5 ${active ? "text-green-600" : "text-gray-500 group-hover:text-gray-700"}`}
+                />
+                {!collapsed && <span>{item.title}</span>}
+                {/* Badge for specific menu items */}
+                {!collapsed && item.badge !== undefined && item.badge !== null && (
+                  <span
+                    className="ml-auto min-w-[20px] px-2 py-0.5 text-[11px] font-semibold 
+                              bg-red-500 text-white rounded flex items-center justify-center 
+                              shadow-sm tracking-tight"
+                  >
+                    {item.badge}
+                  </span>
+                )}
+                {/* Tooltip for collapsed */}
+                {collapsed && (
+                  <span
+                    className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded-md 
+                    opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10"
+                  >
+                    {item.title}
+                    {item.badge !== undefined && item.badge !== null && (
+                      <span className="ml-2 bg-red-500 text-white rounded-full px-2 font-semibold">
+                        {item.badge}
+                      </span>
+                    )}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
           </nav>
 
           {/* Bottom Profile */}
