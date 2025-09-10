@@ -13,11 +13,8 @@ export default function AppSidebar() {
   const [categoryCount, setCategoryCount] = useState<number | null>(null);
   const [customerCount, setCustomerCount] = useState<number | null>(null);
 
+  // Always load once on mount
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    let enabled = localStorage.getItem("liveUpdates");
-    enabled = enabled === null ? "true" : enabled;
-
     const fetchCounts = () => {
       supabase.from("orders").select("id", { count: "exact", head: true }).then(({ count }) => setOrderCount(count ?? 0));
       supabase.from("categories").select("id", { count: "exact", head: true }).then(({ count }) => setCategoryCount(count ?? 0));
@@ -26,27 +23,23 @@ export default function AppSidebar() {
         setCustomerCount(unique.size);
       });
     };
+    fetchCounts();
+  }, []);
 
-    // Helper to start/stop polling
-    const updatePolling = () => {
-      const live = localStorage.getItem("liveUpdates");
-      if (live === "false") {
-        if (interval) clearInterval(interval);
-        interval = null;
-        return;
-      }
-      if (!interval) {
-        fetchCounts();
-        interval = setInterval(fetchCounts, 10000);
-      }
+  // Only poll if liveUpdates is enabled
+  useEffect(() => {
+    const fetchCounts = () => {
+      supabase.from("orders").select("id", { count: "exact", head: true }).then(({ count }) => setOrderCount(count ?? 0));
+      supabase.from("categories").select("id", { count: "exact", head: true }).then(({ count }) => setCategoryCount(count ?? 0));
+      supabase.from("orders").select("userid", { count: "exact", head: false }).then(({ data }) => {
+        const unique = new Set((data || []).map((o: any) => o.userid));
+        setCustomerCount(unique.size);
+      });
     };
-
-    updatePolling();
-    window.addEventListener("liveUpdatesChanged", updatePolling);
-    return () => {
-      if (interval) clearInterval(interval);
-      window.removeEventListener("liveUpdatesChanged", updatePolling);
-    };
+    const live = localStorage.getItem("liveUpdates");
+    if (live === "false") return;
+    const interval = setInterval(fetchCounts, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const menuItems = [

@@ -126,10 +126,19 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
 
   // Open drawer if openOrderId is passed in location.state
 
-  // Only fetch on mount and refreshKey if liveUpdates enabled
+  // Always load once on mount
   useEffect(() => {
-    if (liveUpdates) fetchOrders();
-  }, [fetchOrders, refreshKey, liveUpdates]);
+    fetchOrders();
+  }, [fetchOrders]);
+
+  // Only poll if liveUpdates is enabled
+  useEffect(() => {
+    if (!liveUpdates) return;
+    const interval = setInterval(() => {
+      fetchOrders();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [liveUpdates, fetchOrders]);
 
   useEffect(() => {
     if (location.state && location.state.openOrderId && orders.length > 0) {
