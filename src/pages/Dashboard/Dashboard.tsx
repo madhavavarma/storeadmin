@@ -447,34 +447,30 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
 
         {/* Category List */}
   <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 min-h-full h-full">
-          <h2 className="text-lg font-semibold mb-4 text-amber-700 dark:text-amber-200">Categories</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-            {categoryStats.map((cat, idx) => (
-              <Card
-                key={cat.id}
-                className={`p-4 flex flex-col gap-2 border shadow-sm transition cursor-pointer ${
-                  idx % 2 === 0
-                    ? "border-amber-100 dark:border-zinc-800 bg-amber-50/60 dark:bg-zinc-900"
-                    : "border-amber-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
-                } hover:bg-amber-100 dark:hover:bg-amber-900`}
-              >
-                <div className="flex items-center gap-3">
-                  <img
-                    src={cat.image_url}
-                    alt={cat.name}
-                    className="h-10 w-10 object-contain rounded-md border"
-                  />
-                  <div>
-                    <div className="font-semibold text-gray-700 dark:text-amber-200">{cat.name}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-300 mt-1">
-                      {cat.productCount} products, {cat.orderCount} orders
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
+    <h2 className="text-lg font-semibold mb-4 text-amber-700 dark:text-amber-200">Categories</h2>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+      {categoryStats.map((cat) => (
+        <Card
+          key={cat.id}
+          className="p-4 flex flex-col gap-2 border border-amber-100 dark:border-zinc-800 bg-amber-50/60 dark:bg-zinc-900 shadow-sm transition cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900"
+        >
+          <div className="flex items-center gap-3">
+            <img
+              src={cat.image_url}
+              alt={cat.name}
+              className="h-10 w-10 object-contain rounded-md border"
+            />
+            <div>
+              <div className="font-semibold text-gray-700 dark:text-amber-200">{cat.name}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-300 mt-1">
+                {cat.productCount} products, {cat.orderCount} orders
+              </div>
+            </div>
           </div>
-        </div>
+        </Card>
+      ))}
+    </div>
+  </div>
       </div>
 
 
@@ -482,35 +478,31 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
       {/* Users and Their Order Count Table */}
   <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 flex flex-col justify-center">
-    <h2 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">
-      Users and Their Order Count
-    </h2>
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm border-collapse">
-        <thead>
-          <tr className="bg-gray-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
-            <th className="p-3 font-medium">User</th>
-            <th className="p-3 font-medium">Order Count</th>
-          </tr>
-        </thead>
-        <tbody>
-          {userOrderList.map((user, idx) => (
-            <tr
-              key={user.name}
-              className={`transition cursor-pointer ${
-                idx % 2 === 0
-                  ? "bg-gray-50 dark:bg-zinc-900"
-                  : "bg-white dark:bg-zinc-800"
-              } hover:bg-green-50 dark:hover:bg-green-900 group`}
-            >
-              <td className="p-3 font-semibold text-gray-800 dark:text-green-200 group-hover:text-green-700 dark:group-hover:text-green-300">{user.name}</td>
-              <td className="p-3 text-green-700 dark:text-green-300 font-bold">{user.count}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
+          <h2 className="text-lg font-semibold mb-4 text-gray-700">
+            Users and Their Order Count
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-blue-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
+                  <th className="p-3 font-medium">User</th>
+                  <th className="p-3 font-medium">Order Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                {userOrderList.map((user) => (
+                  <tr
+                    key={user.name}
+                    className="border-b hover:bg-blue-50 dark:hover:bg-zinc-800 transition"
+                  >
+                    <td className="p-3">{user.name}</td>
+                    <td className="p-3">{user.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
        </div>
 
     </div>
