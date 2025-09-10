@@ -281,12 +281,12 @@ export default function Settings() {
                     {navType.toUpperCase()}
                   </h4>
                   {(settings?.branding?.nav?.[navType] || []).map(
-                    (item, idx) => (
+                    (item: any, idx: number) => (
                       <div
                         key={idx}
                         className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2"
                       >
-                        {["title", "href", "description"].map((field) => (
+                        {(["title", "href", "description"] as const).map((field) => (
                           <Input
                             key={field}
                             value={item[field] || ""}
