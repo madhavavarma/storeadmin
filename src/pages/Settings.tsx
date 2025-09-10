@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,6 +14,9 @@ import type { IAppSettings } from "@/interfaces/IAppSettings";
 
 export default function Settings() {
   const [settings, setSettings] = useState<IAppSettings | null>(null);
+  const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string>("");
+  const prevLogoUrl = useRef<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
@@ -28,6 +31,8 @@ export default function Settings() {
         getAppSettings()
           .then((data: IAppSettings) => {
             setSettings(data || {});
+            prevLogoUrl.current = data?.logoUrl;
+            setLogoPreview(data?.logoUrl || "");
             setLoading(false);
           })
           .catch(() => {
@@ -49,11 +54,7 @@ export default function Settings() {
     if (!settings) return;
     const { name, value, dataset } = e.target;
 
-    // Logo
-    if (name === "logoUrl") {
-      setSettings({ ...settings, logoUrl: value });
-      return;
-    }
+  // Logo (file input handled separately)
 
     // Branding
     if (dataset.section === "branding") {
@@ -121,10 +122,36 @@ export default function Settings() {
     setSaving(true);
     setSuccess(false);
     setError(null);
+    let newLogoUrl = settings.logoUrl;
+    let oldLogoUrl = prevLogoUrl.current;
     try {
-      const { error } = await supabase.from("branding").insert([{ data: settings }]);
+      // If a new logo is selected, upload it
+      if (selectedLogo) {
+        // Remove old logo from storage if present
+        if (oldLogoUrl) {
+          const splitStr = '/object/public/storeadmin/';
+          const idx = oldLogoUrl.indexOf(splitStr);
+          let path = '';
+          if (idx !== -1) {
+            path = oldLogoUrl.substring(idx + splitStr.length);
+            await supabase.storage.from('storeadmin').remove([path]);
+          }
+        }
+        const fileExt = selectedLogo.name.split('.').pop();
+        const fileName = `logo-${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage.from('storeadmin').upload(fileName, selectedLogo, { upsert: false });
+        if (uploadError) throw uploadError;
+        const { data } = supabase.storage.from('storeadmin').getPublicUrl(fileName);
+        newLogoUrl = data.publicUrl;
+      }
+      // Save settings with new logoUrl
+      const { error } = await supabase.from("branding").insert([{ data: { ...settings, logoUrl: newLogoUrl } }]);
       if (error) throw error;
       setSuccess(true);
+      setSelectedLogo(null);
+      setLogoPreview(newLogoUrl || "");
+      prevLogoUrl.current = newLogoUrl;
+      setSettings((s) => s ? { ...s, logoUrl: newLogoUrl } : s);
     } catch (err: any) {
       setError(err.message || "Failed to save settings");
     } finally {
@@ -167,13 +194,36 @@ export default function Settings() {
               Logo
             </AccordionTrigger>
             <AccordionContent className="p-4 space-y-2">
-              <Input
-                name="logoUrl"
-                value={settings?.logoUrl || ""}
-                onChange={handleChange}
-                placeholder="Logo URL"
-                disabled={!settings}
-              />
+              <div className="flex flex-col gap-2">
+                {logoPreview && (
+                  <img src={logoPreview} alt="Logo Preview" className="h-20 w-20 object-contain border rounded-md mb-2" />
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setSelectedLogo(file);
+                      setLogoPreview(URL.createObjectURL(file));
+                    }
+                  }}
+                  className="block"
+                  disabled={saving}
+                />
+                {selectedLogo && (
+                  <span className="text-xs text-gray-700">{selectedLogo.name}</span>
+                )}
+                {!selectedLogo && settings?.logoUrl && (
+                  <Input
+                    name="logoUrl"
+                    value={settings.logoUrl}
+                    onChange={handleChange}
+                    placeholder="Logo URL"
+                    disabled
+                  />
+                )}
+              </div>
             </AccordionContent>
           </AccordionItem>
 
