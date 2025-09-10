@@ -78,6 +78,7 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
         dispatch(setUser({ name: data.user.email || "User" }));
       }
     });
+    window.dispatchEvent(new Event("refreshSidebarCounts"));
     if (onAuthSuccess) onAuthSuccess();
   };
 
@@ -88,6 +89,7 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
     // Clear orders in OrdersSlice
     const event = new CustomEvent('clearOrders');
     window.dispatchEvent(event);
+    window.dispatchEvent(new Event("refreshSidebarCounts"));
   };
 
   return (

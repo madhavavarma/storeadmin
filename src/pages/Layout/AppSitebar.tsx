@@ -4,7 +4,25 @@ import { LayoutDashboard, Settings, ShoppingCart, Package, Users, Tag } from "lu
 import { supabase } from "@/supabaseClient"
 
 
-export default function AppSidebar() {
+export default function AppSidebar({ refreshKey }: { refreshKey?: number }) {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  // Check auth on mount and on login/logout
+  useEffect(() => {
+    const checkAuth = async () => {
+      const user = await supabase.auth.getUser();
+      setIsLoggedIn(!!user?.data?.user);
+    };
+    checkAuth();
+    // Listen for signout event to clear counts
+    const clear = () => {
+      setOrderCount(null);
+      setCategoryCount(null);
+      setCustomerCount(null);
+      setIsLoggedIn(false);
+    };
+    window.addEventListener("clearOrders", clear);
+    return () => window.removeEventListener("clearOrders", clear);
+  }, [refreshKey]);
   const [collapsed, setCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
@@ -24,52 +42,59 @@ export default function AppSidebar() {
       setDateRange(stored ? JSON.parse(stored) : { label: "Today", value: "today", start: null, end: null });
     };
     window.addEventListener("dateRangeChanged", dateHandler);
-    return () => window.removeEventListener("dateRangeChanged", dateHandler);
+    // Listen for refreshSidebarCounts event to re-fetch counts after login
+    const refresh = () => fetchCounts();
+    window.addEventListener("refreshSidebarCounts", refresh);
+    return () => {
+      window.removeEventListener("dateRangeChanged", dateHandler);
+      window.removeEventListener("refreshSidebarCounts", refresh);
+    };
   }, []);
 
   // Always load once on mount and on dateRange change
-  useEffect(() => {
-    const fetchCounts = () => {
-      // Date filtering logic
-      let from = null, to = null;
-      const now = new Date();
-      if (dateRange.value === "today") {
-        from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-      } else if (dateRange.value === "week") {
-        const day = now.getDay();
-        from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day);
-        to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-      } else if (dateRange.value === "month") {
-        from = new Date(now.getFullYear(), now.getMonth(), 1);
-        to = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-      } else if (dateRange.value === "year") {
-        from = new Date(now.getFullYear(), 0, 1);
-        to = new Date(now.getFullYear() + 1, 0, 1);
-      } else if (dateRange.value === "custom" && dateRange.start && dateRange.end) {
-        from = new Date(dateRange.start);
-        to = new Date(dateRange.end);
-        to.setDate(to.getDate() + 1); // include end date
+  const fetchCounts = () => {
+    // Date filtering logic
+    let from = null, to = null;
+    const now = new Date();
+    if (dateRange.value === "today") {
+      from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    } else if (dateRange.value === "week") {
+      const day = now.getDay();
+      from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day);
+      to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    } else if (dateRange.value === "month") {
+      from = new Date(now.getFullYear(), now.getMonth(), 1);
+      to = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    } else if (dateRange.value === "year") {
+      from = new Date(now.getFullYear(), 0, 1);
+      to = new Date(now.getFullYear() + 1, 0, 1);
+    } else if (dateRange.value === "custom" && dateRange.start && dateRange.end) {
+      from = new Date(dateRange.start);
+      to = new Date(dateRange.end);
+      to.setDate(to.getDate() + 1); // include end date
+    }
+    // Orders count
+    supabase.from("orders").select("id,created_at,userid", { count: "exact", head: false }).then(({ data }) => {
+      let filtered = data || [];
+      if (from && to) {
+        filtered = filtered.filter((order: any) => {
+          const created = new Date(order.created_at);
+          return created >= from && created < to;
+        });
       }
-      // Orders count
-      supabase.from("orders").select("id,created_at,userid", { count: "exact", head: false }).then(({ data }) => {
-        let filtered = data || [];
-        if (from && to) {
-          filtered = filtered.filter((order: any) => {
-            const created = new Date(order.created_at);
-            return created >= from && created < to;
-          });
-        }
-        setOrderCount(filtered.length);
-        // Unique customers
-        const unique = new Set(filtered.map((o: any) => o.userid));
-        setCustomerCount(unique.size);
-      });
-      // Categories count (not date filtered)
-      supabase.from("categories").select("id", { count: "exact", head: true }).then(({ count }) => setCategoryCount(count ?? 0));
-    };
+      setOrderCount(filtered.length);
+      // Unique customers
+      const unique = new Set(filtered.map((o: any) => o.userid));
+      setCustomerCount(unique.size);
+    });
+    // Categories count (not date filtered)
+    supabase.from("categories").select("id", { count: "exact", head: true }).then(({ count }) => setCategoryCount(count ?? 0));
+  };
+
+  useEffect(() => {
     fetchCounts();
-  }, [dateRange]);
+  }, [dateRange, isLoggedIn]);
 
   // Only poll if liveUpdates is enabled
   useEffect(() => {
@@ -89,10 +114,10 @@ export default function AppSidebar() {
 
   const menuItems = [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-    { title: "Orders", url: "/orders", icon: ShoppingCart, badge: orderCount },
+    { title: "Orders", url: "/orders", icon: ShoppingCart, badge: isLoggedIn ? orderCount : null },
     { title: "Products", url: "/products", icon: Package },
-    { title: "Categories", url: "/categories", icon: Tag, badge: categoryCount },
-    { title: "Customers", url: "/customers", icon: Users, badge: customerCount },
+    { title: "Categories", url: "/categories", icon: Tag, badge: isLoggedIn ? categoryCount : null },
+    { title: "Customers", url: "/customers", icon: Users, badge: isLoggedIn ? customerCount : null },
     { title: "Settings", url: "/settings", icon: Settings },
   ];
 

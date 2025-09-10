@@ -23,7 +23,7 @@ export default function App() {
     <Provider store={store}>
   <HashRouter>
         <div className="flex min-h-screen">
-          <AppSidebar />
+          <AppSidebar refreshKey={refreshKey} />
           <div className="flex-1 flex flex-col">
             <Header onAuthSuccess={handleAuthSuccess} />
             <main className="flex-1 bg-zinc-50 dark:bg-zinc-900 max-w-[100%]">
