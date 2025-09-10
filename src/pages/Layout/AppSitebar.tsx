@@ -13,18 +13,63 @@ export default function AppSidebar() {
   const [categoryCount, setCategoryCount] = useState<number | null>(null);
   const [customerCount, setCustomerCount] = useState<number | null>(null);
 
-  // Always load once on mount
+  // Date range state
+  const [dateRange, setDateRange] = useState(() => {
+    const stored = localStorage.getItem("dateRange");
+    return stored ? JSON.parse(stored) : { label: "Today", value: "today", start: null, end: null };
+  });
+  useEffect(() => {
+    const dateHandler = () => {
+      const stored = localStorage.getItem("dateRange");
+      setDateRange(stored ? JSON.parse(stored) : { label: "Today", value: "today", start: null, end: null });
+    };
+    window.addEventListener("dateRangeChanged", dateHandler);
+    return () => window.removeEventListener("dateRangeChanged", dateHandler);
+  }, []);
+
+  // Always load once on mount and on dateRange change
   useEffect(() => {
     const fetchCounts = () => {
-      supabase.from("orders").select("id", { count: "exact", head: true }).then(({ count }) => setOrderCount(count ?? 0));
-      supabase.from("categories").select("id", { count: "exact", head: true }).then(({ count }) => setCategoryCount(count ?? 0));
-      supabase.from("orders").select("userid", { count: "exact", head: false }).then(({ data }) => {
-        const unique = new Set((data || []).map((o: any) => o.userid));
+      // Date filtering logic
+      let from = null, to = null;
+      const now = new Date();
+      if (dateRange.value === "today") {
+        from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      } else if (dateRange.value === "week") {
+        const day = now.getDay();
+        from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day);
+        to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      } else if (dateRange.value === "month") {
+        from = new Date(now.getFullYear(), now.getMonth(), 1);
+        to = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      } else if (dateRange.value === "year") {
+        from = new Date(now.getFullYear(), 0, 1);
+        to = new Date(now.getFullYear() + 1, 0, 1);
+      } else if (dateRange.value === "custom" && dateRange.start && dateRange.end) {
+        from = new Date(dateRange.start);
+        to = new Date(dateRange.end);
+        to.setDate(to.getDate() + 1); // include end date
+      }
+      // Orders count
+      supabase.from("orders").select("id,created_at,userid", { count: "exact", head: false }).then(({ data }) => {
+        let filtered = data || [];
+        if (from && to) {
+          filtered = filtered.filter((order: any) => {
+            const created = new Date(order.created_at);
+            return created >= from && created < to;
+          });
+        }
+        setOrderCount(filtered.length);
+        // Unique customers
+        const unique = new Set(filtered.map((o: any) => o.userid));
         setCustomerCount(unique.size);
       });
+      // Categories count (not date filtered)
+      supabase.from("categories").select("id", { count: "exact", head: true }).then(({ count }) => setCategoryCount(count ?? 0));
     };
     fetchCounts();
-  }, []);
+  }, [dateRange]);
 
   // Only poll if liveUpdates is enabled
   useEffect(() => {

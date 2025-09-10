@@ -24,6 +24,20 @@ export default function Dashboard() {
   // const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Date range state
+  const [dateRange, setDateRange] = useState(() => {
+    const stored = localStorage.getItem("dateRange");
+    return stored ? JSON.parse(stored) : { label: "Today", value: "today", start: null, end: null };
+  });
+  useEffect(() => {
+    const dateHandler = () => {
+      const stored = localStorage.getItem("dateRange");
+      setDateRange(stored ? JSON.parse(stored) : { label: "Today", value: "today", start: null, end: null });
+    };
+    window.addEventListener("dateRangeChanged", dateHandler);
+    return () => window.removeEventListener("dateRangeChanged", dateHandler);
+  }, []);
+
   useEffect(() => {
     async function fetchData() {
       const [cat, prod, ord] = await Promise.all([
@@ -36,79 +50,80 @@ export default function Dashboard() {
       setOrders(ord || []);
     }
     fetchData();
-  }, []);
+  }, [dateRange]);
 
   // Date helpers
-  function getLastWeekRange() {
-    const now = new Date();
-    const end = new Date(now);
-    end.setDate(now.getDate() - now.getDay()); // last Sunday
-    const start = new Date(end);
-    start.setDate(end.getDate() - 7); // previous Sunday
-    return [start];
+
+
+
+
+  // Date filtering logic
+  let from = null, to = null;
+  const now = new Date();
+  if (dateRange.value === "today") {
+    from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  } else if (dateRange.value === "week") {
+    const day = now.getDay();
+    from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day);
+    to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  } else if (dateRange.value === "month") {
+    from = new Date(now.getFullYear(), now.getMonth(), 1);
+    to = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  } else if (dateRange.value === "year") {
+    from = new Date(now.getFullYear(), 0, 1);
+    to = new Date(now.getFullYear() + 1, 0, 1);
+  } else if (dateRange.value === "custom" && dateRange.start && dateRange.end) {
+    from = new Date(dateRange.start);
+    to = new Date(dateRange.end);
+    to.setDate(to.getDate() + 1); // include end date
   }
 
-  function inLastWeek(dateStr: string | undefined): boolean {
-    if (!dateStr) return false;
-    const [start] = getLastWeekRange();
-    const d = new Date(dateStr);
-    // Calculate end as start + 7 days
-    const end = new Date(start);
-    end.setDate(start.getDate() + 7);
-    return d >= start && d < end;
-  }
+  // Filtered data
+  const filteredOrders = from && to ? orders.filter((o) => {
+    const created = new Date(o.created_at);
+    return created >= from && created < to;
+  }) : orders;
+  const filteredProducts = from && to && products.length > 0 && "created_at" in products[0]
+    ? (products as any[]).filter((p) => {
+        const created = new Date(p.created_at);
+        return created >= from && created < to;
+      })
+    : products;
+  const filteredCategories = from && to && categories.length > 0 && "created_at" in categories[0]
+    ? (categories as any[]).filter((c) => {
+        const created = new Date(c.created_at);
+        return created >= from && created < to;
+      })
+    : categories;
 
   // Compute counts
-  const totalProducts = products.length;
-  const totalCategories = categories.length;
-  const totalOrders = orders.length;
-  const totalRevenue = orders.reduce(
+  const totalProducts = filteredProducts.length;
+  const totalCategories = filteredCategories.length;
+  const totalOrders = filteredOrders.length;
+  const totalRevenue = filteredOrders.reduce(
     (sum, o) => sum + (o.totalprice || 0),
     0
   );
 
   // Last week values
-  const lastWeekOrders = orders.filter((o) => inLastWeek(o.created_at));
-  const lastWeekProducts =
-    products.length > 0 && "created_at" in products[0]
-      ? (products as any[]).filter((p) => inLastWeek(p.created_at)).length
-      : 0;
-  const lastWeekCategories =
-    categories.length > 0 && "created_at" in categories[0]
-      ? (categories as any[]).filter((c) => inLastWeek(c.created_at)).length
-      : 0;
-  const lastWeekRevenue = lastWeekOrders.reduce(
+  // Last week values (filtered by date range, not last week)
+  const lastWeekOrders = filteredOrders;
+  const lastWeekProducts = filteredProducts.length;
+  const lastWeekCategories = filteredCategories.length;
+  const lastWeekRevenue = filteredOrders.reduce(
     (sum, o) => sum + (o.totalprice || 0),
     0
   );
 
   // Previous week values
-  function getPrevWeekRange() {
-    const [start] = getLastWeekRange();
-    const prevEnd = new Date(start);
-    const prevStart = new Date(start);
-    prevStart.setDate(prevEnd.getDate() - 7);
-    return [prevStart, prevEnd];
-  }
-  function inPrevWeek(dateStr: string | undefined): boolean {
-    if (!dateStr) return false;
-    const [start, end] = getPrevWeekRange();
-    const d = new Date(dateStr);
-    return d >= start && d < end;
-  }
-  const prevWeekOrders = orders.filter((o) => inPrevWeek(o.created_at));
-  const prevWeekProducts =
-    products.length > 0 && "created_at" in products[0]
-      ? (products as any[]).filter((p) => inPrevWeek(p.created_at)).length
-      : 0;
-  const prevWeekCategories =
-    categories.length > 0 && "created_at" in categories[0]
-      ? (categories as any[]).filter((c) => inPrevWeek(c.created_at)).length
-      : 0;
-  const prevWeekRevenue = prevWeekOrders.reduce(
-    (sum, o) => sum + (o.totalprice || 0),
-    0
-  );
+
+
+  // Previous week values (not used with global date range)
+  const prevWeekOrders = [];
+  const prevWeekProducts = 0;
+  const prevWeekCategories = 0;
+  const prevWeekRevenue = 0;
 
   function percentChange(current: number, prev: number): number {
     if (prev === 0) return current === 0 ? 0 : 100;
@@ -126,22 +141,22 @@ export default function Dashboard() {
   const revenueChange = percentChange(lastWeekRevenue, prevWeekRevenue);
 
   // Category stats
-  const categoryStats = categories.map((cat) => {
-    const productCount = products.filter((p) => p.category === cat.name).length;
-    const orderCount = orders.filter((order) =>
+  const categoryStats = filteredCategories.map((cat) => {
+    const productCount = filteredProducts.filter((p) => p.category === cat.name).length;
+    const orderCount = filteredOrders.filter((order) =>
       order.cartitems.some((item) => item.product.category === cat.name)
     ).length;
     return { ...cat, productCount, orderCount };
   });
 
   // Recent orders (sorted by created_at desc)
-  const recentOrders = [...orders]
+  const recentOrders = [...filteredOrders]
     .sort((a, b) => (b.created_at > a.created_at ? 1 : -1))
     .slice(0, 5);
 
   // Chart data (orders per day)
   const ordersByDay: { [date: string]: number } = {};
-  orders.forEach((order) => {
+  filteredOrders.forEach((order) => {
     const date = order.created_at?.slice(0, 10);
     if (date) ordersByDay[date] = (ordersByDay[date] || 0) + 1;
   });
@@ -155,7 +170,7 @@ export default function Dashboard() {
 
   // Compute user order counts
   const userOrderMap: Record<string, { name: string; count: number }> = {};
-  orders.forEach((order) => {
+  filteredOrders.forEach((order) => {
     const name = order.checkoutdata?.phone || order.id || "Unknown";
     if (!userOrderMap[name]) {
       userOrderMap[name] = { name, count: 0 };

@@ -72,13 +72,26 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
     const stored = localStorage.getItem("liveUpdates");
     return stored === null ? true : stored === "true";
   });
+  // Date range state
+  const [dateRange, setDateRange] = useState(() => {
+    const stored = localStorage.getItem("dateRange");
+    return stored ? JSON.parse(stored) : { label: "Today", value: "today", start: null, end: null };
+  });
   useEffect(() => {
-    const handler = () => {
+    const liveHandler = () => {
       const stored = localStorage.getItem("liveUpdates");
       setLiveUpdates(stored === null ? true : stored === "true");
     };
-    window.addEventListener("liveUpdatesChanged", handler);
-    return () => window.removeEventListener("liveUpdatesChanged", handler);
+    const dateHandler = () => {
+      const stored = localStorage.getItem("dateRange");
+      setDateRange(stored ? JSON.parse(stored) : { label: "Today", value: "today", start: null, end: null });
+    };
+    window.addEventListener("liveUpdatesChanged", liveHandler);
+    window.addEventListener("dateRangeChanged", dateHandler);
+    return () => {
+      window.removeEventListener("liveUpdatesChanged", liveHandler);
+      window.removeEventListener("dateRangeChanged", dateHandler);
+    };
   }, []);
 
   // Clear orders on signout
@@ -93,10 +106,38 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
     supabase.auth.getUser().then(({ data }) => {
       if (data?.user) {
         setIsLoggedIn(true);
+        // Date filtering logic
+        let from = null, to = null;
+        const now = new Date();
+        if (dateRange.value === "today") {
+          from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        } else if (dateRange.value === "week") {
+          const day = now.getDay();
+          from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day);
+          to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        } else if (dateRange.value === "month") {
+          from = new Date(now.getFullYear(), now.getMonth(), 1);
+          to = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        } else if (dateRange.value === "year") {
+          from = new Date(now.getFullYear(), 0, 1);
+          to = new Date(now.getFullYear() + 1, 0, 1);
+        } else if (dateRange.value === "custom" && dateRange.start && dateRange.end) {
+          from = new Date(dateRange.start);
+          to = new Date(dateRange.end);
+          to.setDate(to.getDate() + 1); // include end date
+        }
         getOrders().then((ordersData) => {
           if (ordersData) {
+            let filtered = ordersData;
+            if (from && to) {
+              filtered = ordersData.filter((order: any) => {
+                const created = new Date(order.created_at || order.createdAt);
+                return created >= from && created < to;
+              });
+            }
             setOrders(
-              ordersData.map((order: any) => ({
+              filtered.map((order: any) => ({
                 id: order.id,
                 createdAt: order.created_at || order.createdAt || "",
                 customer:
@@ -104,7 +145,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
                   order.checkoutdata?.name ||
                   order.checkoutdata?.phone ||
                   "Unknown",
-                total: order.totalprice ? `₹${order.totalprice}` : "",
+                total: order.totalprice ? `\u20b9${order.totalprice}` : "",
                 paymentStatus: order.paymentStatus || order.checkoutdata?.paymentStatus || "Unpaid",
                 items: order.cartitems ? order.cartitems.length : order.items || 0,
                 deliveryNumber: order.deliveryNumber,
@@ -121,7 +162,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
         setLoading(false);
       }
     });
-  }, []);
+  }, [dateRange]);
 
 
   // Open drawer if openOrderId is passed in location.state

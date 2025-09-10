@@ -38,16 +38,29 @@ export default function Customers() {
     const stored = localStorage.getItem("liveUpdates");
     return stored === null ? true : stored === "true";
   });
+  // Date range state
+  const [dateRange, setDateRange] = useState(() => {
+    const stored = localStorage.getItem("dateRange");
+    return stored ? JSON.parse(stored) : { label: "Today", value: "today", start: null, end: null };
+  });
   useEffect(() => {
-    const handler = () => {
+    const liveHandler = () => {
       const stored = localStorage.getItem("liveUpdates");
       setLiveUpdates(stored === null ? true : stored === "true");
     };
-    window.addEventListener("liveUpdatesChanged", handler);
-    return () => window.removeEventListener("liveUpdatesChanged", handler);
+    const dateHandler = () => {
+      const stored = localStorage.getItem("dateRange");
+      setDateRange(stored ? JSON.parse(stored) : { label: "Today", value: "today", start: null, end: null });
+    };
+    window.addEventListener("liveUpdatesChanged", liveHandler);
+    window.addEventListener("dateRangeChanged", dateHandler);
+    return () => {
+      window.removeEventListener("liveUpdatesChanged", liveHandler);
+      window.removeEventListener("dateRangeChanged", dateHandler);
+    };
   }, []);
 
-  // Always load once on mount
+  // Always load once on mount and on dateRange change
   useEffect(() => {
     setLoading(true);
     supabase.auth.getUser().then(async ({ data }) => {
@@ -61,8 +74,34 @@ export default function Customers() {
           setLoading(false);
           return;
         }
+        // Date filtering logic
+        let from = null, to = null;
+        const now = new Date();
+        if (dateRange.value === "today") {
+          from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        } else if (dateRange.value === "week") {
+          const day = now.getDay();
+          from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day);
+          to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        } else if (dateRange.value === "month") {
+          from = new Date(now.getFullYear(), now.getMonth(), 1);
+          to = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        } else if (dateRange.value === "year") {
+          from = new Date(now.getFullYear(), 0, 1);
+          to = new Date(now.getFullYear() + 1, 0, 1);
+        } else if (dateRange.value === "custom" && dateRange.start && dateRange.end) {
+          from = new Date(dateRange.start);
+          to = new Date(dateRange.end);
+          to.setDate(to.getDate() + 1); // include end date
+        }
+        const filteredOrders = (ordersData || []).filter((order: any) => {
+          if (!from || !to) return true;
+          const created = new Date(order.created_at);
+          return created >= from && created < to;
+        });
         const customerMap: { [userid: string]: Customer } = {};
-        (ordersData || []).forEach((order: any) => {
+        filteredOrders.forEach((order: any) => {
           if (!customerMap[order.userid]) {
             customerMap[order.userid] = {
               userid: order.userid,
@@ -86,7 +125,7 @@ export default function Customers() {
         setLoading(false);
       }
     });
-  }, []);
+  }, [dateRange]);
 
   // Only poll if liveUpdates is enabled
   useEffect(() => {
