@@ -161,40 +161,6 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
     if (status) orderStatusCounts[status] = (orderStatusCounts[status] || 0) + 1;
   });
 
-  // Last week values
-  // Last week values (filtered by date range, not last week)
-  const lastWeekOrders = filteredOrders;
-  const lastWeekProducts = filteredProducts.length;
-  const lastWeekCategories = filteredCategories.length;
-  const lastWeekRevenue = filteredOrders.reduce(
-    (sum, o) => sum + (o.totalprice || 0),
-    0
-  );
-
-  // Previous week values
-
-
-  // Previous week values (not used with global date range)
-  const prevWeekOrders = [];
-  const prevWeekProducts = 0;
-  const prevWeekCategories = 0;
-  const prevWeekRevenue = 0;
-
-  function percentChange(current: number, prev: number): number {
-    if (prev === 0) return current === 0 ? 0 : 100;
-    return ((current - prev) / prev) * 100;
-  }
-  const ordersChange = percentChange(
-    lastWeekOrders.length,
-    prevWeekOrders.length
-  );
-  const productsChange = percentChange(lastWeekProducts, prevWeekProducts);
-  const categoriesChange = percentChange(
-    lastWeekCategories,
-    prevWeekCategories
-  );
-  const revenueChange = percentChange(lastWeekRevenue, prevWeekRevenue);
-
   // Category stats
   const categoryStats = filteredCategories.map((cat) => {
     const productCount = filteredProducts.filter((p) => p.category === cat.name).length;

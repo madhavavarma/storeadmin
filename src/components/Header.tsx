@@ -1,6 +1,6 @@
 
 
-import { Sun, Moon, User, Bell, LogOut, RefreshCcw, CalendarDays } from "lucide-react";
+import { Sun, Moon, User, ShoppingCart, Bell, LogOut, RefreshCcw, CalendarDays } from "lucide-react";
 
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/store/Store";
