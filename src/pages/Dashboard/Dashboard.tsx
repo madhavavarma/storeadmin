@@ -119,12 +119,47 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
 
   // Compute counts
   const totalProducts = filteredProducts.length;
+  const activeProducts = filteredProducts.filter(p => p.ispublished !== false).length;
+  const inactiveProducts = filteredProducts.filter(p => p.ispublished === false).length;
   const totalCategories = filteredCategories.length;
+  const activeCategories = filteredCategories.filter(c => c.is_published !== false).length;
+  const inactiveCategories = filteredCategories.filter(c => c.is_published === false).length;
   const totalOrders = filteredOrders.length;
   const totalRevenue = filteredOrders.reduce(
     (sum, o) => sum + (o.totalprice || 0),
     0
   );
+  // Calculate previous period for revenue comparison
+  let prevFrom = null, prevTo = null, prevLabel = "Prev Range";
+  if (from && to) {
+    const diff = to.getTime() - from.getTime();
+    prevFrom = new Date(from.getTime() - diff);
+    prevTo = new Date(from.getTime());
+    // Label for previous period
+    if (dateRange.value === "today") prevLabel = "Prev Day";
+    else if (dateRange.value === "week") prevLabel = "Prev Week";
+    else if (dateRange.value === "month") prevLabel = "Prev Month";
+    else if (dateRange.value === "year") prevLabel = "Prev Year";
+  }
+  const prevPeriodOrders = prevFrom && prevTo
+    ? orders.filter((o) => {
+        const created = new Date(o.created_at);
+        return created >= prevFrom && created < prevTo;
+      })
+    : [];
+  const prevPeriodRevenue = prevPeriodOrders.reduce(
+    (sum, o) => sum + (o.totalprice || 0),
+    0
+  );
+  const revenuePercentChange = prevPeriodRevenue === 0
+    ? (totalRevenue === 0 ? 0 : 100)
+    : ((totalRevenue - prevPeriodRevenue) / prevPeriodRevenue) * 100;
+  // Order status counts (first letter, count)
+  const orderStatusCounts: Record<string, number> = {};
+  filteredOrders.forEach(o => {
+    const status = (o.status || '').toString().charAt(0).toUpperCase();
+    if (status) orderStatusCounts[status] = (orderStatusCounts[status] || 0) + 1;
+  });
 
   // Last week values
   // Last week values (filtered by date range, not last week)
@@ -207,7 +242,10 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {/* Products Card */}
         {/* Products Card */}
-        <Card className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300">
+        <Card
+          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-green-200 dark:hover:ring-green-800"
+          onClick={() => navigate("/products")}
+        >
           <div className="flex items-center gap-4 p-4 pb-0">
             <div className="bg-green-100 dark:bg-green-800 rounded-xl p-3 flex items-center justify-center">
               📦
@@ -221,30 +259,17 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
               </div>
             </div>
           </div>
-          <div
-            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-green-50 dark:hover:bg-green-900 transition"
-            onClick={() => navigate("/products")}
-          >
-            <span
-              className={
-                productsChange >= 0
-                  ? "text-green-600 font-semibold flex items-center gap-1"
-                  : "text-red-600 font-semibold flex items-center gap-1"
-              }
-            >
-              {productsChange >= 0 ? "▲" : "▼"} {Math.abs(productsChange).toFixed(1)}%
-            </span>
-            <span className="text-gray-500 dark:text-gray-300">
-              Last Week: {lastWeekProducts.toLocaleString()}
-            </span>
-            <span className="text-green-700 dark:text-green-300 font-medium hover:underline ml-auto">
-              View More
-            </span>
+          <div className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl">
+            <span className="text-green-700 dark:text-green-300 font-semibold">Active: {activeProducts}</span>
+            <span className="text-gray-400 font-semibold">Inactive: {inactiveProducts}</span>
           </div>
         </Card>
 
         {/* Categories Card */}
-        <Card className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300">
+        <Card
+          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-amber-200 dark:hover:ring-amber-800"
+          onClick={() => navigate("/categories")}
+        >
           <div className="flex items-center gap-4 p-4 pb-0">
             <div className="bg-amber-100 dark:bg-amber-800 rounded-xl p-3 flex items-center justify-center">
               📂
@@ -258,30 +283,17 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
               </div>
             </div>
           </div>
-          <div
-            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900 transition"
-            onClick={() => navigate("/categories")}
-          >
-            <span
-              className={
-                categoriesChange >= 0
-                  ? "text-green-600 font-semibold flex items-center gap-1"
-                  : "text-red-600 font-semibold flex items-center gap-1"
-              }
-            >
-              {categoriesChange >= 0 ? "▲" : "▼"} {Math.abs(categoriesChange).toFixed(1)}%
-            </span>
-            <span className="text-gray-500 dark:text-gray-300">
-              Last Week: {lastWeekCategories.toLocaleString()}
-            </span>
-            <span className="text-amber-700 dark:text-amber-200 font-medium hover:underline ml-auto">
-              View More
-            </span>
+          <div className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl">
+            <span className="text-green-700 dark:text-green-300 font-semibold">Active: {activeCategories}</span>
+            <span className="text-gray-400 font-semibold">Inactive: {inactiveCategories}</span>
           </div>
         </Card>
 
         {/* Orders Card */}
-        <Card className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300">
+        <Card
+          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-orange-200 dark:hover:ring-orange-800"
+          onClick={() => navigate("/orders")}
+        >
           <div className="flex items-center gap-4 p-4 pb-0">
             <div className="bg-orange-100 dark:bg-orange-800 rounded-xl p-3 flex items-center justify-center">
               🛒
@@ -295,30 +307,25 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
               </div>
             </div>
           </div>
-          <div
-            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900 transition"
-            onClick={() => navigate("/orders")}
-          >
-            <span
-              className={
-                ordersChange >= 0
-                  ? "text-green-600 font-semibold flex items-center gap-1"
-                  : "text-red-600 font-semibold flex items-center gap-1"
-              }
-            >
-              {ordersChange >= 0 ? "▲" : "▼"} {Math.abs(ordersChange).toFixed(1)}%
-            </span>
-            <span className="text-gray-500 dark:text-gray-300">
-              Last Week: {lastWeekOrders.length.toLocaleString()}
-            </span>
-            <span className="text-orange-700 dark:text-orange-200 font-medium hover:underline ml-auto">
-              View More
-            </span>
+          <div className="flex items-center gap-2 flex-wrap px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl">
+            {Object.entries(orderStatusCounts).map(([status, count]) => (
+              <span
+                key={status}
+                className="inline-block bg-orange-100 dark:bg-orange-800 text-orange-800 dark:text-orange-100 font-semibold rounded-full px-2 py-0.5 text-[11px] flex items-center gap-0.5 shadow-sm border border-orange-200 dark:border-orange-700 mb-1"
+              >
+                <span className="font-bold text-xs">{status}</span>
+                <span className="mx-0.5">•</span>
+                <span className="font-mono text-xs">{count}</span>
+              </span>
+            ))}
           </div>
         </Card>
 
         {/* Revenue Card */}
-        <Card className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300">
+        <Card
+          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-lime-200 dark:hover:ring-lime-800"
+          onClick={() => navigate("/orders")}
+        >
           <div className="flex items-center gap-4 p-4 pb-0">
             <div className="bg-lime-100 dark:bg-lime-800 rounded-xl p-3 flex items-center justify-center">
               💰
@@ -332,24 +339,20 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
               </div>
             </div>
           </div>
-          <div
-            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-lime-50 dark:hover:bg-lime-900 transition"
-            onClick={() => navigate("/orders")}
-          >
+          <div className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl">
             <span
               className={
-                revenueChange >= 0
+                revenuePercentChange >= 0
                   ? "text-green-600 font-semibold flex items-center gap-1"
                   : "text-red-600 font-semibold flex items-center gap-1"
               }
             >
-              {revenueChange >= 0 ? "▲" : "▼"} {Math.abs(revenueChange).toFixed(1)}%
+              {revenuePercentChange === 0 && prevPeriodRevenue === 0 ? "-" : (revenuePercentChange >= 0 ? "▲" : "▼") + " " + Math.abs(revenuePercentChange).toFixed(1) + "%"}
             </span>
-            <span className="text-gray-500 dark:text-gray-300">
-              Last Week: ₹{lastWeekRevenue.toLocaleString()}
-            </span>
-            <span className="text-lime-700 dark:text-lime-200 font-medium hover:underline ml-auto">
-              View More
+            <span className="inline-block bg-lime-100 dark:bg-lime-800 text-lime-800 dark:text-lime-100 font-semibold rounded-full px-3 py-1 text-xs flex items-center gap-1 shadow-sm border border-lime-200 dark:border-lime-700">
+              <span className="font-bold">{prevLabel}</span>
+              <span className="mx-1">•</span>
+              <span className="font-mono">₹{prevPeriodRevenue.toLocaleString()}</span>
             </span>
           </div>
         </Card>

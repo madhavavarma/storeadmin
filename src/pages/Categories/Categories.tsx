@@ -116,7 +116,7 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
               </tr>
             </thead>
             <tbody>
-              {paginated.map((cat, idx) => (
+              {paginated.map((cat) => (
                 <tr
                   key={cat.id}
                   className={"border-b hover:bg-green-50 dark:hover:bg-zinc-800 cursor-pointer transition bg-white dark:bg-zinc-900"}
