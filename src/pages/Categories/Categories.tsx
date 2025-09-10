@@ -75,11 +75,12 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
   return (
     <div className="p-2 md:p-4 space-y-4 md:space-y-6">
       {/* Top Category Cards */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
-        {categories.slice(0, 4).map((cat) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+        {categories.slice(0, 4).map((cat, idx) => (
           <div
             key={cat.id}
-            className="rounded-2xl p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex flex-col items-center justify-center text-center bg-green-50 dark:bg-zinc-900"
+            className="rounded-2xl p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex flex-col items-center justify-center text-center bg-green-50 dark:bg-zinc-900 animate-fadein-slideup"
+            style={{ animationDelay: `${idx * 80}ms` }}
             onClick={() => handleRowClick(cat)}
           >
             <img
@@ -149,10 +150,11 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
 
         {/* Mobile Card List */}
         <div className="grid md:hidden gap-2">
-          {paginated.map((cat) => (
+          {paginated.map((cat, idx) => (
             <div
               key={cat.id}
-              className="flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-xl border shadow-sm hover:bg-green-50 cursor-pointer transition"
+              className="flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-xl border shadow-sm hover:bg-green-50 cursor-pointer transition animate-fadein-slideup"
+              style={{ animationDelay: `${idx * 60}ms` }}
               onClick={() => handleRowClick(cat)}
             >
               <img

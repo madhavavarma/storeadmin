@@ -250,10 +250,11 @@ export default function Customers({ refreshKey }: CustomersProps) {
         </div>
         {/* Mobile Card List */}
         <div className="grid md:hidden gap-3">
-          {paginated.map((customer) => (
+          {paginated.map((customer, idx) => (
             <div
               key={customer.userid}
-              className="flex flex-col gap-1 md:gap-2 p-2 md:p-3 rounded-xl border shadow-sm hover:bg-green-50 cursor-pointer transition"
+              className="flex flex-col gap-1 md:gap-2 p-2 md:p-3 rounded-xl border shadow-sm hover:bg-green-50 cursor-pointer transition animate-fadein-slideup"
+              style={{ animationDelay: `${idx * 60}ms` }}
               onClick={() => handleUserClick(customer)}
             >
               <div className="font-medium text-gray-700">User: {customer.userid}</div>

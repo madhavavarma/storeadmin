@@ -200,7 +200,8 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
         {/* Products Card */}
         {/* Products Card */}
         <Card
-          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-green-200 dark:hover:ring-green-800"
+          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-green-200 dark:hover:ring-green-800 animate-fadein-slideup"
+          style={{ animationDelay: '0ms' }}
           onClick={() => navigate("/products")}
         >
           <div className="flex items-center gap-4 p-4 pb-0">
@@ -224,7 +225,8 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
 
         {/* Categories Card */}
         <Card
-          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-amber-200 dark:hover:ring-amber-800"
+          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-amber-200 dark:hover:ring-amber-800 animate-fadein-slideup"
+          style={{ animationDelay: '80ms' }}
           onClick={() => navigate("/categories")}
         >
           <div className="flex items-center gap-4 p-4 pb-0">
@@ -248,7 +250,8 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
 
         {/* Orders Card */}
         <Card
-          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-orange-200 dark:hover:ring-orange-800 relative"
+          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-orange-200 dark:hover:ring-orange-800 relative animate-fadein-slideup"
+          style={{ animationDelay: '160ms' }}
           onClick={() => navigate("/orders")}
         >
           <div className="flex items-center gap-4 p-4 pb-0">
@@ -278,7 +281,8 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
 
         {/* Revenue Card */}
         <Card
-          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-lime-200 dark:hover:ring-lime-800"
+          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-lime-200 dark:hover:ring-lime-800 animate-fadein-slideup"
+          style={{ animationDelay: '240ms' }}
           onClick={() => navigate("/orders")}
         >
           <div className="flex items-center gap-4 p-4 pb-0">

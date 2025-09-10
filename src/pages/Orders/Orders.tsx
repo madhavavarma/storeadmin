@@ -214,14 +214,15 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
   return (
     <div className="p-2 md:p-6 space-y-4 md:space-y-8">
       {/* Top Summary Cards */}
-  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-6">
-        {summaryCardDefs.map((card) => {
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-6">
+        {summaryCardDefs.map((card, idx) => {
           const Icon = card.icon;
           const value = orders.filter((o) => o.orderStatus === card.status).length;
           return (
             <div
               key={card.title}
-              className="rounded-2xl p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex flex-col items-center justify-center text-center bg-gradient-to-tr from-green-50 to-white dark:from-zinc-900 dark:to-zinc-800"
+              className="rounded-2xl p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex flex-col items-center justify-center text-center bg-gradient-to-tr from-green-50 to-white dark:from-zinc-900 dark:to-zinc-800 animate-fadein-slideup"
+              style={{ animationDelay: `${idx * 80}ms` }}
             >
               <div className={`p-3 rounded-md ${card.color} dark:bg-zinc-800 dark:text-green-300 mb-3`}>
                 <Icon className="w-6 h-6" />
@@ -339,8 +340,8 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
       </div>
 
       {/* Mobile Card View */}
-  <div className="grid md:hidden gap-2">
-        {orders.map((order) => {
+      <div className="grid md:hidden gap-2">
+        {orders.map((order, idx) => {
           const statusFlow = [
             "Pending",
             "Confirmed",
@@ -360,7 +361,8 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
           return (
             <div
               key={order.id}
-              className="rounded-2xl p-2 md:p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex items-center gap-2 md:gap-3 justify-center text-center bg-white dark:bg-zinc-900"
+              className="rounded-2xl p-2 md:p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex items-center gap-2 md:gap-3 justify-center text-center bg-white dark:bg-zinc-900 animate-fadein-slideup"
+              style={{ animationDelay: `${idx * 60}ms` }}
               onClick={() => {
                 dispatch(OrdersActions.showOrderDetail(order.raw));
                 setDrawerOpen(true);
