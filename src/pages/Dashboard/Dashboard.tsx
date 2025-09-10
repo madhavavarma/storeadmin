@@ -15,6 +15,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
+import { ShoppingBag, Tag, ShoppingCart, DollarSign } from "lucide-react";
 import { getCategories, getOrders, getProducts } from "../api";
 
 export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
@@ -205,8 +206,8 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
           onClick={() => navigate("/products")}
         >
           <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-green-100 dark:bg-green-800 rounded-xl p-3 flex items-center justify-center">
-              📦
+            <div className="bg-gradient-to-tr from-green-400 to-green-600 dark:from-green-700 dark:to-green-900 rounded-xl p-3 flex items-center justify-center shadow-md">
+              <ShoppingBag className="w-7 h-7 text-white" />
             </div>
             <div className="flex-1">
               <div className="text-gray-500 dark:text-green-200 text-sm font-medium">
@@ -230,8 +231,8 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
           onClick={() => navigate("/categories")}
         >
           <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-amber-100 dark:bg-amber-800 rounded-xl p-3 flex items-center justify-center">
-              📂
+            <div className="bg-gradient-to-tr from-yellow-400 to-amber-500 dark:from-yellow-700 dark:to-amber-900 rounded-xl p-3 flex items-center justify-center shadow-md">
+              <Tag className="w-7 h-7 text-white" />
             </div>
             <div className="flex-1">
               <div className="text-gray-500 dark:text-amber-200 text-sm font-medium">
@@ -255,8 +256,8 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
           onClick={() => navigate("/orders")}
         >
           <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-orange-100 dark:bg-orange-800 rounded-xl p-3 flex items-center justify-center">
-              🛒
+            <div className="bg-gradient-to-tr from-orange-400 to-orange-600 dark:from-orange-700 dark:to-orange-900 rounded-xl p-3 flex items-center justify-center shadow-md">
+              <ShoppingCart className="w-7 h-7 text-white" />
             </div>
             <div className="flex-1">
               <div className="text-gray-500 dark:text-orange-200 text-sm font-medium flex flex-col gap-0.5">
@@ -286,8 +287,8 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
           onClick={() => navigate("/orders")}
         >
           <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-lime-100 dark:bg-lime-800 rounded-xl p-3 flex items-center justify-center">
-              💰
+            <div className="bg-gradient-to-tr from-lime-400 to-lime-600 dark:from-lime-700 dark:to-lime-900 rounded-xl p-3 flex items-center justify-center shadow-md">
+              <DollarSign className="w-7 h-7 text-white" />
             </div>
             <div className="flex-1">
               <div className="text-gray-500 dark:text-lime-200 text-sm font-medium">
@@ -329,7 +330,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
               <thead>
                 <tr className="bg-yellow-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
                   <th className="p-3 font-semibold rounded-tl-xl">Order ID</th>
-                  <th className="p-3 font-semibold">Date</th>
+                    <th className="p-3 font-semibold">Date</th>
                   <th className="p-3 font-semibold">Total</th>
                   <th className="p-3 font-semibold rounded-tr-xl">Status</th>
                 </tr>
@@ -349,17 +350,26 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
                     title="View order details"
                   >
                     <td className="p-3 font-semibold text-gray-800 dark:text-green-200 group-hover:text-green-700 dark:group-hover:text-green-300">{order.id}</td>
-                    <td className="p-3 text-gray-600 dark:text-gray-300">{order.created_at?.slice(0, 10)}</td>
+                      <td className="p-3 text-gray-600 dark:text-gray-300">{order.created_at ? new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}</td>
                     <td className="p-3 text-green-700 dark:text-green-300 font-bold">₹{order.totalprice}</td>
                     <td className="p-3">
                       <span
-                        className={`px-2 py-1 text-xs rounded-md border font-semibold shadow-sm transition-colors
-                          ${order.status === "Delivered"
-                            ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700"
+                        className={`inline-block px-3 py-1 text-xs font-semibold rounded-full shadow-sm transition-all ${
+                          order.status === "Delivered"
+                            ? "bg-green-700 text-white border border-green-700"
                             : order.status === "Pending"
-                            ? "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700"
-                            : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-700"}
-                        `}
+                            ? "bg-yellow-500 text-white border border-yellow-500"
+                            : order.status === "Processing"
+                            ? "bg-cyan-600 text-white border border-cyan-600"
+                            : order.status === "Confirmed"
+                            ? "bg-gray-500 text-white border border-gray-500"
+                            : order.status === "Cancelled"
+                            ? "bg-rose-700 text-white border border-rose-700"
+                            : order.status === "Returned"
+                            ? "bg-orange-500 text-white border border-orange-500"
+                            : "bg-gray-300 text-white border border-gray-400"
+                        }`}
+                        style={{ minWidth: 80, textAlign: 'center', letterSpacing: 0.5 }}
                       >
                         {order.status}
                       </span>

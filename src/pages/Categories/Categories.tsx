@@ -109,7 +109,7 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
 
         {/* Desktop Table */}
         <div className="hidden md:block bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-zinc-800 overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
+          <table className="w-full text-sm border-collapse rounded-xl shadow-md overflow-hidden bg-white dark:bg-zinc-900">
             <thead>
               <tr className="bg-green-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
                 <th className="p-3 font-medium">Category</th>
@@ -133,11 +133,11 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
                   </td>
                   <td className="p-3 align-top">
                     {cat.is_published ? (
-                      <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-md shadow-sm transition border border-green-400 text-green-700 bg-green-50 dark:bg-green-900 dark:text-green-200 dark:border-green-700">
+                      <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full shadow-sm transition-all bg-green-700 text-white border border-green-700" style={{ minWidth: 80, textAlign: 'center', letterSpacing: 0.5 }}>
                         Published
                       </span>
                     ) : (
-                      <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-md shadow-sm transition border border-red-400 text-red-600 bg-red-50 dark:bg-red-900 dark:text-red-200 dark:border-red-700">
+                      <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full shadow-sm transition-all bg-rose-700 text-white border border-rose-700" style={{ minWidth: 80, textAlign: 'center', letterSpacing: 0.5 }}>
                         Unpublished
                       </span>
                     )}

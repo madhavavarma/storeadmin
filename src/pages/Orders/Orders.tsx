@@ -33,22 +33,28 @@ export interface OrderRow {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const colors: Record<string, string> = {
-    Paid: "bg-green-100 text-green-700 border border-green-300",
-    Unpaid: "bg-amber-100 text-amber-700 border border-amber-300",
-    Refund: "bg-rose-100 text-rose-700 border border-rose-300",
-    Draft: "bg-gray-100 text-gray-600 border border-gray-300",
-    Packaging: "bg-lime-100 text-lime-700 border border-lime-300",
-    Completed: "bg-emerald-100 text-emerald-700 border border-emerald-300",
-    Cancelled: "bg-rose-200 text-rose-800 border border-rose-400",
-    Processing: "bg-teal-100 text-teal-700 border border-teal-300",
-    Shipped: "bg-sky-100 text-sky-700 border border-sky-300",
-    Delivered: "bg-green-200 text-green-800 border border-green-400",
-    Returned: "bg-orange-100 text-orange-700 border border-orange-300",
+  // Modern, bold, pill-shaped, high-contrast badge styles
+  const styles: Record<string, string> = {
+    Paid: "bg-green-600 text-white border border-green-600",
+    Unpaid: "bg-amber-500 text-white border border-amber-500",
+    Refund: "bg-rose-500 text-white border border-rose-500",
+    Draft: "bg-gray-400 text-white border border-gray-400",
+    Packaging: "bg-lime-500 text-white border border-lime-500",
+    Completed: "bg-emerald-600 text-white border border-emerald-600",
+    Cancelled: "bg-rose-700 text-white border border-rose-700",
+    Processing: "bg-cyan-600 text-white border border-cyan-600",
+    Shipped: "bg-sky-600 text-white border border-sky-600",
+    Delivered: "bg-green-700 text-white border border-green-700",
+    Returned: "bg-orange-500 text-white border border-orange-500",
+    Pending: "bg-yellow-500 text-white border border-yellow-500",
+    Confirmed: "bg-gray-500 text-white border border-gray-500",
   };
   return (
     <span
-      className={`inline-block px-2 py-0.5 text-xs font-medium rounded-md shadow-sm transition ${colors[status] || "bg-gray-100 text-gray-600 border border-gray-300"}`}
+      className={`inline-block px-3 py-1 text-xs font-semibold rounded-full shadow-sm transition-all ${
+        styles[status] || "bg-gray-300 text-white border border-gray-400"
+      }`}
+      style={{ minWidth: 80, textAlign: 'center', letterSpacing: 0.5 }}
     >
       {status}
     </span>
@@ -236,7 +242,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
 
       {/* Desktop Table */}
   <div className="hidden md:block bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-zinc-800 overflow-x-auto">
-        <table className="w-full text-sm border-collapse">
+  <table className="w-full text-sm border-collapse rounded-xl shadow-md overflow-hidden bg-white dark:bg-zinc-900">
           <thead>
             <tr className="bg-green-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
               <th className="p-3 font-medium">Order / Status</th>
@@ -295,11 +301,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
                       </span>
                       <span className="text-xs text-gray-500 dark:text-gray-400">
                         {order.createdAt
-                          ? new Date(order.createdAt).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })
+                          ? new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
                           : ""}
                       </span>
                     </div>
@@ -320,16 +322,19 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
                   {/* Next Step Button */}
                   <td className="p-3 text-left align-top">
                     {nextStatus && (
-                      <button
-                        className="px-3 py-1.5 text-xs rounded-md bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-700 dark:text-green-100 dark:hover:bg-green-600 border border-green-200 dark:border-green-500 shadow-sm transition hover:scale-105"
-                        onClick={async e => {
-                          e.stopPropagation();
-                          await updateOrder(order.id, { status: nextStatus as OrderStatus });
-                          fetchOrders();
-                        }}
-                      >
-                        Move to {nextStatus}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500">Move to</span>
+                        <button
+                          className="px-4 py-1.5 text-xs font-semibold rounded-md bg-green-600 text-white shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all min-w-[100px] text-center"
+                          onClick={async e => {
+                            e.stopPropagation();
+                            await updateOrder(order.id, { status: nextStatus as OrderStatus });
+                            fetchOrders();
+                          }}
+                        >
+                          {nextStatus}
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>
@@ -384,16 +389,19 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
                   <span>{productCount} products{itemCount > 1 ? `, ${itemCount} items` : ""}</span>
                 </div>
                 {nextStatus && (
-                  <button
-                    className="mt-1 md:mt-2 px-2 md:px-3 py-1 text-xs rounded-md bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-700 dark:text-green-100 dark:hover:bg-green-600 border border-green-200 dark:border-green-500 shadow-sm transition hover:scale-105 text-left w-fit"
-                    onClick={async e => {
-                      e.stopPropagation();
-                      await updateOrder(order.id, { status: nextStatus as OrderStatus });
-                      fetchOrders();
-                    }}
-                  >
-                    Move to {nextStatus}
-                  </button>
+                  <div className="flex items-center gap-2 mt-1 md:mt-2">
+                    <span className="text-xs text-gray-500">Move to</span>
+                    <button
+                      className="px-4 py-1.5 text-xs font-semibold rounded-md bg-green-600 text-white shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all min-w-[100px] text-center w-fit"
+                      onClick={async e => {
+                        e.stopPropagation();
+                        await updateOrder(order.id, { status: nextStatus as OrderStatus });
+                        fetchOrders();
+                      }}
+                    >
+                      {nextStatus}
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

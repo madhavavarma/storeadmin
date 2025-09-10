@@ -100,7 +100,7 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
           {/* Date Range Dropdown */}
           <div className="relative">
             <button
-              className="flex items-center gap-2 px-3 py-2 rounded-md border border-zinc-200 dark:border-green-900 dark:bg-neutral-900 text-zinc-700 dark:text-green-200 hover:bg-zinc-100 dark:hover:bg-green-950 transition"
+              className="flex items-center gap-2 px-3 py-2 rounded-md border-none bg-gradient-to-tr from-green-400 to-green-600 dark:from-green-700 dark:to-green-900 text-white shadow-md hover:from-green-500 hover:to-green-700 dark:hover:from-green-800 dark:hover:to-green-950 transition"
               title="Select date range"
               tabIndex={0}
               onClick={() => {
@@ -108,8 +108,8 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
                 if (menu) menu.classList.toggle("hidden");
               }}
             >
-              <CalendarDays className="w-5 h-5" />
-              <span className="hidden md:inline text-green-600 dark:text-green-300 font-semibold">{dateRange.label}</span>
+              <CalendarDays className="w-5 h-5 text-white" />
+              <span className="hidden md:inline text-white font-semibold">{dateRange.label}</span>
             </button>
             <div
               id="date-range-menu"
@@ -171,41 +171,41 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
           </div>
           {/* Live update toggle */}
           <button
-            className={`p-2 rounded-full transition ${liveUpdates ? "bg-green-100 dark:bg-green-900" : "bg-zinc-100 dark:bg-zinc-800"}`}
+            className={`p-2 rounded-full transition shadow-md ${liveUpdates ? "bg-gradient-to-tr from-blue-400 to-blue-600 dark:from-blue-700 dark:to-blue-900" : "bg-zinc-100 dark:bg-zinc-800"}`}
             title={liveUpdates ? "Live updates ON" : "Live updates OFF"}
             onClick={() => setLiveUpdates((v) => !v)}
           >
-            <RefreshCcw className={`w-5 h-5 ${liveUpdates ? "text-green-600 animate-spin-slow" : "text-zinc-400"}`} />
+            <RefreshCcw className={`w-5 h-5 ${liveUpdates ? "text-white animate-spin-slow" : "text-zinc-500 dark:text-zinc-300"}`} />
           </button>
           <button
-            className="p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group"
+            className={`p-2 rounded-full shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group ${theme === "dark" ? "bg-gradient-to-tr from-yellow-400 to-yellow-600 dark:from-yellow-700 dark:to-yellow-900" : "bg-zinc-100 dark:bg-zinc-800"}`}
             onClick={() => dispatch(toggleTheme())}
             title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           >
             {theme === "dark"
-              ? <Sun className="w-5 h-5 text-yellow-400 group-hover:text-yellow-300" />
-              : <Moon className="w-5 h-5 text-zinc-700 group-hover:text-green-600" />}
+              ? <Sun className="w-5 h-5 text-white group-hover:text-yellow-200" />
+              : <Moon className="w-5 h-5 text-zinc-500 dark:text-zinc-300 group-hover:text-green-600" />}
           </button>
-          <button className="p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group" title="Notifications">
-            <Bell className="w-5 h-5 text-zinc-700 dark:text-green-300 group-hover:text-green-600 dark:group-hover:text-green-400" />
+          <button className={`p-2 rounded-full shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group ${false ? "bg-gradient-to-tr from-pink-400 to-pink-600 dark:from-pink-700 dark:to-pink-900" : "bg-zinc-100 dark:bg-zinc-800"}`} title="Notifications">
+            <Bell className="w-5 h-5 text-zinc-500 dark:text-zinc-300 group-hover:text-pink-500" />
           </button>
           {user?.name ? (
             <button
-              className="flex items-center gap-2 p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group"
+              className="flex items-center gap-2 p-2 rounded-full bg-gradient-to-tr from-red-400 to-red-600 dark:from-red-700 dark:to-red-900 shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group"
               title="Sign Out"
               onClick={handleSignOut}
             >
-              <LogOut className="w-5 h-5 text-zinc-700 dark:text-red-400 group-hover:text-red-600 dark:group-hover:text-red-300" />
-              <span className="text-sm text-zinc-700 dark:text-zinc-200 group-hover:text-green-700 dark:group-hover:text-green-300">Sign Out</span>
+              <LogOut className="w-5 h-5 text-white" />
+              <span className="text-sm text-white">Sign Out</span>
             </button>
           ) : (
             <button
-              className="flex items-center gap-2 p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group"
+              className="flex items-center gap-2 p-2 rounded-full bg-gradient-to-tr from-blue-400 to-blue-600 dark:from-blue-700 dark:to-blue-900 shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group"
               title="User"
               onClick={() => setAuthDrawerOpen(true)}
             >
-              <User className="w-5 h-5 text-zinc-700 dark:text-green-300 group-hover:text-green-600 dark:group-hover:text-green-400" />
-              <span className="text-sm text-zinc-700 dark:text-zinc-200 group-hover:text-green-700 dark:group-hover:text-green-300">{user?.name || "User"}</span>
+              <User className="w-5 h-5 text-white" />
+              <span className="text-sm text-white">{user?.name || "User"}</span>
             </button>
           )}
         </div>

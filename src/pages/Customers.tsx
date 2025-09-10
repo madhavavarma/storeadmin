@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Users } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Card } from "@/components/ui/card";
 
@@ -219,7 +220,7 @@ export default function Customers({ refreshKey }: CustomersProps) {
       <h2 className="text-lg font-semibold mb-4">All Customers</h2>
       <div className="bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4">
         <div className="hidden md:block bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-zinc-800 overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
+          <table className="w-full text-sm border-collapse rounded-xl shadow-md overflow-hidden bg-white dark:bg-zinc-900">
             <thead>
               <tr className="bg-green-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
                 <th className="p-3 font-medium">User ID</th>
@@ -240,7 +241,7 @@ export default function Customers({ refreshKey }: CustomersProps) {
                   onClick={() => handleUserClick(customer)}
                 >
                   <td className="p-3 font-medium text-gray-700 dark:text-green-200">{customer.userid}</td>
-                  <td className="p-3 text-gray-600 dark:text-gray-300">{new Date(customer.first_order).toLocaleDateString()}</td>
+                  <td className="p-3 text-gray-600 dark:text-gray-300">{customer.first_order ? new Date(customer.first_order).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}</td>
                   <td className="p-3 text-gray-600 dark:text-gray-300">{customer.orders}</td>
                   <td className="p-3 text-green-700 dark:text-green-300 font-bold">₹{customer.total_spent.toLocaleString()}</td>
                 </tr>
@@ -257,8 +258,13 @@ export default function Customers({ refreshKey }: CustomersProps) {
               style={{ animationDelay: `${idx * 60}ms` }}
               onClick={() => handleUserClick(customer)}
             >
-              <div className="font-medium text-gray-700">User: {customer.userid}</div>
-              <div className="text-xs text-gray-500">First Order: {new Date(customer.first_order).toLocaleDateString()}</div>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="bg-gradient-to-tr from-blue-400 to-blue-600 dark:from-blue-700 dark:to-blue-900 rounded-full p-2 flex items-center justify-center shadow-md">
+                  <Users className="w-5 h-5 text-white" />
+                </div>
+                <div className="font-medium text-gray-700">User: {customer.userid}</div>
+              </div>
+              <div className="text-xs text-gray-500">First Order: {customer.first_order ? new Date(customer.first_order).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}</div>
               <div className="text-xs">Orders: {customer.orders}</div>
               <div className="text-xs">Total Spent: ₹{customer.total_spent.toLocaleString()}</div>
             </div>

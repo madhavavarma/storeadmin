@@ -199,10 +199,12 @@ export default function AppSidebar({ refreshKey }: { refreshKey: number }) {
                   ${active ? "bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-300 font-semibold" : ""}
                 `}
               >
-                <Icon
-                  className={`w-5 h-5 
-                    ${active ? "text-green-600 dark:text-green-400" : "text-gray-500 group-hover:text-gray-700 dark:text-gray-300 dark:group-hover:text-white"}`}
-                />
+                <span className={`w-9 h-9 flex items-center justify-center rounded-lg shadow-md transition-all 
+                  ${active ? "bg-gradient-to-tr from-green-400 to-green-600 dark:from-green-700 dark:to-green-900" : "bg-gradient-to-tr from-zinc-200 to-zinc-300 dark:from-zinc-800 dark:to-zinc-900 group-hover:from-green-100 group-hover:to-green-200 dark:group-hover:from-green-900 dark:group-hover:to-green-800"}`}>
+                  <Icon
+                    className={`w-5 h-5 ${active ? "text-white" : "text-gray-500 group-hover:text-green-700 dark:text-gray-300 dark:group-hover:text-white"}`}
+                  />
+                </span>
                 {!collapsed && <span className="transition-colors duration-200">{item.title}</span>}
                 {/* Badge for specific menu items */}
                 {!collapsed && item.badge !== undefined && item.badge !== null && (
@@ -249,7 +251,7 @@ function SidebarUser({ collapsed }: { collapsed: boolean }) {
   const email = user?.email || "";
   return (
     <div className="p-4 border-t border-gray-200 dark:border-zinc-800 flex items-center gap-3">
-      <span className="w-10 h-10 rounded-full bg-gradient-to-tr from-green-400 via-blue-400 to-purple-400 flex items-center justify-center animate-pulse">
+      <span className="w-10 h-10 rounded-full bg-gradient-to-tr from-green-400 via-blue-400 to-purple-400 flex items-center justify-center shadow-md animate-pulse">
         <UserIcon className="w-6 h-6 text-white" />
       </span>
       {!collapsed && (
@@ -306,7 +308,10 @@ function SidebarUser({ collapsed }: { collapsed: boolean }) {
                   style={{ minWidth: 48 }}
                 >
                   <div className="relative flex items-center justify-center">
-                    <Icon className={`w-6 h-6 mb-0.5 ${active ? "text-green-600 dark:text-green-400" : "text-gray-500 group-hover:text-gray-700 dark:text-gray-300 dark:group-hover:text-white"}`} />
+                    <span className={`w-9 h-9 flex items-center justify-center rounded-lg shadow-md transition-all 
+                      ${active ? "bg-gradient-to-tr from-green-400 to-green-600 dark:from-green-700 dark:to-green-900" : "bg-gradient-to-tr from-zinc-200 to-zinc-300 dark:from-zinc-800 dark:to-zinc-900 group-hover:from-green-100 group-hover:to-green-200 dark:group-hover:from-green-900 dark:group-hover:to-green-800"}`}>
+                      <Icon className={`w-6 h-6 mb-0.5 ${active ? "text-white" : "text-gray-500 group-hover:text-green-700 dark:text-gray-300 dark:group-hover:text-white"}`} />
+                    </span>
                     {item.badge !== undefined && item.badge !== null && (
                       <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] rounded-full px-1.5 font-bold shadow border-2 border-white dark:border-zinc-900">{item.badge}</span>
                     )}
