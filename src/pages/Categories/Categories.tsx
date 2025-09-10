@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { ICategory } from "@/interfaces/ICategory"
 import { getCategories } from "../api"
+import AddCategoryDrawer from "./AddCategoryDrawer"
 import { supabase } from "@/supabaseClient"
 
 
 export default function Categories({ refreshKey }: { refreshKey: number }) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +38,7 @@ export default function Categories({ refreshKey }: { refreshKey: number }) {
         setLoading(false);
       }
     });
-  }, [refreshKey]);
+  }, [refreshKey, drawerOpen]);
 
   const paginated = categories.slice((currentPage - 1) * perPage, currentPage * perPage);
 
@@ -84,7 +86,17 @@ export default function Categories({ refreshKey }: { refreshKey: number }) {
 
       {/* Categories List */}
       <div className="bg-white shadow-sm rounded-xl p-4">
-        <h2 className="text-lg font-semibold mb-3">All Categories List</h2>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
+          <h2 className="text-lg font-semibold">All Categories List</h2>
+          <Button
+            variant="default"
+            size="sm"
+            className="w-full md:w-auto"
+            onClick={() => setDrawerOpen(true)}
+          >
+            + Add New
+          </Button>
+        </div>
 
         {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
@@ -155,30 +167,43 @@ export default function Categories({ refreshKey }: { refreshKey: number }) {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-center gap-2 mt-4">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            className="rounded-md"
-          >
-            <ChevronLeft size={16} /> Previous
-          </Button>
-          <span className="px-3 text-sm font-medium">
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            className="rounded-md"
-          >
-            Next <ChevronRight size={16} />
-          </Button>
+        {/* Pagination */}
+        <div className="flex flex-col items-center gap-4 mt-4">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              className="rounded-md"
+            >
+              <ChevronLeft size={16} /> Previous
+            </Button>
+            <span className="px-3 text-sm font-medium">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              className="rounded-md"
+            >
+              Next <ChevronRight size={16} />
+            </Button>
+          </div>
+        </div>
+        <AddCategoryDrawer
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          onAdd={async (data) => {
+            // Insert data as-is, since id is not present in the payload
+            await supabase.from("categories").insert([data]);
+            setDrawerOpen(false);
+          }}
+        />
         </div>
       </div>
-    </div>
+    
   );
 }

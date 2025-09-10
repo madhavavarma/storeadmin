@@ -160,7 +160,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order, idx) => {
+            {orders.map((order) => {
               const statusFlow = [
                 "Pending",
                 "Confirmed",
