@@ -162,7 +162,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
         setLoading(false);
       }
     });
-  }, [dateRange]);
+  }, [dateRange, refreshKey]);
 
 
   // Open drawer if openOrderId is passed in location.state
@@ -170,7 +170,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
   // Always load once on mount
   useEffect(() => {
     fetchOrders();
-  }, [fetchOrders]);
+  }, [fetchOrders, refreshKey]);
 
   // Only poll if liveUpdates is enabled
   useEffect(() => {

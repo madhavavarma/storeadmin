@@ -58,9 +58,13 @@ export default function Customers({ refreshKey }: CustomersProps) {
     };
     window.addEventListener("liveUpdatesChanged", liveHandler);
     window.addEventListener("dateRangeChanged", dateHandler);
+    // Listen for signout event to clear customers
+    const clear = () => setCustomers([]);
+    window.addEventListener("clearOrders", clear);
     return () => {
       window.removeEventListener("liveUpdatesChanged", liveHandler);
       window.removeEventListener("dateRangeChanged", dateHandler);
+      window.removeEventListener("clearOrders", clear);
     };
   }, [refreshKey]);
 
@@ -129,7 +133,7 @@ export default function Customers({ refreshKey }: CustomersProps) {
         setLoading(false);
       }
     });
-  }, [dateRange]);
+  }, [dateRange, refreshKey]);
 
   // Only poll if liveUpdates is enabled
   useEffect(() => {

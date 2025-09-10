@@ -42,6 +42,10 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
         setLoading(false);
       }
     });
+    // Listen for signout event to clear categories
+    const clear = () => setCategories([]);
+    window.addEventListener("clearOrders", clear);
+    return () => window.removeEventListener("clearOrders", clear);
   }, [refreshKey, drawerOpen, parentRefreshKey]);
 
   const paginated = categories.slice((currentPage - 1) * perPage, currentPage * perPage);

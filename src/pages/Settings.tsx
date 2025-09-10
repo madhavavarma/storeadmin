@@ -49,6 +49,14 @@ export default function Settings({ refreshKey }: SettingsProps) {
         setLoading(false);
       }
     });
+    // Listen for signout event to clear settings
+    const clear = () => {
+      setSettings(null);
+      setLogoPreview("");
+      setSelectedLogo(null);
+    };
+    window.addEventListener("clearOrders", clear);
+    return () => window.removeEventListener("clearOrders", clear);
   }, [refreshKey]);
 
   // Handle changes (top-level + nested)
