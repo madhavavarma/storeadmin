@@ -23,6 +23,8 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [recentSortCol, setRecentSortCol] = useState<'id' | 'created_at' | 'totalprice' | 'status' | null>(null);
+  const [recentSortDir, setRecentSortDir] = useState<'asc' | 'desc'>('asc');
   const navigate = useNavigate();
 
   // Date range state
@@ -162,10 +164,40 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
 
  
 
-  // Recent orders (sorted by created_at desc)
-  const recentOrders = [...filteredOrders]
-    .sort((a, b) => (b.created_at > a.created_at ? 1 : -1))
-    .slice(0, 5);
+  // Recent orders (sortable)
+  function handleRecentSort(col: 'id' | 'created_at' | 'totalprice' | 'status') {
+    if (recentSortCol === col) {
+      setRecentSortDir(recentSortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setRecentSortCol(col);
+      setRecentSortDir('asc');
+    }
+  }
+  function getSortedRecentOrders() {
+    let arr = [...filteredOrders];
+    if (!recentSortCol) {
+      arr = arr.sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
+    } else {
+      arr = arr.sort((a, b) => {
+        let aVal = a[recentSortCol];
+        let bVal = b[recentSortCol];
+        if (recentSortCol === 'totalprice') {
+          aVal = Number(aVal);
+          bVal = Number(bVal);
+        }
+        if (recentSortCol === 'created_at') {
+          aVal = new Date(aVal as string).getTime();
+          bVal = new Date(bVal as string).getTime();
+        }
+        if (aVal === bVal) return 0;
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
+        if (aVal > bVal) return recentSortDir === 'asc' ? 1 : -1;
+        return recentSortDir === 'asc' ? -1 : 1;
+      });
+    }
+    return arr.slice(0, 5);
+  }
 
   // Chart data (orders per day)
   const ordersByDay: { [date: string]: number } = {};
@@ -329,14 +361,22 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             <table className="w-full text-sm border-separate border-spacing-0 rounded-xl overflow-hidden">
               <thead>
                 <tr className="bg-yellow-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
-                  <th className="p-3 font-semibold rounded-tl-xl">Order ID</th>
-                    <th className="p-3 font-semibold">Date</th>
-                  <th className="p-3 font-semibold">Total</th>
-                  <th className="p-3 font-semibold rounded-tr-xl">Status</th>
+                  <th className="p-3 font-semibold rounded-tl-xl cursor-pointer select-none" onClick={() => handleRecentSort('id')}>
+                    Order ID {recentSortCol === 'id' && (recentSortDir === 'asc' ? '↑' : '↓')}
+                  </th>
+                  <th className="p-3 font-semibold cursor-pointer select-none" onClick={() => handleRecentSort('created_at')}>
+                    Date {recentSortCol === 'created_at' && (recentSortDir === 'asc' ? '↑' : '↓')}
+                  </th>
+                  <th className="p-3 font-semibold cursor-pointer select-none" onClick={() => handleRecentSort('totalprice')}>
+                    Total {recentSortCol === 'totalprice' && (recentSortDir === 'asc' ? '↑' : '↓')}
+                  </th>
+                  <th className="p-3 font-semibold rounded-tr-xl cursor-pointer select-none" onClick={() => handleRecentSort('status')}>
+                    Status {recentSortCol === 'status' && (recentSortDir === 'asc' ? '↑' : '↓')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {recentOrders.map((order, idx) => (
+                {getSortedRecentOrders().map((order, idx) => (
                   <tr
                     key={order.id}
                     className={`transition cursor-pointer ${

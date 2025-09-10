@@ -68,9 +68,10 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
-  // Removed unused drawerOrder state
-  // const [pendingStatus, setPendingStatus] = useState<{ [orderId: string]: string }>({});
   const dispatch = useDispatch();
+  // Sorting state
+  const [sortCol, setSortCol] = useState<keyof OrderRow | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
 
   // Live update state
@@ -202,6 +203,40 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
   // Only subscribe to realtime if liveUpdates enabled
   useOrdersRealtime(liveUpdates ? fetchOrders : () => {});
 
+  // Sorting logic
+  function handleSort(col: keyof OrderRow) {
+    if (sortCol === col) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortCol(col);
+      setSortDir('asc');
+    }
+  }
+
+  function getSortedOrders() {
+    if (!sortCol) return orders;
+    const sorted = [...orders].sort((a, b) => {
+      let aVal = a[sortCol];
+      let bVal = b[sortCol];
+      // Numeric sort for total
+      if (sortCol === 'total') {
+        aVal = parseFloat((aVal as string).replace(/[^\d.]/g, ''));
+        bVal = parseFloat((bVal as string).replace(/[^\d.]/g, ''));
+      }
+      // Date sort for createdAt
+      if (sortCol === 'createdAt') {
+        aVal = new Date(aVal as string).getTime();
+        bVal = new Date(bVal as string).getTime();
+      }
+      if (aVal === bVal) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+      if (aVal > bVal) return sortDir === 'asc' ? 1 : -1;
+      return sortDir === 'asc' ? -1 : 1;
+    });
+    return sorted;
+  }
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[200px] p-8">
@@ -240,19 +275,60 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
         })}
       </div>
 
+
+
       {/* Desktop Table */}
   <div className="hidden md:block bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-zinc-800 overflow-x-auto">
   <table className="w-full text-sm border-collapse rounded-xl shadow-md overflow-hidden bg-white dark:bg-zinc-900">
           <thead>
             <tr className="bg-green-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
-              <th className="p-3 font-medium">Order / Status</th>
-              <th className="p-3 font-medium">Customer / Date</th>
-              <th className="p-3 font-medium">Total / Products</th>
+              <th className="p-3 font-medium cursor-pointer select-none" onClick={() => handleSort('id')}>
+                Order / Status {sortCol === 'id' && (sortDir === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="p-3 font-medium cursor-pointer select-none" onClick={() => handleSort('customer')}>
+                Customer / Date {sortCol === 'customer' && (sortDir === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="p-3 font-medium cursor-pointer select-none" onClick={() => handleSort('total')}>
+                Total / Products {sortCol === 'total' && (sortDir === 'asc' ? '↑' : '↓')}
+              </th>
               <th className="p-3 font-medium">Next Step</th>
             </tr>
           </thead>
           <tbody>
-            {orders.map((order) => {
+            {getSortedOrders().map((order: OrderRow) => {
+  // Sorting logic
+  function handleSort(col: keyof OrderRow) {
+    if (sortCol === col) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortCol(col);
+      setSortDir('asc');
+    }
+  }
+
+  function getSortedOrders() {
+    if (!sortCol) return orders;
+    const sorted = [...orders].sort((a, b) => {
+      let aVal = a[sortCol];
+      let bVal = b[sortCol];
+      // Numeric sort for total
+      if (sortCol === 'total') {
+        aVal = parseFloat((aVal as string).replace(/[^\d.]/g, ''));
+        bVal = parseFloat((bVal as string).replace(/[^\d.]/g, ''));
+      }
+      // Date sort for createdAt
+      if (sortCol === 'createdAt') {
+        aVal = new Date(aVal as string).getTime();
+        bVal = new Date(bVal as string).getTime();
+      }
+      if (aVal === bVal) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+      if (aVal > bVal) return sortDir === 'asc' ? 1 : -1;
+      return sortDir === 'asc' ? -1 : 1;
+    });
+    return sorted;
+  }
               const statusFlow = [
                 "Pending",
                 "Confirmed",

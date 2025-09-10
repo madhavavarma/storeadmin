@@ -35,8 +35,43 @@ export default function Customers({ refreshKey }: CustomersProps) {
   const [selectedUser, setSelectedUser] = useState<Customer | null>(null);
   const [userOrders, setUserOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [sortCol, setSortCol] = useState<keyof Customer | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const perPage = 6;
   const navigate = useNavigate();
+  // Sorting logic
+  function handleSort(col: keyof Customer) {
+    if (sortCol === col) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortCol(col);
+      setSortDir('asc');
+    }
+  }
+
+  function getSortedCustomers() {
+    if (!sortCol) return customers;
+    const sorted = [...customers].sort((a, b) => {
+      let aVal = a[sortCol];
+      let bVal = b[sortCol];
+      // Numeric sort for orders and total_spent
+      if (sortCol === 'orders' || sortCol === 'total_spent') {
+        aVal = Number(aVal);
+        bVal = Number(bVal);
+      }
+      // Date sort for first_order
+      if (sortCol === 'first_order') {
+        aVal = new Date(aVal as string).getTime();
+        bVal = new Date(bVal as string).getTime();
+      }
+      if (aVal === bVal) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+      if (aVal > bVal) return sortDir === 'asc' ? 1 : -1;
+      return sortDir === 'asc' ? -1 : 1;
+    });
+    return sorted;
+  }
 
   // Live update state
   const [liveUpdates, setLiveUpdates] = useState(() => {
@@ -223,14 +258,22 @@ export default function Customers({ refreshKey }: CustomersProps) {
           <table className="w-full text-sm border-collapse rounded-xl shadow-md overflow-hidden bg-white dark:bg-zinc-900">
             <thead>
               <tr className="bg-green-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
-                <th className="p-3 font-medium">User ID</th>
-                <th className="p-3 font-medium">First Order</th>
-                <th className="p-3 font-medium">Orders</th>
-                <th className="p-3 font-medium">Total Spent</th>
+                <th className="p-3 font-medium cursor-pointer select-none" onClick={() => handleSort('userid')}>
+                  User ID {sortCol === 'userid' && (sortDir === 'asc' ? '↑' : '↓')}
+                </th>
+                <th className="p-3 font-medium cursor-pointer select-none" onClick={() => handleSort('first_order')}>
+                  First Order {sortCol === 'first_order' && (sortDir === 'asc' ? '↑' : '↓')}
+                </th>
+                <th className="p-3 font-medium cursor-pointer select-none" onClick={() => handleSort('orders')}>
+                  Orders {sortCol === 'orders' && (sortDir === 'asc' ? '↑' : '↓')}
+                </th>
+                <th className="p-3 font-medium cursor-pointer select-none" onClick={() => handleSort('total_spent')}>
+                  Total Spent {sortCol === 'total_spent' && (sortDir === 'asc' ? '↑' : '↓')}
+                </th>
               </tr>
             </thead>
             <tbody>
-              {paginated.map((customer, idx) => (
+              {getSortedCustomers().slice((currentPage - 1) * perPage, currentPage * perPage).map((customer, idx) => (
                 <tr
                   key={customer.userid}
                   className={`border-b hover:bg-green-50 dark:hover:bg-zinc-800 cursor-pointer transition ${

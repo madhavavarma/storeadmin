@@ -19,8 +19,38 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [sortCol, setSortCol] = useState<keyof ICategory | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const perPage = 6;
   const totalPages = Math.ceil(categories.length / perPage);
+  // Sorting logic
+  function handleSort(col: keyof ICategory) {
+    if (sortCol === col) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortCol(col);
+      setSortDir('asc');
+    }
+  }
+
+  function getSortedCategories() {
+    if (!sortCol) return categories;
+    const sorted = [...categories].sort((a, b) => {
+      let aVal = a[sortCol];
+      let bVal = b[sortCol];
+      // Boolean sort for is_published
+      if (sortCol === 'is_published') {
+        aVal = aVal ? 1 : 0;
+        bVal = bVal ? 1 : 0;
+      }
+      if (aVal === bVal) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+      if (aVal > bVal) return sortDir === 'asc' ? 1 : -1;
+      return sortDir === 'asc' ? -1 : 1;
+    });
+    return sorted;
+  }
 
   useEffect(() => {
     setLoading(true);
@@ -112,12 +142,16 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
           <table className="w-full text-sm border-collapse rounded-xl shadow-md overflow-hidden bg-white dark:bg-zinc-900">
             <thead>
               <tr className="bg-green-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
-                <th className="p-3 font-medium">Category</th>
-                <th className="p-3 font-medium">Published</th>
+                <th className="p-3 font-medium cursor-pointer select-none" onClick={() => handleSort('name')}>
+                  Category {sortCol === 'name' && (sortDir === 'asc' ? '↑' : '↓')}
+                </th>
+                <th className="p-3 font-medium cursor-pointer select-none" onClick={() => handleSort('is_published')}>
+                  Published {sortCol === 'is_published' && (sortDir === 'asc' ? '↑' : '↓')}
+                </th>
               </tr>
             </thead>
             <tbody>
-              {paginated.map((cat) => (
+              {getSortedCategories().slice((currentPage - 1) * perPage, currentPage * perPage).map((cat) => (
                 <tr
                   key={cat.id}
                   className={"border-b hover:bg-green-50 dark:hover:bg-zinc-800 cursor-pointer transition bg-white dark:bg-zinc-900"}
