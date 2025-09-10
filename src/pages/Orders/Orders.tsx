@@ -253,9 +253,9 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
   }
 
   return (
-    <div className="p-2 md:p-6 space-y-4 md:space-y-8">
+  <div className="p-2 md:p-6 space-y-4 md:space-y-8">
       {/* Top Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-6">
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
         {summaryCardDefs.map((card, idx) => {
           const Icon = card.icon;
           const value = orders.filter((o) => o.orderStatus === card.status).length;
@@ -391,7 +391,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
       </div>
 
       {/* Mobile Card View */}
-      <div className="grid md:hidden gap-2">
+      <div className="grid grid-cols-2 gap-3 md:hidden">
         {orders.map((order, idx) => {
           const statusFlow = [
             "Pending",
@@ -412,7 +412,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
           return (
             <div
               key={order.id}
-              className="rounded-2xl p-2 md:p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex items-center gap-2 md:gap-3 justify-center text-center bg-white dark:bg-zinc-900 animate-fadein-slideup"
+              className="rounded-2xl p-3 shadow-md cursor-pointer transition hover:shadow-lg border border-green-100 dark:border-zinc-800 flex flex-col justify-center text-center bg-white dark:bg-zinc-900 animate-fadein-slideup min-h-[120px]"
               style={{ animationDelay: `${idx * 60}ms` }}
               onClick={() => {
                 dispatch(OrdersActions.showOrderDetail(order.raw));
@@ -420,36 +420,31 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
                 setTimeout(() => setDrawerVisible(true), 10);
               }}
             >
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-semibold text-gray-900 dark:text-gray-100 text-base">#{order.id}</span>
-                  <StatusBadge status={order.orderStatus} />
-                </div>
-                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  <span>{order.customer}</span>
-                  <span>{order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}</span>
-                </div>
-                <div className="flex items-center gap-1 md:gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                  <span>{order.total}</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">|</span>
-                  <span>{productCount} products{itemCount > 1 ? `, ${itemCount} items` : ""}</span>
-                </div>
-                {nextStatus && (
-                  <div className="flex items-center gap-2 mt-1 md:mt-2">
-                    <span className="text-xs text-gray-500">Move to</span>
-                    <button
-                      className="px-4 py-1.5 text-xs font-semibold rounded-md bg-green-600 text-white shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all min-w-[100px] text-center w-fit"
-                      onClick={async e => {
-                        e.stopPropagation();
-                        await updateOrder(order.id, { status: nextStatus as OrderStatus });
-                        fetchOrders();
-                      }}
-                    >
-                      {nextStatus}
-                    </button>
-                  </div>
-                )}
+              <span className="font-semibold text-gray-900 dark:text-gray-100 text-base mb-1">#{order.id}</span>
+              <StatusBadge status={order.orderStatus} />
+              <div className="flex flex-col items-center gap-0.5 mt-1">
+                <span className="text-xs text-gray-500 dark:text-gray-400">{order.customer}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}</span>
               </div>
+              <div className="flex flex-col items-center gap-0.5 text-sm font-medium text-emerald-700 dark:text-emerald-400 mt-1">
+                <span>{order.total}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{productCount} products{itemCount > 1 ? `, ${itemCount} items` : ""}</span>
+              </div>
+              {nextStatus && (
+                <div className="flex items-center gap-2 mt-2 justify-center">
+                  <span className="text-xs text-gray-500">Move to</span>
+                  <button
+                    className="px-3 py-1 text-xs font-semibold rounded-md bg-green-600 text-white shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all min-w-[80px] text-center w-fit"
+                    onClick={async e => {
+                      e.stopPropagation();
+                      await updateOrder(order.id, { status: nextStatus as OrderStatus });
+                      fetchOrders();
+                    }}
+                  >
+                    {nextStatus}
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}

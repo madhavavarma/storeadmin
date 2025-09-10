@@ -55,9 +55,20 @@ export default function AddCategoryDrawer({ open, onClose, onAdd }: AddCategoryD
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="right" className="p-6 w-full max-w-md">
-        <h2 className="text-lg font-semibold mb-4">Add New Category</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <SheetContent side="right" className="p-0 w-full max-w-md flex flex-col h-full bg-gray-50 dark:bg-zinc-900">
+        <div className="flex items-center justify-between px-6 pt-6 pb-2 border-b border-gray-200 dark:border-zinc-800">
+          <h2 className="text-xl font-bold text-green-700 dark:text-green-200">Add New Category</h2>
+          <button
+            onClick={onClose}
+            className="p-1 bg-transparent border-none shadow-none text-gray-400 hover:text-red-500 transition-colors focus:outline-none"
+            aria-label="Close"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4 px-6 py-6">
           <div>
             <label className="block text-sm font-medium mb-1">Category Name</label>
             <Input

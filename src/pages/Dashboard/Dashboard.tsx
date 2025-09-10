@@ -228,29 +228,25 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
 
   return (
   <div className="p-2 md:p-6 space-y-4 md:space-y-8">
-      {/* Top Stat Cards */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+    {/* Top Stat Cards */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
         {/* Products Card */}
         {/* Products Card */}
         <Card
-          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-green-200 dark:hover:ring-green-800 animate-fadein-slideup"
+          className="p-0 min-h-[160px] flex flex-col justify-between shadow-lg border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-all duration-300 cursor-pointer hover:shadow-xl hover:scale-[1.025] hover:ring-2 hover:ring-green-200 dark:hover:ring-green-800 animate-fadein-slideup"
           style={{ animationDelay: '0ms' }}
           onClick={() => navigate("/products")}
         >
-          <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-gradient-to-tr from-green-400 to-green-600 dark:from-green-700 dark:to-green-900 rounded-xl p-3 flex items-center justify-center shadow-md">
+          <div className="flex items-center gap-4 p-5 pb-0">
+            <div className="bg-gradient-to-tr from-green-400 to-green-600 dark:from-green-700 dark:to-green-900 rounded-full w-12 h-12 flex items-center justify-center shadow-md">
               <ShoppingBag className="w-7 h-7 text-white" />
             </div>
-            <div className="flex-1">
-              <div className="text-gray-500 dark:text-green-200 text-sm font-medium">
-                Products
-              </div>
-              <div className="text-2xl font-bold text-gray-800 dark:text-green-100">
-                {totalProducts.toLocaleString()}
-              </div>
+            <div className="flex-1 flex flex-col justify-center">
+              <div className="text-gray-500 dark:text-green-200 text-sm font-medium">Products</div>
+              <div className="text-3xl font-extrabold text-gray-800 dark:text-green-100 leading-tight">{totalProducts.toLocaleString()}</div>
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl">
+          <div className="flex items-center justify-between gap-2 px-5 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl">
             <span className="text-green-700 dark:text-green-300 font-semibold">Active: {activeProducts}</span>
             <span className="text-gray-400 font-semibold">Inactive: {inactiveProducts}</span>
           </div>
@@ -258,24 +254,20 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
 
         {/* Categories Card */}
         <Card
-          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-amber-200 dark:hover:ring-amber-800 animate-fadein-slideup"
+          className="p-0 min-h-[160px] flex flex-col justify-between shadow-lg border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-all duration-300 cursor-pointer hover:shadow-xl hover:scale-[1.025] hover:ring-2 hover:ring-amber-200 dark:hover:ring-amber-800 animate-fadein-slideup"
           style={{ animationDelay: '80ms' }}
           onClick={() => navigate("/categories")}
         >
-          <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-gradient-to-tr from-yellow-400 to-amber-500 dark:from-yellow-700 dark:to-amber-900 rounded-xl p-3 flex items-center justify-center shadow-md">
+          <div className="flex items-center gap-4 p-5 pb-0">
+            <div className="bg-gradient-to-tr from-yellow-400 to-amber-500 dark:from-yellow-700 dark:to-amber-900 rounded-full w-12 h-12 flex items-center justify-center shadow-md">
               <Tag className="w-7 h-7 text-white" />
             </div>
-            <div className="flex-1">
-              <div className="text-gray-500 dark:text-amber-200 text-sm font-medium">
-                Categories
-              </div>
-              <div className="text-2xl font-bold text-gray-800 dark:text-amber-100">
-                {totalCategories.toLocaleString()}
-              </div>
+            <div className="flex-1 flex flex-col justify-center">
+              <div className="text-gray-500 dark:text-amber-200 text-sm font-medium">Categories</div>
+              <div className="text-3xl font-extrabold text-gray-800 dark:text-amber-100 leading-tight">{totalCategories.toLocaleString()}</div>
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl">
+          <div className="flex items-center justify-between gap-2 px-5 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl">
             <span className="text-green-700 dark:text-green-300 font-semibold">Active: {activeCategories}</span>
             <span className="text-gray-400 font-semibold">Inactive: {inactiveCategories}</span>
           </div>
@@ -283,25 +275,23 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
 
         {/* Orders Card */}
         <Card
-          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-orange-200 dark:hover:ring-orange-800 relative animate-fadein-slideup"
+          className="p-0 min-h-[160px] flex flex-col justify-between shadow-lg border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-all duration-300 cursor-pointer hover:shadow-xl hover:scale-[1.025] hover:ring-2 hover:ring-orange-200 dark:hover:ring-orange-800 relative animate-fadein-slideup"
           style={{ animationDelay: '160ms' }}
           onClick={() => navigate("/orders")}
         >
-          <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-gradient-to-tr from-orange-400 to-orange-600 dark:from-orange-700 dark:to-orange-900 rounded-xl p-3 flex items-center justify-center shadow-md">
+          <div className="flex items-center gap-4 p-5 pb-0">
+            <div className="bg-gradient-to-tr from-orange-400 to-orange-600 dark:from-orange-700 dark:to-orange-900 rounded-full w-12 h-12 flex items-center justify-center shadow-md">
               <ShoppingCart className="w-7 h-7 text-white" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col justify-center">
               <div className="text-gray-500 dark:text-orange-200 text-sm font-medium flex flex-col gap-0.5">
                 <span>Orders</span>
                 <span className="text-xs lowercase text-green-600 dark:text-green-300 font-normal">({dateRange.label})</span>
               </div>
-              <div className="text-2xl font-bold text-gray-800 dark:text-orange-100">
-                {totalOrders.toLocaleString()}
-              </div>
+              <div className="text-3xl font-extrabold text-gray-800 dark:text-orange-100 leading-tight">{totalOrders.toLocaleString()}</div>
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-wrap px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl">
+          <div className="flex items-center gap-2 flex-wrap px-5 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl min-h-[32px]">
             {pendingOrdersCount > 0 && (
               <span
                 className="inline-block bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100 font-semibold rounded-full px-3 py-1 text-xs flex items-center gap-1 shadow-sm border border-yellow-200 dark:border-yellow-700 mb-1"
@@ -314,24 +304,20 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
 
         {/* Revenue Card */}
         <Card
-          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-lime-200 dark:hover:ring-lime-800 animate-fadein-slideup"
+          className="p-0 min-h-[160px] flex flex-col justify-between shadow-lg border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-all duration-300 cursor-pointer hover:shadow-xl hover:scale-[1.025] hover:ring-2 hover:ring-lime-200 dark:hover:ring-lime-800 animate-fadein-slideup"
           style={{ animationDelay: '240ms' }}
           onClick={() => navigate("/orders")}
         >
-          <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-gradient-to-tr from-lime-400 to-lime-600 dark:from-lime-700 dark:to-lime-900 rounded-xl p-3 flex items-center justify-center shadow-md">
+          <div className="flex items-center gap-4 p-5 pb-0">
+            <div className="bg-gradient-to-tr from-lime-400 to-lime-600 dark:from-lime-700 dark:to-lime-900 rounded-full w-12 h-12 flex items-center justify-center shadow-md">
               <DollarSign className="w-7 h-7 text-white" />
             </div>
-            <div className="flex-1">
-              <div className="text-gray-500 dark:text-lime-200 text-sm font-medium">
-                Revenue
-              </div>
-              <div className="text-2xl font-bold text-gray-800 dark:text-lime-100">
-                ₹{totalRevenue.toLocaleString()}
-              </div>
+            <div className="flex-1 flex flex-col justify-center">
+              <div className="text-gray-500 dark:text-lime-200 text-sm font-medium">Revenue</div>
+              <div className="text-3xl font-extrabold text-gray-800 dark:text-lime-100 leading-tight">₹{totalRevenue.toLocaleString()}</div>
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl">
+          <div className="flex items-center justify-between gap-2 px-5 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl min-h-[32px]">
             <span className="inline-block bg-lime-100 dark:bg-lime-800 text-lime-800 dark:text-lime-100 font-semibold rounded-full px-3 py-1 text-xs flex items-center gap-1 shadow-sm border border-lime-200 dark:border-lime-700">
               <span className="font-bold">{prevLabel}</span>
               <span className="mx-1">•</span>

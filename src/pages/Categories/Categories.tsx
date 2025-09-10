@@ -103,22 +103,22 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
     return <div className="p-8 text-center text-red-500">{error}</div>;
   }
   return (
-    <div className="p-2 md:p-4 space-y-4 md:space-y-6">
+  <div className="p-2 md:p-4 space-y-4 md:space-y-6">
       {/* Top Category Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
         {categories.slice(0, 4).map((cat, idx) => (
           <div
             key={cat.id}
-            className="rounded-2xl p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex flex-col items-center justify-center text-center bg-green-50 dark:bg-zinc-900 animate-fadein-slideup"
+            className="rounded-2xl p-4 shadow-md cursor-pointer transition hover:shadow-lg border border-green-100 dark:border-zinc-800 flex flex-col items-center justify-center text-center bg-green-50 dark:bg-zinc-900 animate-fadein-slideup min-h-[120px]"
             style={{ animationDelay: `${idx * 80}ms` }}
             onClick={() => handleRowClick(cat)}
           >
             <img
               src={cat.image_url}
               alt={cat.name}
-              className="h-16 w-16 object-contain mb-3"
+              className="h-14 w-14 object-contain mb-2 rounded-xl border border-green-100 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-sm"
             />
-            <p className="text-sm font-semibold text-gray-700 dark:text-green-200">{cat.name}</p>
+            <p className="text-base font-semibold text-gray-700 dark:text-green-200 truncate w-full">{cat.name}</p>
           </div>
         ))}
       </div>
@@ -183,29 +183,21 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
         </div>
 
         {/* Mobile Card List */}
-        <div className="grid md:hidden gap-2">
+        <div className="grid grid-cols-2 gap-3 md:hidden">
           {paginated.map((cat, idx) => (
             <div
               key={cat.id}
-              className="flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-xl border shadow-sm hover:bg-green-50 cursor-pointer transition animate-fadein-slideup"
+              className="flex flex-col items-center justify-center p-3 rounded-2xl border border-green-100 dark:border-zinc-800 shadow-md bg-white dark:bg-zinc-900 hover:bg-green-50 dark:hover:bg-zinc-800 cursor-pointer transition animate-fadein-slideup min-h-[100px] text-center"
               style={{ animationDelay: `${idx * 60}ms` }}
               onClick={() => handleRowClick(cat)}
             >
               <img
                 src={cat.image_url}
                 alt={cat.name}
-                className="h-10 w-10 md:h-12 md:w-12 object-contain rounded-md border"
+                className="h-12 w-12 object-contain rounded-xl border border-green-100 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-sm mb-2"
               />
-              <div>
-                <p className="font-medium text-gray-700">{cat.name}</p>
-                <p
-                  className={`text-xs mt-0.5 md:mt-1 ${
-                    cat.is_published ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {cat.is_published ? "Published" : "Unpublished"}
-                </p>
-              </div>
+              <p className="font-semibold text-gray-800 dark:text-green-200 truncate w-full">{cat.name}</p>
+              <span className={`inline-block mt-1 px-2 py-0.5 text-xs font-semibold rounded-full shadow-sm transition-all ${cat.is_published ? 'bg-green-600 text-white border border-green-600' : 'bg-rose-600 text-white border border-rose-600'}`}>{cat.is_published ? 'Published' : 'Unpublished'}</span>
             </div>
           ))}
         </div>

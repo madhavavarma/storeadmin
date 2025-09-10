@@ -127,12 +127,17 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
   return (
     <div className="p-4 max-w-7xl mx-auto space-y-6">
       {/* Sticky Header */}
-  <div className="sticky top-0 z-20 bg-white dark:bg-zinc-900 border-b dark:border-zinc-800 flex items-center justify-between px-4 py-3">
-        <h1 className="text-lg font-bold text-green-700">Order Details</h1>
-        <Button variant="ghost" size="icon" onClick={onClose} className="text-gray-500 hover:text-red-500">
-          <span className="sr-only">Close</span>
-          &times;
-        </Button>
+      <div className="sticky top-0 z-20 bg-white dark:bg-zinc-900 border-b dark:border-zinc-800 flex items-center justify-between px-4 py-3">
+        <h1 className="text-lg font-bold text-green-700 dark:text-green-200">Order Details</h1>
+        <button
+          onClick={onClose}
+          className="p-1 bg-transparent border-none shadow-none text-gray-400 hover:text-red-500 transition-colors focus:outline-none"
+          aria-label="Close"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       {/* Order Details Card */}
@@ -240,7 +245,8 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="text-lg text-gray-700 dark:text-gray-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
+                            className="text-lg text-gray-700 dark:text-gray-100 bg-white dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 focus:bg-gray-200 dark:focus:bg-zinc-600 border border-gray-200 dark:border-zinc-700"
+                            style={{ color: 'inherit', backgroundColor: 'inherit' }}
                             onClick={() => dispatch(OrdersActions.decreaseQuantity({ productId: item.product.id ?? 0, selectedOptions: item.selectedOptions }))}
                             disabled={item.quantity <= 1}
                           >
@@ -250,7 +256,8 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="text-lg text-gray-700 dark:text-gray-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
+                            className="text-lg text-gray-700 dark:text-gray-100 bg-white dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 focus:bg-gray-200 dark:focus:bg-zinc-600 border border-gray-200 dark:border-zinc-700"
+                            style={{ color: 'inherit', backgroundColor: 'inherit' }}
                             onClick={() => dispatch(OrdersActions.increaseQuantity({ productId: item.product.id ?? 0, selectedOptions: item.selectedOptions }))}
                           >
                             +
@@ -262,7 +269,8 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-red-500 absolute top-2 right-2"
+                      className="text-red-500 absolute top-2 right-2 bg-white dark:bg-zinc-800 hover:bg-red-50 dark:hover:bg-zinc-700 focus:bg-red-100 dark:focus:bg-zinc-700 border border-red-200 dark:border-zinc-700"
+                      style={{ color: '#ef4444', backgroundColor: 'inherit' }}
                       onClick={() => handleRemoveItem(item)}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -389,7 +397,8 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
           >
             <Button
               onClick={handleUpdateOrder}
-              className="w-full bg-[#5DBF13] hover:bg-green-700 text-white rounded-xl mt-4"
+              className="w-full bg-[#5DBF13] hover:bg-green-700 text-white rounded-xl mt-4 focus:bg-green-800"
+              style={{ backgroundColor: '#5DBF13', color: '#fff' }}
               disabled={cartitems.length === 0}
             >
               Update Order

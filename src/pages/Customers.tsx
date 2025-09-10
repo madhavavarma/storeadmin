@@ -342,9 +342,20 @@ export default function Customers({ refreshKey }: CustomersProps) {
       </div>
       {/* User Drawer */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <SheetContent side="right" className="max-w-md w-full px-6 py-8 flex flex-col">
-          <div className="flex flex-col gap-8 h-full">
-            <div className="font-bold text-lg text-green-700 mb-2">Customer Details</div>
+        <SheetContent side="right" className="p-0 w-full max-w-md flex flex-col h-full bg-gray-50 dark:bg-zinc-900">
+          <div className="flex items-center justify-between px-6 pt-6 pb-2 border-b border-gray-200 dark:border-zinc-800">
+            <div className="text-xl font-bold text-green-700 dark:text-green-200">Customer Details</div>
+            <button
+              onClick={() => setDrawerOpen(false)}
+              className="p-1 bg-transparent border-none shadow-none text-gray-400 hover:text-red-500 transition-colors focus:outline-none"
+              aria-label="Close"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div className="flex flex-col gap-8 h-full px-6 py-6">
             {selectedUser && (
               <Card className="p-6 bg-green-50/70 border border-green-100 rounded-xl shadow-sm">
                 <div className="grid grid-cols-2 gap-y-5 gap-x-8">
