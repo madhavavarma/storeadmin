@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
+import { useLocation } from "react-router-dom"
 import { supabase } from "@/supabaseClient"
 import { useOrdersRealtime } from "@/hooks/useOrdersRealtime"
 import { useDispatch } from "react-redux"
@@ -55,11 +56,13 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function Orders({ refreshKey }: { refreshKey?: number }) {
+  const location = useLocation();
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
+  // Removed unused drawerOrder state
   // const [pendingStatus, setPendingStatus] = useState<{ [orderId: string]: string }>({});
   const dispatch = useDispatch();
 
@@ -105,9 +108,23 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
     });
   }, []);
 
+
+  // Open drawer if openOrderId is passed in location.state
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders, refreshKey]);
+
+  useEffect(() => {
+    if (location.state && location.state.openOrderId && orders.length > 0) {
+      const order = orders.find(o => o.id === location.state.openOrderId || o.raw?.id === location.state.openOrderId);
+      if (order) {
+        dispatch(OrdersActions.showOrderDetail(order.raw || order));
+        setDrawerOpen(true);
+        setTimeout(() => setDrawerVisible(true), 10);
+      }
+    }
+    // eslint-disable-next-line
+  }, [location.state, orders]);
 
   useOrdersRealtime(fetchOrders);
 
@@ -322,7 +339,9 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
           }`}
           onClick={() => {
             setDrawerVisible(false);
-            setTimeout(() => setDrawerOpen(false), 300);
+            setTimeout(() => {
+              setDrawerOpen(false);
+            }, 300);
           }}
         >
           <div
@@ -335,7 +354,10 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
               className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl"
               onClick={() => {
                 setDrawerVisible(false);
-                setTimeout(() => setDrawerOpen(false), 300);
+                setTimeout(() => {
+                  setDrawerOpen(false);
+                  // setDrawerOrder(null); (removed, no longer needed)
+                }, 300);
               }}
             >
               &times;

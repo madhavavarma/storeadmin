@@ -9,6 +9,7 @@ import Orders from './pages/Orders/Orders'
 import Categories from './pages/Categories/Categories'
 import Header from './components/Header'
 import { useState, useCallback } from 'react';
+import Dashboard from './pages/Dashboard/Dashboard'
 
 
 export default function App() {
@@ -25,9 +26,11 @@ export default function App() {
             <Header onAuthSuccess={handleAuthSuccess} />
             <main className="flex-1 bg-zinc-50 dark:bg-zinc-900 max-w-[100%]">
               <Routes>
+                <Route path="/dashboard" element={<Dashboard key={refreshKey} />} />
                 <Route path="/orders" element={<Orders refreshKey={refreshKey} />} />
                 <Route path="/categories" element={<Categories refreshKey={refreshKey} />} />
                 {/* Add more routes here as needed */}
+                <Route path="*" element={<Dashboard key={refreshKey} />} />
               </Routes>
             </main>
           </div>
