@@ -1,7 +1,7 @@
 
 
 import { Sun, Moon, User, ShoppingCart, Bell, LogOut, RefreshCcw, CalendarDays } from "lucide-react";
-import { useRef } from "react";
+
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/store/Store";
 import { toggleTheme, setUser } from "@/store/HeaderSlice";
@@ -35,8 +35,8 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
     const stored = localStorage.getItem("dateRange");
     return stored ? JSON.parse(stored) : defaultRange;
   });
-  const customStartRef = useRef<HTMLInputElement>(null);
-  const customEndRef = useRef<HTMLInputElement>(null);
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
 
   // Broadcast date range changes
   useEffect(() => {
@@ -112,9 +112,8 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
               id="date-range-menu"
               className="hidden absolute z-50 mt-2 w-56 right-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-md shadow-lg p-2"
               tabIndex={-1}
-              onBlur={e => { e.currentTarget.classList.add("hidden"); }}
             >
-              {[
+              {[ 
                 { label: "Today", value: "today" },
                 { label: "This Week", value: "week" },
                 { label: "This Month", value: "month" },
@@ -128,6 +127,9 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
                     if (opt.value !== "custom") {
                       setDateRange({ label: opt.label, value: opt.value, start: null, end: null });
                       document.getElementById("date-range-menu")?.classList.add("hidden");
+                    } else {
+                      setDateRange({ label: opt.label, value: opt.value, start: null, end: null });
+                      // Do NOT close the menu, show the date pickers
                     }
                   }}
                 >
@@ -138,16 +140,24 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
               {dateRange.value === "custom" && (
                 <div className="flex flex-col gap-2 mt-2">
                   <label className="text-xs text-zinc-500">Start Date</label>
-                  <input ref={customStartRef} type="date" className="px-2 py-1 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200" />
+                  <input
+                    type="date"
+                    className="px-2 py-1 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200"
+                    value={customStart}
+                    onChange={e => setCustomStart(e.target.value)}
+                  />
                   <label className="text-xs text-zinc-500">End Date</label>
-                  <input ref={customEndRef} type="date" className="px-2 py-1 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200" />
+                  <input
+                    type="date"
+                    className="px-2 py-1 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200"
+                    value={customEnd}
+                    onChange={e => setCustomEnd(e.target.value)}
+                  />
                   <button
                     className="mt-2 px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700"
                     onClick={() => {
-                      const start = customStartRef.current?.value;
-                      const end = customEndRef.current?.value;
-                      if (start && end) {
-                        setDateRange({ label: `Custom: ${start} to ${end}`, value: "custom", start, end });
+                      if (customStart && customEnd) {
+                        setDateRange({ label: `Custom: ${customStart} to ${customEnd}`, value: "custom", start: customStart, end: customEnd });
                         document.getElementById("date-range-menu")?.classList.add("hidden");
                       }
                     }}
