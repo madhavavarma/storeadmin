@@ -31,8 +31,8 @@ export default function App() {
                 <Route path="/dashboard" element={<Dashboard key={refreshKey} />} />
                 <Route path="/orders" element={<Orders refreshKey={refreshKey} />} />
                 <Route path="/categories" element={<Categories refreshKey={refreshKey} />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/customers" element={<Customers />} />
+                <Route path="/settings" element={<Settings refreshKey={refreshKey} />} />
+                <Route path="/customers" element={<Customers refreshKey={refreshKey} />} />
                 {/* Add more routes here as needed */}
                 <Route path="*" element={<Dashboard key={refreshKey} />} />
               </Routes>

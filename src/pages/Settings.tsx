@@ -12,7 +12,11 @@ import { supabase } from "@/supabaseClient";
 import { getAppSettings } from "./api";
 import type { IAppSettings } from "@/interfaces/IAppSettings";
 
-export default function Settings() {
+interface SettingsProps {
+  refreshKey?: number;
+}
+
+export default function Settings({ refreshKey }: SettingsProps) {
   const [settings, setSettings] = useState<IAppSettings | null>(null);
   const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>("");
@@ -45,7 +49,7 @@ export default function Settings() {
         setLoading(false);
       }
     });
-  }, []);
+  }, [refreshKey]);
 
   // Handle changes (top-level + nested)
   const handleChange = (

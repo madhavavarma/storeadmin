@@ -20,7 +20,11 @@ interface Order {
   status: string;
 }
 
-export default function Customers() {
+interface CustomersProps {
+  refreshKey?: number;
+}
+
+export default function Customers({ refreshKey }: CustomersProps) {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +62,7 @@ export default function Customers() {
       window.removeEventListener("liveUpdatesChanged", liveHandler);
       window.removeEventListener("dateRangeChanged", dateHandler);
     };
-  }, []);
+  }, [refreshKey]);
 
   // Always load once on mount and on dateRange change
   useEffect(() => {
