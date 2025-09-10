@@ -206,22 +206,23 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
       {/* Top Stat Cards */}
   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {/* Products Card */}
-        <Card className="p-0 shadow-md border border-gray-100">
+        {/* Products Card */}
+        <Card className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300">
           <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-green-100 dark:bg-green-900 rounded-xl p-3 flex items-center justify-center">
+            <div className="bg-green-100 dark:bg-green-800 rounded-xl p-3 flex items-center justify-center">
               📦
             </div>
             <div className="flex-1">
-              <div className="text-gray-500 text-sm font-medium">
+              <div className="text-gray-500 dark:text-green-200 text-sm font-medium">
                 Total Products
               </div>
-              <div className="text-2xl font-bold text-gray-800">
+              <div className="text-2xl font-bold text-gray-800 dark:text-green-100">
                 {totalProducts.toLocaleString()}
               </div>
             </div>
           </div>
           <div
-            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-blue-50/60 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-blue-100 dark:hover:bg-zinc-700 transition"
+            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-green-50 dark:hover:bg-green-900 transition"
             onClick={() => navigate("/products")}
           >
             <span
@@ -233,32 +234,32 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             >
               {productsChange >= 0 ? "▲" : "▼"} {Math.abs(productsChange).toFixed(1)}%
             </span>
-            <span className="text-gray-500">
+            <span className="text-gray-500 dark:text-gray-300">
               Last Week: {lastWeekProducts.toLocaleString()}
             </span>
-            <span className="text-blue-600 font-medium hover:underline ml-auto">
+            <span className="text-green-700 dark:text-green-300 font-medium hover:underline ml-auto">
               View More
             </span>
           </div>
         </Card>
 
         {/* Categories Card */}
-        <Card className="p-0 shadow-md border border-gray-100">
+        <Card className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300">
           <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-blue-100 dark:bg-blue-900 rounded-xl p-3 flex items-center justify-center">
+            <div className="bg-amber-100 dark:bg-amber-800 rounded-xl p-3 flex items-center justify-center">
               📂
             </div>
             <div className="flex-1">
-              <div className="text-gray-500 text-sm font-medium">
+              <div className="text-gray-500 dark:text-amber-200 text-sm font-medium">
                 Total Categories
               </div>
-              <div className="text-2xl font-bold text-gray-800">
+              <div className="text-2xl font-bold text-gray-800 dark:text-amber-100">
                 {totalCategories.toLocaleString()}
               </div>
             </div>
           </div>
           <div
-            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-blue-50/60 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-blue-100 dark:hover:bg-zinc-700 transition"
+            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900 transition"
             onClick={() => navigate("/categories")}
           >
             <span
@@ -270,32 +271,32 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             >
               {categoriesChange >= 0 ? "▲" : "▼"} {Math.abs(categoriesChange).toFixed(1)}%
             </span>
-            <span className="text-gray-500">
+            <span className="text-gray-500 dark:text-gray-300">
               Last Week: {lastWeekCategories.toLocaleString()}
             </span>
-            <span className="text-blue-600 font-medium hover:underline ml-auto">
+            <span className="text-amber-700 dark:text-amber-200 font-medium hover:underline ml-auto">
               View More
             </span>
           </div>
         </Card>
 
         {/* Orders Card */}
-        <Card className="p-0 shadow-md border border-gray-100">
+        <Card className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300">
           <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-orange-100 dark:bg-orange-900 rounded-xl p-3 flex items-center justify-center">
+            <div className="bg-orange-100 dark:bg-orange-800 rounded-xl p-3 flex items-center justify-center">
               🛒
             </div>
             <div className="flex-1">
-              <div className="text-gray-500 text-sm font-medium">
+              <div className="text-gray-500 dark:text-orange-200 text-sm font-medium">
                 Total Orders
               </div>
-              <div className="text-2xl font-bold text-gray-800">
+              <div className="text-2xl font-bold text-gray-800 dark:text-orange-100">
                 {totalOrders.toLocaleString()}
               </div>
             </div>
           </div>
           <div
-            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-blue-50/60 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-blue-100 dark:hover:bg-zinc-700 transition"
+            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900 transition"
             onClick={() => navigate("/orders")}
           >
             <span
@@ -307,32 +308,32 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             >
               {ordersChange >= 0 ? "▲" : "▼"} {Math.abs(ordersChange).toFixed(1)}%
             </span>
-            <span className="text-gray-500">
+            <span className="text-gray-500 dark:text-gray-300">
               Last Week: {lastWeekOrders.length.toLocaleString()}
             </span>
-            <span className="text-blue-600 font-medium hover:underline ml-auto">
+            <span className="text-orange-700 dark:text-orange-200 font-medium hover:underline ml-auto">
               View More
             </span>
           </div>
         </Card>
 
         {/* Revenue Card */}
-        <Card className="p-0 shadow-md border border-gray-100">
+        <Card className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300">
           <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-pink-100 dark:bg-pink-900 rounded-xl p-3 flex items-center justify-center">
+            <div className="bg-lime-100 dark:bg-lime-800 rounded-xl p-3 flex items-center justify-center">
               💰
             </div>
             <div className="flex-1">
-              <div className="text-gray-500 text-sm font-medium">
+              <div className="text-gray-500 dark:text-lime-200 text-sm font-medium">
                 Total Revenue
               </div>
-              <div className="text-2xl font-bold text-gray-800">
+              <div className="text-2xl font-bold text-gray-800 dark:text-lime-100">
                 ₹{totalRevenue.toLocaleString()}
               </div>
             </div>
           </div>
           <div
-            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-blue-50/60 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-blue-100 dark:hover:bg-zinc-700 transition"
+            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-lime-50 dark:hover:bg-lime-900 transition"
             onClick={() => navigate("/orders")}
           >
             <span
@@ -344,10 +345,10 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             >
               {revenueChange >= 0 ? "▲" : "▼"} {Math.abs(revenueChange).toFixed(1)}%
             </span>
-            <span className="text-gray-500">
+            <span className="text-gray-500 dark:text-gray-300">
               Last Week: ₹{lastWeekRevenue.toLocaleString()}
             </span>
-            <span className="text-blue-600 font-medium hover:underline ml-auto">
+            <span className="text-lime-700 dark:text-lime-200 font-medium hover:underline ml-auto">
               View More
             </span>
           </div>
@@ -357,56 +358,46 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
       {/* Recent Orders and Users/Order Count side by side */}
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
         {/* Recent Orders */}
-  <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 flex flex-col justify-center">
-          <h2 className="text-lg font-semibold mb-4 text-gray-700">
+  <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-lg p-6 flex flex-col justify-center border border-gray-100 dark:border-zinc-800">
+          <h2 className="text-lg font-semibold mb-4 text-green-700 dark:text-green-300">
             Recent Orders
           </h2>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm border-collapse">
+            <table className="w-full text-sm border-separate border-spacing-0 rounded-xl overflow-hidden">
               <thead>
                 <tr className="bg-yellow-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
-                  <th className="p-3 font-medium">Order ID</th>
-                  <th className="p-3 font-medium">Date</th>
-                  <th className="p-3 font-medium">Total</th>
-                  <th className="p-3 font-medium">Status</th>
+                  <th className="p-3 font-semibold rounded-tl-xl">Order ID</th>
+                  <th className="p-3 font-semibold">Date</th>
+                  <th className="p-3 font-semibold">Total</th>
+                  <th className="p-3 font-semibold rounded-tr-xl">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {recentOrders.map((order) => (
+                {recentOrders.map((order, idx) => (
                   <tr
                     key={order.id}
-                    className="border-b hover:bg-yellow-50 dark:hover:bg-zinc-800 transition cursor-pointer"
+                    className={`transition cursor-pointer ${
+                      idx % 2 === 0
+                        ? "bg-gray-50 dark:bg-zinc-900"
+                        : "bg-white dark:bg-zinc-800"
+                    } hover:bg-green-50 dark:hover:bg-green-900 group`}
                     onClick={() =>
                       navigate("/orders", { state: { openOrderId: order.id } })
                     }
                     title="View order details"
                   >
-                    <td className="p-3">{order.id}</td>
-                    <td className="p-3">{order.created_at?.slice(0, 10)}</td>
-                    <td className="p-3">₹{order.totalprice}</td>
+                    <td className="p-3 font-semibold text-gray-800 dark:text-green-200 group-hover:text-green-700 dark:group-hover:text-green-300">{order.id}</td>
+                    <td className="p-3 text-gray-600 dark:text-gray-300">{order.created_at?.slice(0, 10)}</td>
+                    <td className="p-3 text-green-700 dark:text-green-300 font-bold">₹{order.totalprice}</td>
                     <td className="p-3">
                       <span
-                        className="px-2 py-1 text-xs rounded-md border font-medium"
-                        style={{
-                          background:
-                            order.status === "Delivered"
-                              ? "#e6ffed"
-                              : order.status === "Pending"
-                              ? "#fffbe6"
-                              : "#f0f0f0",
-                          color:
-                            order.status === "Delivered"
-                              ? "#16a34a"
-                              : order.status === "Pending"
-                              ? "#b45309"
-                              : "#64748b",
-                          borderColor:
-                            order.status === "Delivered"
-                              ? "#bbf7d0"
-                              : order.status === "Pending"
-                              ? "#fde68a"
-                              : "#e5e7eb",
-                        }}
+                        className={`px-2 py-1 text-xs rounded-md border font-semibold shadow-sm transition-colors
+                          ${order.status === "Delivered"
+                            ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700"
+                            : order.status === "Pending"
+                            ? "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700"
+                            : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-700"}
+                        `}
                       >
                         {order.status}
                       </span>
@@ -456,12 +447,16 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
 
         {/* Category List */}
   <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 min-h-full h-full">
-          <h2 className="text-lg font-semibold mb-4 text-blue-700">Categories</h2>
+          <h2 className="text-lg font-semibold mb-4 text-amber-700 dark:text-amber-200">Categories</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-            {categoryStats.map((cat) => (
+            {categoryStats.map((cat, idx) => (
               <Card
                 key={cat.id}
-                className="p-4 flex flex-col gap-2 border border-blue-100 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-950 hover:shadow-md transition"
+                className={`p-4 flex flex-col gap-2 border shadow-sm transition cursor-pointer ${
+                  idx % 2 === 0
+                    ? "border-amber-100 dark:border-zinc-800 bg-amber-50/60 dark:bg-zinc-900"
+                    : "border-amber-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+                } hover:bg-amber-100 dark:hover:bg-amber-900`}
               >
                 <div className="flex items-center gap-3">
                   <img
@@ -470,8 +465,8 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
                     className="h-10 w-10 object-contain rounded-md border"
                   />
                   <div>
-                    <div className="font-semibold text-gray-700">{cat.name}</div>
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="font-semibold text-gray-700 dark:text-amber-200">{cat.name}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-300 mt-1">
                       {cat.productCount} products, {cat.orderCount} orders
                     </div>
                   </div>
@@ -487,31 +482,35 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
       {/* Users and Their Order Count Table */}
   <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 flex flex-col justify-center">
-          <h2 className="text-lg font-semibold mb-4 text-gray-700">
-            Users and Their Order Count
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="bg-blue-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
-                  <th className="p-3 font-medium">User</th>
-                  <th className="p-3 font-medium">Order Count</th>
-                </tr>
-              </thead>
-              <tbody>
-                {userOrderList.map((user) => (
-                  <tr
-                    key={user.name}
-                    className="border-b hover:bg-blue-50 dark:hover:bg-zinc-800 transition"
-                  >
-                    <td className="p-3">{user.name}</td>
-                    <td className="p-3">{user.count}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+    <h2 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">
+      Users and Their Order Count
+    </h2>
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm border-collapse">
+        <thead>
+          <tr className="bg-gray-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
+            <th className="p-3 font-medium">User</th>
+            <th className="p-3 font-medium">Order Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          {userOrderList.map((user, idx) => (
+            <tr
+              key={user.name}
+              className={`transition cursor-pointer ${
+                idx % 2 === 0
+                  ? "bg-gray-50 dark:bg-zinc-900"
+                  : "bg-white dark:bg-zinc-800"
+              } hover:bg-green-50 dark:hover:bg-green-900 group`}
+            >
+              <td className="p-3 font-semibold text-gray-800 dark:text-green-200 group-hover:text-green-700 dark:group-hover:text-green-300">{user.name}</td>
+              <td className="p-3 text-green-700 dark:text-green-300 font-bold">{user.count}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
        </div>
 
     </div>

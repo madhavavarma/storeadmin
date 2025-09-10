@@ -167,15 +167,15 @@ export default function AppSidebar({ refreshKey }: { refreshKey?: number }) {
                 key={item.title}
                 to={item.url}
                 className={`relative flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium group transition-all
-                  ${collapsed ? "justify-center" : "hover:bg-gray-100 text-gray-700"}
-                  ${active ? "bg-green-50 text-green-600 font-semibold" : ""}
+                  ${collapsed ? "justify-center" : "hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-700 dark:text-zinc-200"}
+                  ${active ? "bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-300 font-semibold" : ""}
                 `}
               >
                 <Icon
                   className={`w-5 h-5 
                     ${active ? "text-green-600 dark:text-green-400" : "text-gray-500 group-hover:text-gray-700 dark:text-gray-300 dark:group-hover:text-white"}`}
                 />
-                {!collapsed && <span>{item.title}</span>}
+                {!collapsed && <span className="transition-colors duration-200">{item.title}</span>}
                 {/* Badge for specific menu items */}
                 {!collapsed && item.badge !== undefined && item.badge !== null && (
                   <span
