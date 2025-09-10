@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react"
-import { Link, useLocation } from "react-router-dom"
-import { LayoutDashboard, Settings, ShoppingCart, Package, Users, Tag } from "lucide-react"
-import { supabase } from "@/supabaseClient"
+
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { LayoutDashboard, Settings, ShoppingCart, Package, Users, Tag, User as UserIcon } from "lucide-react";
+import { supabase } from "@/supabaseClient";
 
 
 export default function AppSidebar({ refreshKey }: { refreshKey?: number }) {
@@ -216,22 +217,33 @@ export default function AppSidebar({ refreshKey }: { refreshKey?: number }) {
           </nav>
 
           {/* Bottom Profile */}
-          <div className="p-4 border-t border-gray-200 flex items-center gap-3">
-            <img
-              src="https://randomuser.me/api/portraits/men/32.jpg"
-              alt="User"
-              className="w-10 h-10 rounded-full"
-            />
-            {!collapsed && (
-              <div>
-                <p className="text-sm font-semibold">John Doe</p>
-                <p className="text-xs text-gray-500">johndoe@gmail.com</p>
-              </div>
-            )}
-          </div>
+          <SidebarUser collapsed={collapsed} />
         </div>
       );
     }
+
+// SidebarUser component for user info and avatar
+function SidebarUser({ collapsed }: { collapsed: boolean }) {
+  const [user, setUser] = useState<any>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data?.user));
+  }, []);
+  const name = user?.user_metadata?.name || (user?.email ? user.email.split("@")[0] : "User");
+  const email = user?.email || "";
+  return (
+    <div className="p-4 border-t border-gray-200 dark:border-zinc-800 flex items-center gap-3">
+      <span className="w-10 h-10 rounded-full bg-gradient-to-tr from-green-400 via-blue-400 to-purple-400 flex items-center justify-center animate-pulse">
+        <UserIcon className="w-6 h-6 text-white" />
+      </span>
+      {!collapsed && (
+        <div>
+          <p className="text-sm font-semibold truncate max-w-[120px]">{name}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[120px]">{email}</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
     // Responsive rendering
     return (
