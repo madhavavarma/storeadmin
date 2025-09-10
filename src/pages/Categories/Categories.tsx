@@ -103,7 +103,7 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
     return <div className="p-8 text-center text-red-500">{error}</div>;
   }
   return (
-  <div className="p-2 md:p-4 space-y-4 md:space-y-6">
+  <div className="p-2 md:p-4 space-y-4 md:space-y-6 pb-24 md:pb-0">
       {/* Top Category Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
         {categories.slice(0, 4).map((cat, idx) => (
@@ -183,7 +183,7 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
         </div>
 
         {/* Mobile Card List */}
-        <div className="grid grid-cols-2 gap-3 md:hidden">
+  <div className="grid grid-cols-2 gap-3 md:hidden pb-6">
           {paginated.map((cat, idx) => (
             <div
               key={cat.id}

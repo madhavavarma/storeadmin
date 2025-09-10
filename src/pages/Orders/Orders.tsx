@@ -11,7 +11,10 @@ import {
   Truck,
   Gift,
   PersonStandingIcon,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 const summaryCardDefs = [
   { title: "Pending", status: "Pending", icon: PersonStandingIcon, color: "bg-lime-50 text-lime-600" },
@@ -72,6 +75,9 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
   // Sorting state
   const [sortCol, setSortCol] = useState<keyof OrderRow | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 10;
 
 
   // Live update state
@@ -237,6 +243,15 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
     return sorted;
   }
 
+  // Pagination helpers
+  const totalPages = Math.max(1, Math.ceil(getSortedOrders().length / perPage));
+  const paginatedOrders = getSortedOrders().slice((currentPage - 1) * perPage, currentPage * perPage);
+
+  // keep page in range when orders change
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [totalPages]);
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[200px] p-8">
@@ -253,7 +268,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
   }
 
   return (
-  <div className="p-2 md:p-6 space-y-4 md:space-y-8">
+  <div className="p-2 md:p-6 space-y-4 md:space-y-8 pb-24 md:pb-0">
       {/* Top Summary Cards */}
   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
         {summaryCardDefs.map((card, idx) => {
@@ -295,7 +310,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
             </tr>
           </thead>
           <tbody>
-            {getSortedOrders().map((order: OrderRow) => {
+            {paginatedOrders.map((order: OrderRow) => {
 
 
   
@@ -391,8 +406,8 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
       </div>
 
       {/* Mobile Card View */}
-      <div className="grid grid-cols-2 gap-3 md:hidden">
-        {orders.map((order, idx) => {
+  <div className="grid grid-cols-2 gap-3 md:hidden pb-6">
+        {paginatedOrders.map((order, idx) => {
           const statusFlow = [
             "Pending",
             "Confirmed",
@@ -448,6 +463,33 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
             </div>
           );
         })}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex flex-col items-center gap-4 mt-4">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            className="rounded-md"
+          >
+            <ChevronLeft size={16} /> Previous
+          </Button>
+          <span className="px-3 text-sm font-medium">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            className="rounded-md"
+          >
+            Next <ChevronRight size={16} />
+          </Button>
+        </div>
       </div>
 
       {/* Drawer */}
