@@ -104,7 +104,8 @@ export default function AddCategoryDrawer({ open, onClose, onAdd }: AddCategoryD
           <Button
             type="submit"
             disabled={loading}
-            className="w-full"
+            className="w-full bg-green-600 hover:bg-green-700 text-white border-green-700"
+            variant="default"
           >
             {loading ? "Adding..." : "Add Category"}
           </Button>

@@ -191,9 +191,6 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
           <button className="p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group" title="Notifications">
             <Bell className="w-5 h-5 text-zinc-700 dark:text-green-300 group-hover:text-green-600 dark:group-hover:text-green-400" />
           </button>
-          <button className="p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group" title="Orders">
-            <ShoppingCart className="w-5 h-5 text-zinc-700 dark:text-green-300 group-hover:text-green-600 dark:group-hover:text-green-400" />
-          </button>
           {user?.name ? (
             <button
               className="flex items-center gap-2 p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group"

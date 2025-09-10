@@ -125,7 +125,7 @@ export default function EditCategoryDrawer({ open, onClose, category, onUpdate, 
             <label htmlFor="isPublishedEdit" className="text-sm">Published</label>
           </div>
           <div className="flex flex-col gap-2">
-            <Button type="submit" disabled={loading} className="w-full">{loading ? "Updating..." : "Update Category"}</Button>
+            <Button type="submit" disabled={loading} className="w-full bg-green-600 hover:bg-green-700 text-white border-green-700" variant="default">{loading ? "Updating..." : "Update Category"}</Button>
             <Button type="button" variant="destructive" onClick={handleDelete} className="w-full">Delete</Button>
           </div>
           <ConfirmDialog

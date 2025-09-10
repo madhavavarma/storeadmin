@@ -267,7 +267,7 @@ export default function Customers({ refreshKey }: CustomersProps) {
         <div className="flex flex-col items-center gap-4 mt-4">
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
@@ -279,7 +279,7 @@ export default function Customers({ refreshKey }: CustomersProps) {
               Page {currentPage} of {totalPages}
             </span>
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}

@@ -404,7 +404,8 @@ export default function Settings({ refreshKey }: SettingsProps) {
       <Button
         onClick={handleSave}
         disabled={saving || !settings}
-        className="w-full"
+        className="w-full bg-green-600 hover:bg-green-700 text-white border-green-700"
+        variant="default"
       >
         {saving ? "Saving..." : "Save Settings"}
       </Button>

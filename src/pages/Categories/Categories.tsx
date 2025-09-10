@@ -99,7 +99,7 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
           <Button
             variant="default"
             size="sm"
-            className="w-full md:w-auto"
+            className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white border-green-700"
             onClick={() => setDrawerOpen(true)}
           >
             + Add New
@@ -119,11 +119,7 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
               {paginated.map((cat, idx) => (
                 <tr
                   key={cat.id}
-                  className={`border-b hover:bg-green-50 dark:hover:bg-zinc-800 cursor-pointer transition ${
-                    idx % 2 === 0
-                      ? "bg-white dark:bg-zinc-900"
-                      : "bg-green-50 dark:bg-zinc-900"
-                  }`}
+                  className={"border-b hover:bg-green-50 dark:hover:bg-zinc-800 cursor-pointer transition bg-white dark:bg-zinc-900"}
                   onClick={() => handleRowClick(cat)}
                 >
                   <td className="p-3 flex items-center gap-3 align-top">
