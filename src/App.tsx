@@ -8,6 +8,7 @@ import AppSidebar from './pages/Layout/AppSitebar'
 import Orders from './pages/Orders/Orders'
 import Categories from './pages/Categories/Categories'
 import Settings from './pages/Settings'
+import Customers from './pages/Customers'
 import Header from './components/Header'
 import { useState, useCallback } from 'react';
 import Dashboard from './pages/Dashboard/Dashboard'
@@ -31,6 +32,7 @@ export default function App() {
                 <Route path="/orders" element={<Orders refreshKey={refreshKey} />} />
                 <Route path="/categories" element={<Categories refreshKey={refreshKey} />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/customers" element={<Customers />} />
                 {/* Add more routes here as needed */}
                 <Route path="*" element={<Dashboard key={refreshKey} />} />
               </Routes>
