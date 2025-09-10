@@ -3,9 +3,12 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { LayoutDashboard, Settings, ShoppingCart, Package, Users, Tag, User as UserIcon } from "lucide-react";
 import { supabase } from "@/supabaseClient";
+import { useSelector } from "react-redux";
 
 
-export default function AppSidebar({ refreshKey }: { refreshKey?: number }) {
+export default function AppSidebar({ refreshKey }: { refreshKey: number }) {
+  const logoUrl = useSelector((state: any) => state.AppSettings?.logoUrl);
+  const siteTitle = useSelector((state: any) => state.AppSettings?.branding?.siteTitle);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   // Check auth on mount and on login/logout
   useEffect(() => {
@@ -130,12 +133,18 @@ export default function AppSidebar({ refreshKey }: { refreshKey?: number }) {
       >
         {/* Top Section (Company / Logo + collapse button) */}
         <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex w-10 h-10 bg-zinc-200 dark:bg-zinc-800 rounded-full items-center justify-center font-bold">
-              SA
-            </span>
-            {!collapsed && (
-              <span className="text-lg font-bold">Store Admin</span>
+          <div className="flex items-center">
+            {logoUrl && (
+              <>
+                <img
+                  src={logoUrl}
+                  alt="Logo"
+                  className="w-10 h-10 object-contain rounded-full bg-white border border-zinc-200 dark:border-zinc-700 shadow"
+                />
+                {siteTitle && (
+                  <span className="ml-3 font-bold text-lg truncate max-w-[140px] dark:text-white text-gray-900 align-middle">{siteTitle}</span>
+                )}
+              </>
             )}
           </div>
           <div className="flex gap-2">
