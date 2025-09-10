@@ -17,11 +17,11 @@ import {
 } from "recharts";
 import { getCategories, getOrders, getProducts } from "../api";
 
-export default function Dashboard() {
+export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [products, setProducts] = useState<IProduct[]>([]);
   const [orders, setOrders] = useState<IOrder[]>([]);
-  // const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const navigate = useNavigate();
 
   // Date range state
@@ -40,17 +40,37 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchData() {
-      const [cat, prod, ord] = await Promise.all([
-        getCategories(),
-        getProducts(),
-        getOrders(),
-      ]);
-      setCategories(cat || []);
-      setProducts(prod || []);
-      setOrders(ord || []);
+      const user = await import("@/supabaseClient").then(m => m.supabase.auth.getUser());
+      if (user?.data?.user) {
+        setIsLoggedIn(true);
+        const [cat, prod, ord] = await Promise.all([
+          getCategories(),
+          getProducts(),
+          getOrders(),
+        ]);
+        setCategories(cat || []);
+        setProducts(prod || []);
+        setOrders(ord || []);
+      } else {
+        setIsLoggedIn(false);
+        setCategories([]);
+        setProducts([]);
+        setOrders([]);
+      }
     }
     fetchData();
-  }, [dateRange]);
+    // Listen for signout event to clear dashboard data
+    const clear = () => {
+      setCategories([]);
+      setProducts([]);
+      setOrders([]);
+    };
+    window.addEventListener("clearOrders", clear);
+    return () => window.removeEventListener("clearOrders", clear);
+  }, [dateRange, refreshKey]);
+  if (isLoggedIn === false) {
+    return <div className="p-8 text-center text-gray-500">Please log in to view dashboard.</div>;
+  }
 
   // Date helpers
 
