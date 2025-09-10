@@ -79,7 +79,7 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
         {categories.slice(0, 4).map((cat) => (
           <div
             key={cat.id}
-            className="rounded-2xl p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex flex-col items-center justify-center text-center bg-gradient-to-tr from-green-50 to-white"
+            className="rounded-2xl p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex flex-col items-center justify-center text-center bg-green-50 dark:bg-zinc-900"
             onClick={() => handleRowClick(cat)}
           >
             <img
@@ -87,13 +87,13 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
               alt={cat.name}
               className="h-16 w-16 object-contain mb-3"
             />
-            <p className="text-sm font-semibold text-gray-700">{cat.name}</p>
+            <p className="text-sm font-semibold text-gray-700 dark:text-green-200">{cat.name}</p>
           </div>
         ))}
       </div>
 
       {/* Categories List */}
-      <div className="bg-white shadow-sm rounded-xl p-4">
+  <div className="bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
           <h2 className="text-lg font-semibold">All Categories List</h2>
           <Button
@@ -107,36 +107,40 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
         </div>
 
         {/* Desktop Table */}
-        <div className="hidden md:block overflow-x-auto">
+        <div className="hidden md:block bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-zinc-800 overflow-x-auto">
           <table className="w-full text-sm border-collapse">
             <thead>
-              <tr className="bg-green-50 text-left text-gray-600">
+              <tr className="bg-green-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
                 <th className="p-3 font-medium">Category</th>
                 <th className="p-3 font-medium">Published</th>
               </tr>
             </thead>
             <tbody>
-              {paginated.map((cat) => (
+              {paginated.map((cat, idx) => (
                 <tr
                   key={cat.id}
-                  className="border-b hover:bg-green-50 cursor-pointer transition"
+                  className={`border-b hover:bg-green-50 dark:hover:bg-zinc-800 cursor-pointer transition ${
+                    idx % 2 === 0
+                      ? "bg-white dark:bg-zinc-900"
+                      : "bg-green-50 dark:bg-zinc-900"
+                  }`}
                   onClick={() => handleRowClick(cat)}
                 >
-                  <td className="p-3 flex items-center gap-3">
+                  <td className="p-3 flex items-center gap-3 align-top">
                     <img
                       src={cat.image_url}
                       alt={cat.name}
                       className="h-10 w-10 rounded-md object-contain border"
                     />
-                    <span className="font-medium">{cat.name}</span>
+                    <span className="font-medium text-gray-800 dark:text-green-200">{cat.name}</span>
                   </td>
-                  <td className="p-3">
+                  <td className="p-3 align-top">
                     {cat.is_published ? (
-                      <span className="px-2 py-1 text-xs border border-green-400 text-green-600 bg-green-50 rounded-md">
+                      <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-md shadow-sm transition border border-green-400 text-green-700 bg-green-50 dark:bg-green-900 dark:text-green-200 dark:border-green-700">
                         Published
                       </span>
                     ) : (
-                      <span className="px-2 py-1 text-xs border border-red-400 text-red-600 bg-red-50 rounded-md">
+                      <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-md shadow-sm transition border border-red-400 text-red-600 bg-red-50 dark:bg-red-900 dark:text-red-200 dark:border-red-700">
                         Unpublished
                       </span>
                     )}
