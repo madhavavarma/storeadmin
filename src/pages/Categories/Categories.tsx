@@ -4,11 +4,15 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { ICategory } from "@/interfaces/ICategory"
 import { getCategories } from "../api"
 import AddCategoryDrawer from "./AddCategoryDrawer"
+import EditCategoryDrawer from "./EditCategoryDrawer"
 import { supabase } from "@/supabaseClient"
 
 
-export default function Categories({ refreshKey }: { refreshKey: number }) {
+export default function Categories({ refreshKey: parentRefreshKey }: { refreshKey: number }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editDrawerOpen, setEditDrawerOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<ICategory | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,13 +42,13 @@ export default function Categories({ refreshKey }: { refreshKey: number }) {
         setLoading(false);
       }
     });
-  }, [refreshKey, drawerOpen]);
+  }, [refreshKey, drawerOpen, parentRefreshKey]);
 
   const paginated = categories.slice((currentPage - 1) * perPage, currentPage * perPage);
 
   const handleRowClick = (category: ICategory) => {
-    // TODO: open side drawer with category details
-    console.log("Clicked category:", category);
+    setSelectedCategory(category);
+    setEditDrawerOpen(true);
   };
 
   if (loading) {
@@ -197,9 +201,48 @@ export default function Categories({ refreshKey }: { refreshKey: number }) {
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           onAdd={async (data) => {
-            // Insert data as-is, since id is not present in the payload
             await supabase.from("categories").insert([data]);
             setDrawerOpen(false);
+            setRefreshKey((k) => k + 1);
+          }}
+        />
+        <EditCategoryDrawer
+          open={editDrawerOpen}
+          onClose={() => setEditDrawerOpen(false)}
+          category={selectedCategory}
+          onUpdate={async (data) => {
+            if (!data.id) return;
+            const { id, ...rest } = data;
+            // If image_url is different from selectedCategory.image_url, delete old image
+            if (selectedCategory && data.image_url && data.image_url !== selectedCategory.image_url && selectedCategory.image_url) {
+              const splitStr = '/object/public/storeadmin/';
+              const idx = selectedCategory.image_url.indexOf(splitStr);
+              let path = '';
+              if (idx !== -1) {
+                path = selectedCategory.image_url.substring(idx + splitStr.length);
+                await supabase.storage.from('storeadmin').remove([path]);
+              }
+            }
+            await supabase.from("categories").update(rest).eq("id", id);
+            setEditDrawerOpen(false);
+            setSelectedCategory(null);
+            setRefreshKey((k) => k + 1);
+          }}
+          onDelete={async (id, image_url) => {
+            await supabase.from("categories").delete().eq("id", id);
+            // Remove image from storage if present
+            if (image_url) {
+              const splitStr = '/object/public/storeadmin/';
+              const idx = image_url.indexOf(splitStr);
+              let path = '';
+              if (idx !== -1) {
+                path = image_url.substring(idx + splitStr.length);
+                await supabase.storage.from('storeadmin').remove([path]);
+              }
+            }
+            setEditDrawerOpen(false);
+            setSelectedCategory(null);
+            setRefreshKey((k) => k + 1);
           }}
         />
         </div>
