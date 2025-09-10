@@ -1,17 +1,24 @@
-
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Card } from "@/components/ui/card";
 
 interface Customer {
   userid: string;
-  email?: string;
   first_order: string;
   orders: number;
   total_spent: number;
 }
 
+interface Order {
+  id: string;
+  created_at: string;
+  totalprice: number;
+  status: string;
+}
 
 export default function Customers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -19,21 +26,26 @@ export default function Customers() {
   const [error, setError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<Customer | null>(null);
+  const [userOrders, setUserOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
   const perPage = 6;
+  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
     supabase.auth.getUser().then(async ({ data }) => {
       if (data?.user) {
         setIsLoggedIn(true);
-        // Get all orders
-  const { data: ordersData, error: ordersError } = await supabase.from("orders").select("userid,created_at,totalprice");
+        const { data: ordersData, error: ordersError } = await supabase
+          .from("orders")
+          .select("id,userid,created_at,totalprice,status");
         if (ordersError) {
           setError("Failed to load orders");
           setLoading(false);
           return;
         }
-        // Group by userid
         const customerMap: { [userid: string]: Customer } = {};
         (ordersData || []).forEach((order: any) => {
           if (!customerMap[order.userid]) {
@@ -46,7 +58,6 @@ export default function Customers() {
           } else {
             customerMap[order.userid].orders += 1;
             customerMap[order.userid].total_spent += order.totalprice || 0;
-            // Update first_order to earliest
             if (new Date(order.created_at) < new Date(customerMap[order.userid].first_order)) {
               customerMap[order.userid].first_order = order.created_at;
             }
@@ -61,6 +72,19 @@ export default function Customers() {
       }
     });
   }, []);
+
+  const handleUserClick = async (customer: Customer) => {
+    setSelectedUser(customer);
+    setDrawerOpen(true);
+    setOrdersLoading(true);
+    const { data: ordersData, error } = await supabase
+      .from("orders")
+      .select("id,created_at,totalprice,status")
+      .eq("userid", customer.userid)
+      .order("created_at", { ascending: false });
+    setUserOrders(error ? [] : (ordersData as Order[]));
+    setOrdersLoading(false);
+  };
 
   const totalPages = Math.ceil(customers.length / perPage);
   const paginated = customers.slice((currentPage - 1) * perPage, currentPage * perPage);
@@ -99,7 +123,11 @@ export default function Customers() {
             </thead>
             <tbody>
               {paginated.map((customer) => (
-                <tr key={customer.userid} className="border-b hover:bg-green-50 cursor-pointer transition">
+                <tr
+                  key={customer.userid}
+                  className="border-b hover:bg-green-50 cursor-pointer transition"
+                  onClick={() => handleUserClick(customer)}
+                >
                   <td className="p-3 font-medium text-gray-700">{customer.userid}</td>
                   <td className="p-3">{new Date(customer.first_order).toLocaleDateString()}</td>
                   <td className="p-3">{customer.orders}</td>
@@ -112,7 +140,11 @@ export default function Customers() {
         {/* Mobile Card List */}
         <div className="grid md:hidden gap-3">
           {paginated.map((customer) => (
-            <div key={customer.userid} className="flex flex-col gap-2 p-3 rounded-xl border shadow-sm hover:bg-green-50 cursor-pointer transition">
+            <div
+              key={customer.userid}
+              className="flex flex-col gap-2 p-3 rounded-xl border shadow-sm hover:bg-green-50 cursor-pointer transition"
+              onClick={() => handleUserClick(customer)}
+            >
               <div className="font-medium text-gray-700">User: {customer.userid}</div>
               <div className="text-xs text-gray-500">First Order: {new Date(customer.first_order).toLocaleDateString()}</div>
               <div className="text-xs">Orders: {customer.orders}</div>
@@ -147,6 +179,74 @@ export default function Customers() {
           </div>
         </div>
       </div>
+      {/* User Drawer */}
+      <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <SheetContent side="right" className="max-w-md w-full px-6 py-8 flex flex-col">
+          <div className="flex flex-col gap-8 h-full">
+            <div className="font-bold text-lg text-green-700 mb-2">Customer Details</div>
+            {selectedUser && (
+              <Card className="p-6 bg-green-50/70 border border-green-100 rounded-xl shadow-sm">
+                <div className="grid grid-cols-2 gap-y-5 gap-x-8">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">User ID</p>
+                    <p className="text-sm font-medium text-gray-800 break-all">{selectedUser.userid}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">First Order</p>
+                    <p className="text-sm font-medium text-gray-800">
+                      {new Date(selectedUser.first_order).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Orders</p>
+                    <p className="text-base font-semibold text-green-700">{selectedUser.orders}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Total Spent</p>
+                    <p className="text-base font-semibold text-green-700">
+                      ₹{selectedUser.total_spent.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            )}
+            <div>
+              <div className="font-semibold text-md mb-3">Orders</div>
+              {ordersLoading ? (
+                <div className="text-gray-500">Loading orders...</div>
+              ) : userOrders.length === 0 ? (
+                <div className="text-gray-400 italic">No orders found for this customer.</div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {userOrders.map((order) => (
+                    <Card
+                      key={order.id}
+                      className="p-4 border rounded-lg shadow-sm hover:bg-green-50 cursor-pointer transition"
+                      onClick={() => {
+                        setDrawerOpen(false);
+                        navigate("/orders", { state: { openOrderId: order.id } });
+                      }}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="font-medium text-green-700">Order #{order.id}</div>
+                          <div className="text-xs text-gray-500">
+                            {new Date(order.created_at).toLocaleString()}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold">₹{order.totalprice.toLocaleString()}</div>
+                          <div className="text-xs text-gray-600">{order.status}</div>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

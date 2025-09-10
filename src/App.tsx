@@ -8,10 +8,10 @@ import AppSidebar from './pages/Layout/AppSitebar'
 import Orders from './pages/Orders/Orders'
 import Categories from './pages/Categories/Categories'
 import Settings from './pages/Settings'
-import Customers from './pages/Customers'
 import Header from './components/Header'
 import { useState, useCallback } from 'react';
 import Dashboard from './pages/Dashboard/Dashboard'
+import Customers from './pages/Customers'
 
 
 export default function App() {
