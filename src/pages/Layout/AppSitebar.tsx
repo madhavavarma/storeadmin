@@ -141,13 +141,17 @@ export default function AppSidebar({ refreshKey }: { refreshKey?: number }) {
             {/* Collapse button (always visible) */}
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-zinc-800 dark:text-zinc-100"
+              className="p-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 shadow-sm transition-colors text-zinc-700 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              {collapsed ? <span className="text-lg">➡</span> : <span className="text-lg">⬅</span>}
+              {collapsed ? (
+                <span className="text-lg">➡</span>
+              ) : (
+                <span className="text-lg">⬅</span>
+              )}
             </button>
             {/* Close button for mobile overlay */}
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-zinc-800 dark:text-zinc-100"
+              className="md:hidden p-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 shadow-sm transition-colors text-zinc-700 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-green-500"
               onClick={() => setIsMobileOpen(false)}
               aria-label="Close sidebar"
             >
