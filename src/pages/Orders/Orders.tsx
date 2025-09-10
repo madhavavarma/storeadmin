@@ -212,9 +212,9 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
   }
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-2 md:p-6 space-y-4 md:space-y-8">
       {/* Top Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-6">
         {summaryCardDefs.map((card) => {
           const Icon = card.icon;
           const value = orders.filter((o) => o.orderStatus === card.status).length;
@@ -339,7 +339,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
       </div>
 
       {/* Mobile Card View */}
-      <div className="grid md:hidden gap-3">
+  <div className="grid md:hidden gap-2">
         {orders.map((order) => {
           const statusFlow = [
             "Pending",
@@ -360,7 +360,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
           return (
             <div
               key={order.id}
-              className="rounded-2xl p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex items-center gap-3 justify-center text-center bg-white dark:bg-zinc-900"
+              className="rounded-2xl p-2 md:p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex items-center gap-2 md:gap-3 justify-center text-center bg-white dark:bg-zinc-900"
               onClick={() => {
                 dispatch(OrdersActions.showOrderDetail(order.raw));
                 setDrawerOpen(true);
@@ -376,14 +376,14 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
                   <span>{order.customer}</span>
                   <span>{order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                <div className="flex items-center gap-1 md:gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
                   <span>{order.total}</span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">|</span>
                   <span>{productCount} products{itemCount > 1 ? `, ${itemCount} items` : ""}</span>
                 </div>
                 {nextStatus && (
                   <button
-                    className="mt-2 px-3 py-1.5 text-xs rounded-md bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-700 dark:text-green-100 dark:hover:bg-green-600 border border-green-200 dark:border-green-500 shadow-sm transition hover:scale-105 text-left w-fit"
+                    className="mt-1 md:mt-2 px-2 md:px-3 py-1 text-xs rounded-md bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-700 dark:text-green-100 dark:hover:bg-green-600 border border-green-200 dark:border-green-500 shadow-sm transition hover:scale-105 text-left w-fit"
                     onClick={async e => {
                       e.stopPropagation();
                       await updateOrder(order.id, { status: nextStatus as OrderStatus });

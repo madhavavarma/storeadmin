@@ -73,9 +73,9 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
     return <div className="p-8 text-center text-red-500">{error}</div>;
   }
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-2 md:p-4 space-y-4 md:space-y-6">
       {/* Top Category Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
         {categories.slice(0, 4).map((cat) => (
           <div
             key={cat.id}
@@ -148,22 +148,22 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
         </div>
 
         {/* Mobile Card List */}
-        <div className="grid md:hidden gap-3">
+        <div className="grid md:hidden gap-2">
           {paginated.map((cat) => (
             <div
               key={cat.id}
-              className="flex items-center gap-3 p-3 rounded-xl border shadow-sm hover:bg-green-50 cursor-pointer transition"
+              className="flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-xl border shadow-sm hover:bg-green-50 cursor-pointer transition"
               onClick={() => handleRowClick(cat)}
             >
               <img
                 src={cat.image_url}
                 alt={cat.name}
-                className="h-12 w-12 object-contain rounded-md border"
+                className="h-10 w-10 md:h-12 md:w-12 object-contain rounded-md border"
               />
               <div>
                 <p className="font-medium text-gray-700">{cat.name}</p>
                 <p
-                  className={`text-xs mt-1 ${
+                  className={`text-xs mt-0.5 md:mt-1 ${
                     cat.is_published ? "text-green-600" : "text-red-600"
                   }`}
                 >

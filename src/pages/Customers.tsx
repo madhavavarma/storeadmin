@@ -215,7 +215,7 @@ export default function Customers({ refreshKey }: CustomersProps) {
   }
 
   return (
-    <div className="p-4 space-y-6">
+  <div className="p-2 md:p-4 space-y-4 md:space-y-6">
       <h2 className="text-lg font-semibold mb-4">All Customers</h2>
       <div className="bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4">
         <div className="hidden md:block bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-zinc-800 overflow-x-auto">
@@ -253,7 +253,7 @@ export default function Customers({ refreshKey }: CustomersProps) {
           {paginated.map((customer) => (
             <div
               key={customer.userid}
-              className="flex flex-col gap-2 p-3 rounded-xl border shadow-sm hover:bg-green-50 cursor-pointer transition"
+              className="flex flex-col gap-1 md:gap-2 p-2 md:p-3 rounded-xl border shadow-sm hover:bg-green-50 cursor-pointer transition"
               onClick={() => handleUserClick(customer)}
             >
               <div className="font-medium text-gray-700">User: {customer.userid}</div>

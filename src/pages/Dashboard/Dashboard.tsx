@@ -194,9 +194,9 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
   );
 
   return (
-    <div className="p-6 space-y-8">
+  <div className="p-2 md:p-6 space-y-4 md:space-y-8">
       {/* Top Stat Cards */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
         {/* Products Card */}
         {/* Products Card */}
         <Card
@@ -314,7 +314,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
       </div>
 
       {/* Recent Orders and Users/Order Count side by side */}
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
+  <div className="grid grid-cols-1 md:grid-cols-1 gap-3 md:gap-6 mt-4 md:mt-6">
         {/* Recent Orders */}
   <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-lg p-6 flex flex-col justify-center border border-gray-100 dark:border-zinc-800">
           <h2 className="text-lg font-semibold mb-4 text-green-700 dark:text-green-300">
@@ -373,7 +373,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
 
 
       {/* Orders Per Day and Order Status Table Side by Side */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 mt-4 md:mt-6">
         {/* Orders Per Day Chart */}
         <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 min-h-full h-full col-span-1">
           <h2 className="text-lg font-semibold mb-4 text-green-700">
@@ -444,7 +444,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
       </div>
 
       {/* Users and Their Order Count Table Only */}
-      <div className="grid grid-cols-1 gap-6 mt-6">
+  <div className="grid grid-cols-1 gap-3 md:gap-6 mt-4 md:mt-6">
         <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 flex flex-col justify-center">
           <h2 className="text-lg font-semibold mb-4 text-gray-700">
             Users and Their Order Count
