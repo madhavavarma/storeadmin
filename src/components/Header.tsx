@@ -180,35 +180,37 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
         </div>
         <div className="flex items-center gap-4">
           <button
-            className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+            className="p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group"
             onClick={() => dispatch(toggleTheme())}
             title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           >
-            {theme === "dark" ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5 text-zinc-700" />}
+            {theme === "dark"
+              ? <Sun className="w-5 h-5 text-yellow-400 group-hover:text-yellow-300" />
+              : <Moon className="w-5 h-5 text-zinc-700 group-hover:text-green-600" />}
           </button>
-          <button className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition" title="Notifications">
-            <Bell className="w-5 h-5 text-zinc-700 dark:text-zinc-200" />
+          <button className="p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group" title="Notifications">
+            <Bell className="w-5 h-5 text-zinc-700 dark:text-green-300 group-hover:text-green-600 dark:group-hover:text-green-400" />
           </button>
-          <button className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition" title="Orders">
-            <ShoppingCart className="w-5 h-5 text-zinc-700 dark:text-zinc-200" />
+          <button className="p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group" title="Orders">
+            <ShoppingCart className="w-5 h-5 text-zinc-700 dark:text-green-300 group-hover:text-green-600 dark:group-hover:text-green-400" />
           </button>
           {user?.name ? (
             <button
-              className="flex items-center gap-2 p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+              className="flex items-center gap-2 p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group"
               title="Sign Out"
               onClick={handleSignOut}
             >
-              <LogOut className="w-5 h-5 text-zinc-700 dark:text-zinc-200" />
-              <span className="text-sm text-zinc-700 dark:text-zinc-200">Sign Out</span>
+              <LogOut className="w-5 h-5 text-zinc-700 dark:text-red-400 group-hover:text-red-600 dark:group-hover:text-red-300" />
+              <span className="text-sm text-zinc-700 dark:text-zinc-200 group-hover:text-green-700 dark:group-hover:text-green-300">Sign Out</span>
             </button>
           ) : (
             <button
-              className="flex items-center gap-2 p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+              className="flex items-center gap-2 p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group"
               title="User"
               onClick={() => setAuthDrawerOpen(true)}
             >
-              <User className="w-5 h-5 text-zinc-700 dark:text-zinc-200" />
-              <span className="text-sm text-zinc-700 dark:text-zinc-200">{user?.name || "User"}</span>
+              <User className="w-5 h-5 text-zinc-700 dark:text-green-300 group-hover:text-green-600 dark:group-hover:text-green-400" />
+              <span className="text-sm text-zinc-700 dark:text-zinc-200 group-hover:text-green-700 dark:group-hover:text-green-300">{user?.name || "User"}</span>
             </button>
           )}
         </div>

@@ -208,7 +208,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
         {/* Products Card */}
         <Card className="p-0 shadow-md border border-gray-100">
           <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-green-100 rounded-xl p-3 flex items-center justify-center">
+            <div className="bg-green-100 dark:bg-green-900 rounded-xl p-3 flex items-center justify-center">
               📦
             </div>
             <div className="flex-1">
@@ -221,7 +221,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             </div>
           </div>
           <div
-            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-blue-50/60 rounded-b-xl cursor-pointer hover:bg-blue-100 transition"
+            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-blue-50/60 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-blue-100 dark:hover:bg-zinc-700 transition"
             onClick={() => navigate("/products")}
           >
             <span
@@ -245,7 +245,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
         {/* Categories Card */}
         <Card className="p-0 shadow-md border border-gray-100">
           <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-blue-100 rounded-xl p-3 flex items-center justify-center">
+            <div className="bg-blue-100 dark:bg-blue-900 rounded-xl p-3 flex items-center justify-center">
               📂
             </div>
             <div className="flex-1">
@@ -258,7 +258,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             </div>
           </div>
           <div
-            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-blue-50/60 rounded-b-xl cursor-pointer hover:bg-blue-100 transition"
+            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-blue-50/60 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-blue-100 dark:hover:bg-zinc-700 transition"
             onClick={() => navigate("/categories")}
           >
             <span
@@ -282,7 +282,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
         {/* Orders Card */}
         <Card className="p-0 shadow-md border border-gray-100">
           <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-orange-100 rounded-xl p-3 flex items-center justify-center">
+            <div className="bg-orange-100 dark:bg-orange-900 rounded-xl p-3 flex items-center justify-center">
               🛒
             </div>
             <div className="flex-1">
@@ -295,7 +295,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             </div>
           </div>
           <div
-            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-blue-50/60 rounded-b-xl cursor-pointer hover:bg-blue-100 transition"
+            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-blue-50/60 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-blue-100 dark:hover:bg-zinc-700 transition"
             onClick={() => navigate("/orders")}
           >
             <span
@@ -319,7 +319,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
         {/* Revenue Card */}
         <Card className="p-0 shadow-md border border-gray-100">
           <div className="flex items-center gap-4 p-4 pb-0">
-            <div className="bg-pink-100 rounded-xl p-3 flex items-center justify-center">
+            <div className="bg-pink-100 dark:bg-pink-900 rounded-xl p-3 flex items-center justify-center">
               💰
             </div>
             <div className="flex-1">
@@ -332,7 +332,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             </div>
           </div>
           <div
-            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-blue-50/60 rounded-b-xl cursor-pointer hover:bg-blue-100 transition"
+            className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-blue-50/60 dark:bg-zinc-800 rounded-b-xl cursor-pointer hover:bg-blue-100 dark:hover:bg-zinc-700 transition"
             onClick={() => navigate("/orders")}
           >
             <span
@@ -357,14 +357,14 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
       {/* Recent Orders and Users/Order Count side by side */}
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
         {/* Recent Orders */}
-        <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col justify-center">
+  <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 flex flex-col justify-center">
           <h2 className="text-lg font-semibold mb-4 text-gray-700">
             Recent Orders
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
               <thead>
-                <tr className="bg-yellow-50 text-left text-gray-600">
+                <tr className="bg-yellow-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
                   <th className="p-3 font-medium">Order ID</th>
                   <th className="p-3 font-medium">Date</th>
                   <th className="p-3 font-medium">Total</th>
@@ -375,7 +375,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
                 {recentOrders.map((order) => (
                   <tr
                     key={order.id}
-                    className="border-b hover:bg-yellow-50 transition cursor-pointer"
+                    className="border-b hover:bg-yellow-50 dark:hover:bg-zinc-800 transition cursor-pointer"
                     onClick={() =>
                       navigate("/orders", { state: { openOrderId: order.id } })
                     }
@@ -424,7 +424,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
       {/* Orders Per Day and Categories Side by Side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         {/* Orders Per Day Chart */}
-        <div className="flex flex-col bg-white rounded-xl shadow-sm p-6 min-h-full h-full">
+  <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 min-h-full h-full">
           <h2 className="text-lg font-semibold mb-4 text-green-700">
             Orders Per Day
           </h2>
@@ -455,13 +455,13 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
         </div>
 
         {/* Category List */}
-        <div className="flex flex-col bg-white rounded-xl shadow-sm p-6 min-h-full h-full">
+  <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 min-h-full h-full">
           <h2 className="text-lg font-semibold mb-4 text-blue-700">Categories</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
             {categoryStats.map((cat) => (
               <Card
                 key={cat.id}
-                className="p-4 flex flex-col gap-2 border border-blue-100 bg-blue-50/50 hover:shadow-md transition"
+                className="p-4 flex flex-col gap-2 border border-blue-100 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-950 hover:shadow-md transition"
               >
                 <div className="flex items-center gap-3">
                   <img
@@ -486,14 +486,14 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
        {/* Recent Orders and Users/Order Count side by side */}
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
       {/* Users and Their Order Count Table */}
-        <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col justify-center">
+  <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 flex flex-col justify-center">
           <h2 className="text-lg font-semibold mb-4 text-gray-700">
             Users and Their Order Count
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
               <thead>
-                <tr className="bg-blue-50 text-left text-gray-600">
+                <tr className="bg-blue-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
                   <th className="p-3 font-medium">User</th>
                   <th className="p-3 font-medium">Order Count</th>
                 </tr>
@@ -502,7 +502,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
                 {userOrderList.map((user) => (
                   <tr
                     key={user.name}
-                    className="border-b hover:bg-blue-50 transition"
+                    className="border-b hover:bg-blue-50 dark:hover:bg-zinc-800 transition"
                   >
                     <td className="p-3">{user.name}</td>
                     <td className="p-3">{user.count}</td>

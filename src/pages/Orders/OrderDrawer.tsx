@@ -127,7 +127,7 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
   return (
     <div className="p-4 max-w-7xl mx-auto space-y-6">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-20 bg-white border-b flex items-center justify-between px-4 py-3">
+  <div className="sticky top-0 z-20 bg-white dark:bg-zinc-900 border-b dark:border-zinc-800 flex items-center justify-between px-4 py-3">
         <h1 className="text-lg font-bold text-green-700">Order Details</h1>
         <Button variant="ghost" size="icon" onClick={onClose} className="text-gray-500 hover:text-red-500">
           <span className="sr-only">Close</span>
@@ -136,7 +136,7 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
       </div>
 
       {/* Order Details Card */}
-      <Card className="bg-white border shadow-sm mb-2">
+  <Card className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 shadow-sm mb-2">
         <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex flex-col">
             <span className="text-sm text-gray-500">Order Number</span>
@@ -146,7 +146,7 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
       </Card>
 
       {/* Status Update Card */}
-      <Card className="bg-white border shadow-sm mb-2">
+  <Card className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 shadow-sm mb-2">
         <CardContent className="p-4 flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <RefreshCcw className="w-5 h-5 text-blue-500" />
@@ -197,12 +197,12 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="bg-green-50 border-green-200">
+            <Card className="bg-green-50 dark:bg-zinc-900 border-green-200 dark:border-zinc-800">
               <CardContent className="p-4 space-y-4">
-                <h2 className="text-lg font-semibold text-green-800 flex-row  pb-3 border-b">
+                <h2 className="text-lg font-semibold text-green-800 dark:text-green-300 flex-row  pb-3 border-b border-zinc-200 dark:border-zinc-800">
                   🛒 Order Items     
                   {/* Product & Item Count */}
-                  <div className="pl-1 flex items-center gap-2 bg-green-50 rounded-full text-sm font-medium flex-shrink-0">
+                  <div className="pl-1 flex items-center gap-2 bg-green-50 dark:bg-zinc-800 rounded-full text-sm font-medium flex-shrink-0">
                     <ShoppingBag className="w-4 h-4" />
                     {cartitems.length} Product{cartitems.length > 1 && "s"}
                     <span className="mx-1">•</span>
@@ -214,7 +214,7 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
                 {cartitems.map((item, idx) => (
                   <div
                     key={idx}
-                    className="flex gap-4 border-b py-4 text-sm relative"
+                    className="flex gap-4 border-b border-zinc-200 dark:border-zinc-800 py-4 text-sm relative bg-transparent"
                   >
                     {/* Product Image */}
                     <img
@@ -224,33 +224,33 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
                     />
                     {/* Product Info */}
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-800 truncate">
+                      <p className="font-medium text-gray-800 dark:text-gray-100 truncate">
                         {item.product.name}
                       </p>
                       {item.selectedOptions &&
                         Object.entries(item.selectedOptions).map(([variantName, option]) => (
-                          <p key={variantName} className="text-gray-500 text-xs">
+                          <p key={variantName} className="text-gray-500 dark:text-gray-400 text-xs">
                             {variantName}: <span className="font-medium">{option?.name}</span>
                           </p>
                         ))}
                       {/* Quantity & Price Section */}
                       <div className="flex justify-between items-center mt-3 flex-wrap gap-2">
                         {/* Quantity Controls */}
-                        <div className="flex items-center bg-gray-100 rounded-full px-2 py-1 gap-2">
+                        <div className="flex items-center bg-gray-100 dark:bg-zinc-800 rounded-full px-2 py-1 gap-2 border border-gray-200 dark:border-zinc-700">
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="text-lg"
+                            className="text-lg text-gray-700 dark:text-gray-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
                             onClick={() => dispatch(OrdersActions.decreaseQuantity({ productId: item.product.id ?? 0, selectedOptions: item.selectedOptions }))}
                             disabled={item.quantity <= 1}
                           >
                             -
                           </Button>
-                          <span className="px-2 min-w-[24px] text-center font-semibold">{item.quantity}</span>
+                          <span className="px-2 min-w-[24px] text-center font-semibold text-gray-800 dark:text-gray-100">{item.quantity}</span>
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="text-lg"
+                            className="text-lg text-gray-700 dark:text-gray-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
                             onClick={() => dispatch(OrdersActions.increaseQuantity({ productId: item.product.id ?? 0, selectedOptions: item.selectedOptions }))}
                           >
                             +
@@ -269,13 +269,13 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
                     </Button>
                   </div>
                 ))}
-                <div className="pt-2 flex items-center justify-between text-green-800 font-semibold gap-4 flex-wrap sm:flex-nowrap">
+                <div className="pt-2 flex items-center justify-between text-green-800 dark:text-green-200 font-semibold gap-4 flex-wrap sm:flex-nowrap border-t border-zinc-200 dark:border-zinc-800 mt-2 pt-4">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                     {/* Label */}
                     <span className="text-base whitespace-nowrap">Total</span>
                   </div>
                   {/* Amount */}
-                  <span className="text-sm font-extrabold text-white bg-green-500 px-3 py-1 rounded-md shadow-sm">
+                  <span className="text-sm font-extrabold text-white bg-green-500 dark:bg-green-700 px-3 py-1 rounded-md shadow-sm">
                     ₹{totalAmount}
                   </span>
                 </div>

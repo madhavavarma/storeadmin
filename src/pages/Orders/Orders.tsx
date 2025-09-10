@@ -221,23 +221,23 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
           return (
             <div
               key={card.title}
-              className="rounded-2xl p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex flex-col items-center justify-center text-center bg-gradient-to-tr from-green-50 to-white"
+              className="rounded-2xl p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex flex-col items-center justify-center text-center bg-gradient-to-tr from-green-50 to-white dark:from-zinc-900 dark:to-zinc-800"
             >
-              <div className={`p-3 rounded-md ${card.color} mb-3`}>
+              <div className={`p-3 rounded-md ${card.color} dark:bg-zinc-800 dark:text-green-300 mb-3`}>
                 <Icon className="w-6 h-6" />
               </div>
-              <span className="text-sm text-gray-700">{card.title}</span>
-              <span className="text-xl font-bold text-gray-900">{value}</span>
+              <span className="text-sm text-gray-700 dark:text-gray-200">{card.title}</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-gray-100">{value}</span>
             </div>
           );
         })}
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden md:block bg-white shadow-sm rounded-xl p-4 border border-gray-200 overflow-x-auto">
+  <div className="hidden md:block bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-zinc-800 overflow-x-auto">
         <table className="w-full text-sm border-collapse">
           <thead>
-            <tr className="bg-green-50 text-left text-gray-600">
+            <tr className="bg-green-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
               <th className="p-3 font-medium">Order / Status</th>
               <th className="p-3 font-medium">Customer / Date</th>
               <th className="p-3 font-medium">Total / Products</th>
@@ -265,7 +265,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
               return (
                 <tr
                   key={order.id}
-                  className="border-b hover:bg-green-50 cursor-pointer transition"
+                  className="border-b hover:bg-green-50 dark:hover:bg-zinc-800 cursor-pointer transition"
                   onClick={(e) => {
                     if ((e.target as HTMLElement).tagName === "BUTTON") return;
                     dispatch(OrdersActions.showOrderDetail(order.raw));
@@ -360,7 +360,7 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
           return (
             <div
               key={order.id}
-              className="rounded-2xl p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex items-center gap-3 justify-center text-center bg-white"
+              className="rounded-2xl p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex items-center gap-3 justify-center text-center bg-white dark:bg-zinc-900"
               onClick={() => {
                 dispatch(OrdersActions.showOrderDetail(order.raw));
                 setDrawerOpen(true);

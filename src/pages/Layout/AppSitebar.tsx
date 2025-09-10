@@ -172,7 +172,8 @@ export default function AppSidebar({ refreshKey }: { refreshKey?: number }) {
                 `}
               >
                 <Icon
-                  className={`w-5 h-5 ${active ? "text-green-600" : "text-gray-500 group-hover:text-gray-700"}`}
+                  className={`w-5 h-5 
+                    ${active ? "text-green-600 dark:text-green-400" : "text-gray-500 group-hover:text-gray-700 dark:text-gray-300 dark:group-hover:text-white"}`}
                 />
                 {!collapsed && <span>{item.title}</span>}
                 {/* Badge for specific menu items */}
