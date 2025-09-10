@@ -30,7 +30,7 @@ function AppContent() {
           dispatch(AppSettingsActions.setAppSettings(settings));
         }
       })
-      .catch((err) => {
+      .catch(() => {
         // Optionally handle error (e.g., show notification)
         // console.error('Failed to load app settings:', err);
       });

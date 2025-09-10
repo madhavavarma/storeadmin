@@ -1,6 +1,6 @@
 
 
-import { Sun, Moon, User, ShoppingCart, Bell, LogOut, RefreshCcw, CalendarDays } from "lucide-react";
+import { Sun, Moon, User, Bell, LogOut, RefreshCcw, CalendarDays } from "lucide-react";
 
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/store/Store";
@@ -100,7 +100,7 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
           {/* Date Range Dropdown */}
           <div className="relative">
             <button
-              className="flex items-center gap-2 px-3 py-2 rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+              className="flex items-center gap-2 px-3 py-2 rounded-md border border-zinc-200 dark:border-green-900 dark:bg-neutral-900 text-zinc-700 dark:text-green-200 hover:bg-zinc-100 dark:hover:bg-green-950 transition"
               title="Select date range"
               tabIndex={0}
               onClick={() => {
@@ -113,7 +113,7 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
             </button>
             <div
               id="date-range-menu"
-              className="hidden absolute z-50 mt-2 w-56 right-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-md shadow-lg p-2"
+              className="hidden absolute z-50 mt-2 w-56 right-0 md:left-auto left-0 bg-white dark:bg-neutral-900 border border-zinc-200 dark:border-green-900 rounded-md shadow-lg p-2 text-zinc-800 dark:text-green-200"
               tabIndex={-1}
             >
               {[ 
@@ -125,7 +125,7 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
               ].map(opt => (
                 <button
                   key={opt.value}
-                  className={`w-full text-left px-3 py-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 ${dateRange.value === opt.value ? "bg-zinc-100 dark:bg-zinc-800 font-semibold" : ""}`}
+                  className={`w-full text-left px-3 py-2 rounded bg-transparent hover:bg-zinc-100 dark:hover:bg-green-950 ${dateRange.value === opt.value ? "bg-zinc-100 dark:bg-green-900 font-semibold" : ""}`}
                   onClick={() => {
                     if (opt.value !== "custom") {
                       setDateRange({ label: opt.label, value: opt.value, start: null, end: null });

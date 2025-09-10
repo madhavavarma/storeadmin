@@ -110,12 +110,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
         return created >= from && created < to;
       })
     : products;
-  const filteredCategories = from && to && categories.length > 0 && "created_at" in categories[0]
-    ? (categories as any[]).filter((c) => {
-        const created = new Date(c.created_at);
-        return created >= from && created < to;
-      })
-    : categories;
+ 
 
   // Compute counts
   const totalProducts = filteredProducts.length;
@@ -164,14 +159,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
     if (status) orderStatusCounts[status] = (orderStatusCounts[status] || 0) + 1;
   });
 
-  // Category stats
-  const categoryStats = filteredCategories.map((cat) => {
-    const productCount = filteredProducts.filter((p) => p.category === cat.name).length;
-    const orderCount = filteredOrders.filter((order) =>
-      order.cartitems.some((item) => item.product.category === cat.name)
-    ).length;
-    return { ...cat, productCount, orderCount };
-  });
+ 
 
   // Recent orders (sorted by created_at desc)
   const recentOrders = [...filteredOrders]
@@ -208,7 +196,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
   return (
     <div className="p-6 space-y-8">
       {/* Top Stat Cards */}
-  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         {/* Products Card */}
         {/* Products Card */}
         <Card
@@ -260,7 +248,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
 
         {/* Orders Card */}
         <Card
-          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-orange-200 dark:hover:ring-orange-800"
+          className="p-0 shadow-md border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300 cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-orange-200 dark:hover:ring-orange-800 relative"
           onClick={() => navigate("/orders")}
         >
           <div className="flex items-center gap-4 p-4 pb-0">
@@ -268,9 +256,9 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
               🛒
             </div>
             <div className="flex-1">
-              <div className="text-gray-500 dark:text-orange-200 text-sm font-medium flex items-center gap-2">
-                Orders
-                <span className="text-xs font-semibold text-green-600 dark:text-green-300">({dateRange.label})</span>
+              <div className="text-gray-500 dark:text-orange-200 text-sm font-medium flex flex-col gap-0.5">
+                <span>Orders</span>
+                <span className="text-xs lowercase text-green-600 dark:text-green-300 font-normal">({dateRange.label})</span>
               </div>
               <div className="text-2xl font-bold text-gray-800 dark:text-orange-100">
                 {totalOrders.toLocaleString()}
@@ -299,7 +287,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             </div>
             <div className="flex-1">
               <div className="text-gray-500 dark:text-lime-200 text-sm font-medium">
-                Total Revenue
+                Revenue
               </div>
               <div className="text-2xl font-bold text-gray-800 dark:text-lime-100">
                 ₹{totalRevenue.toLocaleString()}
