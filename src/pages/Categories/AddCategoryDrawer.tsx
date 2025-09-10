@@ -13,11 +13,9 @@ interface AddCategoryDrawerProps {
 export default function AddCategoryDrawer({ open, onClose, onAdd }: AddCategoryDrawerProps) {
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [filePath, setFilePath] = useState<string | null>(null); // for deletion if needed
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isPublished, setIsPublished] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,7 +23,6 @@ export default function AddCategoryDrawer({ open, onClose, onAdd }: AddCategoryD
     setLoading(true);
 
     let finalImageUrl = imageUrl;
-    let uploadedFilePath = filePath;
     if (selectedFile) {
       const fileExt = selectedFile.name.split(".").pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
@@ -35,7 +32,6 @@ export default function AddCategoryDrawer({ open, onClose, onAdd }: AddCategoryD
         setLoading(false);
         return;
       }
-      uploadedFilePath = fileName;
       finalImageUrl = supabase.storage.from("storeadmin").getPublicUrl(fileName).data.publicUrl;
     }
 
@@ -44,7 +40,6 @@ export default function AddCategoryDrawer({ open, onClose, onAdd }: AddCategoryD
     setLoading(false);
     setName("");
     setImageUrl("");
-    setFilePath(null);
     setSelectedFile(null);
     setIsPublished(true);
     onClose();
@@ -55,22 +50,8 @@ export default function AddCategoryDrawer({ open, onClose, onAdd }: AddCategoryD
     if (!file) return;
     setSelectedFile(file);
     setImageUrl(""); // clear preview until upload
-    setFilePath(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
-
-  const handleDeleteImage = async () => {
-  if (!filePath) return;
-
-  const { data, error } = await supabase.storage.from("storeadmin").remove([filePath]);
-
-  if (error) {
-    return;
-  }
-
-  setImageUrl("");
-  setFilePath(null);
-  if (fileInputRef.current) fileInputRef.current.value = "";
-};
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
@@ -86,34 +67,29 @@ export default function AddCategoryDrawer({ open, onClose, onAdd }: AddCategoryD
               placeholder="Category name"
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium mb-1">Image</label>
-            <>
-              {selectedFile ? (
-                <div className="flex flex-col gap-2 items-start">
-                  <span className="text-xs text-gray-700">{selectedFile.name}</span>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => { setSelectedFile(null); setImageUrl(""); setFilePath(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
-                  >
-                    Remove Image
-                  </Button>
-                </div>
-              ) : (
-                <Input
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  disabled={uploading}
-                />
-              )}
-            </>
+            {selectedFile ? (
+              <div className="flex flex-col gap-2 items-start">
+                <span className="text-xs text-gray-700">{selectedFile.name}</span>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => { setSelectedFile(null); setImageUrl(""); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                >
+                  Remove Image
+                </Button>
+              </div>
+            ) : (
+              <Input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+              />
+            )}
           </div>
-
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -125,10 +101,9 @@ export default function AddCategoryDrawer({ open, onClose, onAdd }: AddCategoryD
               Published
             </label>
           </div>
-
           <Button
             type="submit"
-            disabled={loading || uploading}
+            disabled={loading}
             className="w-full"
           >
             {loading ? "Adding..." : "Add Category"}

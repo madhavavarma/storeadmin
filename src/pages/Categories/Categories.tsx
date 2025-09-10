@@ -229,6 +229,11 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
             setRefreshKey((k) => k + 1);
           }}
           onDelete={async (id, image_url) => {
+            // Remove category reference from products
+            const cat = categories.find(c => c.id === id);
+            if (cat) {
+              await supabase.from("products").update({ category: "" }).eq("category", cat.name);
+            }
             await supabase.from("categories").delete().eq("id", id);
             // Remove image from storage if present
             if (image_url) {
