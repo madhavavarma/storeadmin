@@ -95,7 +95,8 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
   return (
     <>
       <header className="w-full flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900" style={{ minHeight: 64 }}>
-        <div className="flex items-center gap-4">
+        <div className="flex-1"></div>
+  <div className="flex items-center gap-2">
           {/* Date Range Dropdown */}
           <div className="relative">
             <button
@@ -108,7 +109,7 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
               }}
             >
               <CalendarDays className="w-5 h-5" />
-              <span className="hidden md:inline">{dateRange.label}</span>
+              <span className="hidden md:inline text-green-600 dark:text-green-300 font-semibold">{dateRange.label}</span>
             </button>
             <div
               id="date-range-menu"
@@ -176,9 +177,6 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
           >
             <RefreshCcw className={`w-5 h-5 ${liveUpdates ? "text-green-600 animate-spin-slow" : "text-zinc-400"}`} />
           </button>
-          {/* <span className="font-bold text-lg text-zinc-800 dark:text-zinc-100">Store Admin</span> */}
-        </div>
-        <div className="flex items-center gap-4">
           <button
             className="p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition group"
             onClick={() => dispatch(toggleTheme())}

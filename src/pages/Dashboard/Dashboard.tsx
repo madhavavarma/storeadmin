@@ -121,10 +121,13 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
   const totalProducts = filteredProducts.length;
   const activeProducts = filteredProducts.filter(p => p.ispublished !== false).length;
   const inactiveProducts = filteredProducts.filter(p => p.ispublished === false).length;
-  const totalCategories = filteredCategories.length;
-  const activeCategories = filteredCategories.filter(c => c.is_published !== false).length;
-  const inactiveCategories = filteredCategories.filter(c => c.is_published === false).length;
+  // Show ALL categories, not filtered
+  const totalCategories = categories.length;
+  const activeCategories = categories.filter(c => c.is_published !== false).length;
+  const inactiveCategories = categories.filter(c => c.is_published === false).length;
   const totalOrders = filteredOrders.length;
+  // Orders: count only pending for badge
+  const pendingOrdersCount = filteredOrders.filter(o => (o.status || '').toLowerCase() === 'pending').length;
   const totalRevenue = filteredOrders.reduce(
     (sum, o) => sum + (o.totalprice || 0),
     0
@@ -218,7 +221,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             </div>
             <div className="flex-1">
               <div className="text-gray-500 dark:text-green-200 text-sm font-medium">
-                Total Products
+                Products
               </div>
               <div className="text-2xl font-bold text-gray-800 dark:text-green-100">
                 {totalProducts.toLocaleString()}
@@ -242,7 +245,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             </div>
             <div className="flex-1">
               <div className="text-gray-500 dark:text-amber-200 text-sm font-medium">
-                Total Categories
+                Categories
               </div>
               <div className="text-2xl font-bold text-gray-800 dark:text-amber-100">
                 {totalCategories.toLocaleString()}
@@ -265,8 +268,9 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
               🛒
             </div>
             <div className="flex-1">
-              <div className="text-gray-500 dark:text-orange-200 text-sm font-medium">
-                Total Orders
+              <div className="text-gray-500 dark:text-orange-200 text-sm font-medium flex items-center gap-2">
+                Orders
+                <span className="text-xs font-semibold text-green-600 dark:text-green-300">({dateRange.label})</span>
               </div>
               <div className="text-2xl font-bold text-gray-800 dark:text-orange-100">
                 {totalOrders.toLocaleString()}
@@ -274,16 +278,13 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl">
-            {Object.entries(orderStatusCounts).map(([status, count]) => (
+            {pendingOrdersCount > 0 && (
               <span
-                key={status}
-                className="inline-block bg-orange-100 dark:bg-orange-800 text-orange-800 dark:text-orange-100 font-semibold rounded-full px-2 py-0.5 text-[11px] flex items-center gap-0.5 shadow-sm border border-orange-200 dark:border-orange-700 mb-1"
+                className="inline-block bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100 font-semibold rounded-full px-3 py-1 text-xs flex items-center gap-1 shadow-sm border border-yellow-200 dark:border-yellow-700 mb-1"
               >
-                <span className="font-bold text-xs">{status}</span>
-                <span className="mx-0.5">•</span>
-                <span className="font-mono text-xs">{count}</span>
+                Pending Orders: <span className="font-mono text-xs ml-1">{pendingOrdersCount}</span>
               </span>
-            ))}
+            )}
           </div>
         </Card>
 
@@ -306,6 +307,11 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             </div>
           </div>
           <div className="flex items-center justify-between px-4 pb-3 pt-2 text-xs bg-gray-50 dark:bg-zinc-800 rounded-b-xl">
+            <span className="inline-block bg-lime-100 dark:bg-lime-800 text-lime-800 dark:text-lime-100 font-semibold rounded-full px-3 py-1 text-xs flex items-center gap-1 shadow-sm border border-lime-200 dark:border-lime-700">
+              <span className="font-bold">{prevLabel}</span>
+              <span className="mx-1">•</span>
+              <span className="font-mono">₹{prevPeriodRevenue.toLocaleString()}</span>
+            </span>
             <span
               className={
                 revenuePercentChange >= 0
@@ -313,12 +319,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
                   : "text-red-600 font-semibold flex items-center gap-1"
               }
             >
-              {revenuePercentChange === 0 && prevPeriodRevenue === 0 ? "-" : (revenuePercentChange >= 0 ? "▲" : "▼") + " " + Math.abs(revenuePercentChange).toFixed(1) + "%"}
-            </span>
-            <span className="inline-block bg-lime-100 dark:bg-lime-800 text-lime-800 dark:text-lime-100 font-semibold rounded-full px-3 py-1 text-xs flex items-center gap-1 shadow-sm border border-lime-200 dark:border-lime-700">
-              <span className="font-bold">{prevLabel}</span>
-              <span className="mx-1">•</span>
-              <span className="font-mono">₹{prevPeriodRevenue.toLocaleString()}</span>
+              {revenuePercentChange === 0 && prevPeriodRevenue === 0 ? "-" : (revenuePercentChange === 100 ? "" : (revenuePercentChange >= 0 ? "▲" : "▼") + " " + Math.abs(revenuePercentChange).toFixed(1) + "%")}
             </span>
           </div>
         </Card>
@@ -381,10 +382,12 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
       </div>
 
 
-      {/* Orders Per Day and Categories Side by Side */}
+
+
+      {/* Orders Per Day and Order Status Table Side by Side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         {/* Orders Per Day Chart */}
-  <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 min-h-full h-full">
+        <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 min-h-full h-full col-span-1">
           <h2 className="text-lg font-semibold mb-4 text-green-700">
             Orders Per Day
           </h2>
@@ -414,39 +417,47 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
           )}
         </div>
 
-        {/* Category List */}
-  <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 min-h-full h-full">
-    <h2 className="text-lg font-semibold mb-4 text-amber-700 dark:text-amber-200">Categories</h2>
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-      {categoryStats.map((cat) => (
-        <Card
-          key={cat.id}
-          className="p-4 flex flex-col gap-2 border border-amber-100 dark:border-zinc-800 bg-amber-50/60 dark:bg-zinc-900 shadow-sm transition cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900"
-        >
-          <div className="flex items-center gap-3">
-            <img
-              src={cat.image_url}
-              alt={cat.name}
-              className="h-10 w-10 object-contain rounded-md border"
-            />
-            <div>
-              <div className="font-semibold text-gray-700 dark:text-amber-200">{cat.name}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-300 mt-1">
-                {cat.productCount} products, {cat.orderCount} orders
-              </div>
-            </div>
+        {/* Order Status Table Card */}
+        <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 min-h-full h-full col-span-1">
+          <h2 className="text-lg font-semibold mb-4 text-orange-700 dark:text-orange-200 flex items-center gap-2">
+            Order Statuses
+            <span className="text-green-600 dark:text-green-300 font-semibold text-sm">({dateRange.label})</span>
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-separate border-spacing-0 rounded-xl overflow-hidden">
+              <thead>
+                <tr className="bg-orange-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
+                  <th className="p-3 font-semibold rounded-tl-xl">Status</th>
+                  <th className="p-3 font-semibold rounded-tr-xl">Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(orderStatusCounts).map(([status, count], idx) => (
+                  <tr
+                    key={status}
+                    className={`transition ${idx % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : "bg-white dark:bg-zinc-800"} hover:bg-orange-50 dark:hover:bg-orange-900 group`}
+                  >
+                    <td className="p-3 font-semibold text-gray-800 dark:text-orange-200 group-hover:text-orange-700 dark:group-hover:text-orange-300">
+                      {status === "P" ? "Pending" :
+                        status === "D" ? "Delivered" :
+                        status === "C" ? "Cancelled" :
+                        status === "F" ? "Failed" :
+                        status === "S" ? "Shipped" :
+                        status === "R" ? "Returned" :
+                        status}
+                    </td>
+                    <td className="p-3 text-orange-700 dark:text-orange-300 font-bold group-hover:text-orange-900 dark:group-hover:text-orange-100">{count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </Card>
-      ))}
-    </div>
-  </div>
+        </div>
       </div>
 
-
-       {/* Recent Orders and Users/Order Count side by side */}
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
-      {/* Users and Their Order Count Table */}
-  <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 flex flex-col justify-center">
+      {/* Users and Their Order Count Table Only */}
+      <div className="grid grid-cols-1 gap-6 mt-6">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 flex flex-col justify-center">
           <h2 className="text-lg font-semibold mb-4 text-gray-700">
             Users and Their Order Count
           </h2>
@@ -472,7 +483,7 @@ export default function Dashboard({ refreshKey }: { refreshKey?: number }) {
             </table>
           </div>
         </div>
-       </div>
+      </div>
 
     </div>
   );
