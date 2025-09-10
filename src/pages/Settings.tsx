@@ -195,17 +195,17 @@ export default function Settings({ refreshKey }: SettingsProps) {
   }
 
   return (
-    <div className="p-4 w-full space-y-6">
+  <div className="p-4 w-full space-y-6 bg-white dark:bg-zinc-900">
       <h2 className="text-2xl font-bold">App Settings</h2>
 
-      <Card className="p-0 w-full border-none shadow-none bg-transparent">
+  <Card className="p-0 w-full border-none shadow-none bg-white dark:bg-zinc-900">
         <Accordion type="multiple" className="w-full space-y-2">
           {/* Logo */}
-          <AccordionItem value="logo" className="border rounded-lg">
-            <AccordionTrigger className="px-4 py-2 font-semibold">
+          <AccordionItem value="logo" className="border rounded-lg bg-white dark:bg-zinc-900">
+            <AccordionTrigger className="px-4 py-2 font-semibold bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 rounded-t-lg">
               Logo
             </AccordionTrigger>
-            <AccordionContent className="p-4 space-y-2">
+            <AccordionContent className="p-4 space-y-2 bg-white dark:bg-zinc-900">
               <div className="flex flex-col gap-2">
                 {logoPreview && (
                   <img src={logoPreview} alt="Logo Preview" className="h-20 w-20 object-contain border rounded-md mb-2" />
@@ -240,11 +240,11 @@ export default function Settings({ refreshKey }: SettingsProps) {
           </AccordionItem>
 
           {/* Branding */}
-          <AccordionItem value="branding" className="border rounded-lg">
-            <AccordionTrigger className="px-4 py-2 font-semibold">
+          <AccordionItem value="branding" className="border rounded-lg bg-white dark:bg-zinc-900">
+            <AccordionTrigger className="px-4 py-2 font-semibold bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 rounded-t-lg">
               Branding
             </AccordionTrigger>
-            <AccordionContent className="p-4 space-y-3">
+            <AccordionContent className="p-4 space-y-3 bg-white dark:bg-zinc-900">
               {["siteTitle", "welcomeText", "tagline"].map((field) => (
                 <div key={field}>
                   <label className="block text-sm font-medium mb-1 capitalize">
@@ -263,11 +263,11 @@ export default function Settings({ refreshKey }: SettingsProps) {
           </AccordionItem>
 
           {/* Menu */}
-          <AccordionItem value="menu" className="border rounded-lg">
-            <AccordionTrigger className="px-4 py-2 font-semibold">
+          <AccordionItem value="menu" className="border rounded-lg bg-white dark:bg-zinc-900">
+            <AccordionTrigger className="px-4 py-2 font-semibold bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 rounded-t-lg">
               Menu
             </AccordionTrigger>
-            <AccordionContent className="p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <AccordionContent className="p-4 grid grid-cols-1 md:grid-cols-3 gap-3 bg-white dark:bg-zinc-900">
               {(["home", "products", "about"] as const).map((key) => (
                 <Input
                   key={key}
@@ -282,11 +282,11 @@ export default function Settings({ refreshKey }: SettingsProps) {
           </AccordionItem>
 
           {/* Nav */}
-          <AccordionItem value="nav" className="border rounded-lg">
-            <AccordionTrigger className="px-4 py-2 font-semibold">
+          <AccordionItem value="nav" className="border rounded-lg bg-white dark:bg-zinc-900">
+            <AccordionTrigger className="px-4 py-2 font-semibold bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 rounded-t-lg">
               Nav (Contact & FAQ)
             </AccordionTrigger>
-            <AccordionContent className="p-4 space-y-4">
+            <AccordionContent className="p-4 space-y-4 bg-white dark:bg-zinc-900">
               {(["contact", "faq"] as const).map((navType) => (
                 <div key={navType}>
                   <h4 className="text-sm font-semibold mb-2">
@@ -320,7 +320,7 @@ export default function Settings({ refreshKey }: SettingsProps) {
 
           {/* Slides */}
           <AccordionItem value="slides" className="border rounded-lg">
-            <AccordionTrigger className="px-4 py-2 font-semibold">
+            <AccordionTrigger className="px-4 py-2 font-semibold bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 rounded-t-lg">
               Slides
             </AccordionTrigger>
             <AccordionContent className="p-4 space-y-2">
@@ -347,7 +347,7 @@ export default function Settings({ refreshKey }: SettingsProps) {
 
           {/* Features */}
           <AccordionItem value="features" className="border rounded-lg">
-            <AccordionTrigger className="px-4 py-2 font-semibold">
+            <AccordionTrigger className="px-4 py-2 font-semibold bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 rounded-t-lg">
               Features
             </AccordionTrigger>
             <AccordionContent className="p-4 space-y-2">
@@ -374,7 +374,7 @@ export default function Settings({ refreshKey }: SettingsProps) {
 
           {/* Home Carousels */}
           <AccordionItem value="homeCarousels" className="border rounded-lg">
-            <AccordionTrigger className="px-4 py-2 font-semibold">
+            <AccordionTrigger className="px-4 py-2 font-semibold bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 rounded-t-lg">
               Home Carousels
             </AccordionTrigger>
             <AccordionContent className="p-4 space-y-2">
