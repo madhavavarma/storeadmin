@@ -33,7 +33,22 @@ export default function Customers() {
   const perPage = 6;
   const navigate = useNavigate();
 
+  // Live update state
+  const [liveUpdates, setLiveUpdates] = useState(() => {
+    const stored = localStorage.getItem("liveUpdates");
+    return stored === null ? true : stored === "true";
+  });
   useEffect(() => {
+    const handler = () => {
+      const stored = localStorage.getItem("liveUpdates");
+      setLiveUpdates(stored === null ? true : stored === "true");
+    };
+    window.addEventListener("liveUpdatesChanged", handler);
+    return () => window.removeEventListener("liveUpdatesChanged", handler);
+  }, []);
+
+  useEffect(() => {
+    if (!liveUpdates) return;
     setLoading(true);
     supabase.auth.getUser().then(async ({ data }) => {
       if (data?.user) {
@@ -71,7 +86,7 @@ export default function Customers() {
         setLoading(false);
       }
     });
-  }, []);
+  }, [liveUpdates]);
 
   const handleUserClick = async (customer: Customer) => {
     setSelectedUser(customer);

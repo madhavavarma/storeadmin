@@ -66,6 +66,21 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
   // const [pendingStatus, setPendingStatus] = useState<{ [orderId: string]: string }>({});
   const dispatch = useDispatch();
 
+
+  // Live update state
+  const [liveUpdates, setLiveUpdates] = useState(() => {
+    const stored = localStorage.getItem("liveUpdates");
+    return stored === null ? true : stored === "true";
+  });
+  useEffect(() => {
+    const handler = () => {
+      const stored = localStorage.getItem("liveUpdates");
+      setLiveUpdates(stored === null ? true : stored === "true");
+    };
+    window.addEventListener("liveUpdatesChanged", handler);
+    return () => window.removeEventListener("liveUpdatesChanged", handler);
+  }, []);
+
   // Clear orders on signout
   useEffect(() => {
     const clear = () => setOrders([]);
@@ -110,9 +125,11 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
 
 
   // Open drawer if openOrderId is passed in location.state
+
+  // Only fetch on mount and refreshKey if liveUpdates enabled
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders, refreshKey]);
+    if (liveUpdates) fetchOrders();
+  }, [fetchOrders, refreshKey, liveUpdates]);
 
   useEffect(() => {
     if (location.state && location.state.openOrderId && orders.length > 0) {
@@ -126,7 +143,8 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
     // eslint-disable-next-line
   }, [location.state, orders]);
 
-  useOrdersRealtime(fetchOrders);
+  // Only subscribe to realtime if liveUpdates enabled
+  useOrdersRealtime(liveUpdates ? fetchOrders : () => {});
 
   if (loading) {
     return (

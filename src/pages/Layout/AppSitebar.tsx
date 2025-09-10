@@ -14,7 +14,10 @@ export default function AppSidebar() {
   const [customerCount, setCustomerCount] = useState<number | null>(null);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: NodeJS.Timeout | null = null;
+    let enabled = localStorage.getItem("liveUpdates");
+    enabled = enabled === null ? "true" : enabled;
+
     const fetchCounts = () => {
       supabase.from("orders").select("id", { count: "exact", head: true }).then(({ count }) => setOrderCount(count ?? 0));
       supabase.from("categories").select("id", { count: "exact", head: true }).then(({ count }) => setCategoryCount(count ?? 0));
@@ -23,9 +26,27 @@ export default function AppSidebar() {
         setCustomerCount(unique.size);
       });
     };
-    fetchCounts();
-    interval = setInterval(fetchCounts, 10000);
-    return () => clearInterval(interval);
+
+    // Helper to start/stop polling
+    const updatePolling = () => {
+      const live = localStorage.getItem("liveUpdates");
+      if (live === "false") {
+        if (interval) clearInterval(interval);
+        interval = null;
+        return;
+      }
+      if (!interval) {
+        fetchCounts();
+        interval = setInterval(fetchCounts, 10000);
+      }
+    };
+
+    updatePolling();
+    window.addEventListener("liveUpdatesChanged", updatePolling);
+    return () => {
+      if (interval) clearInterval(interval);
+      window.removeEventListener("liveUpdatesChanged", updatePolling);
+    };
   }, []);
 
   const menuItems = [

@@ -1,6 +1,6 @@
 
 
-import { Sun, Moon, User, ShoppingCart, Bell, LogOut } from "lucide-react";
+import { Sun, Moon, User, ShoppingCart, Bell, LogOut, RefreshCcw } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/store/Store";
 import { toggleTheme, setUser } from "@/store/HeaderSlice";
@@ -19,7 +19,19 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
   const dispatch = useDispatch();
   const theme = useSelector((state: RootState) => state.header.theme);
   const user = useSelector((state: RootState) => state.header.user);
+
   const [authDrawerOpen, setAuthDrawerOpen] = useState(false);
+  // Live update toggle state
+  const [liveUpdates, setLiveUpdates] = useState(() => {
+    const stored = localStorage.getItem("liveUpdates");
+    return stored === null ? true : stored === "true";
+  });
+
+  // Sync localStorage and broadcast event
+  useEffect(() => {
+    localStorage.setItem("liveUpdates", String(liveUpdates));
+    window.dispatchEvent(new CustomEvent("liveUpdatesChanged", { detail: { enabled: liveUpdates } }));
+  }, [liveUpdates]);
 
 
   // Add or remove dark mode class on html element
@@ -65,6 +77,14 @@ export default function Header({ onAuthSuccess }: { onAuthSuccess?: () => void }
     <>
       <header className="w-full flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900" style={{ minHeight: 64 }}>
         <div className="flex items-center gap-4">
+          {/* Live update toggle */}
+          <button
+            className={`p-2 rounded-full transition ${liveUpdates ? "bg-green-100 dark:bg-green-900" : "bg-zinc-100 dark:bg-zinc-800"}`}
+            title={liveUpdates ? "Live updates ON" : "Live updates OFF"}
+            onClick={() => setLiveUpdates((v) => !v)}
+          >
+            <RefreshCcw className={`w-5 h-5 ${liveUpdates ? "text-green-600 animate-spin-slow" : "text-zinc-400"}`} />
+          </button>
           {/* <span className="font-bold text-lg text-zinc-800 dark:text-zinc-100">Store Admin</span> */}
         </div>
         <div className="flex items-center gap-4">
