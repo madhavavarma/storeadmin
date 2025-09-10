@@ -47,8 +47,8 @@ export default function Customers() {
     return () => window.removeEventListener("liveUpdatesChanged", handler);
   }, []);
 
+  // Always load once on mount
   useEffect(() => {
-    if (!liveUpdates) return;
     setLoading(true);
     supabase.auth.getUser().then(async ({ data }) => {
       if (data?.user) {
@@ -86,6 +86,51 @@ export default function Customers() {
         setLoading(false);
       }
     });
+  }, []);
+
+  // Only poll if liveUpdates is enabled
+  useEffect(() => {
+    if (!liveUpdates) return;
+    const interval = setInterval(() => {
+      setLoading(true);
+      supabase.auth.getUser().then(async ({ data }) => {
+        if (data?.user) {
+          setIsLoggedIn(true);
+          const { data: ordersData, error: ordersError } = await supabase
+            .from("orders")
+            .select("id,userid,created_at,totalprice,status");
+          if (ordersError) {
+            setError("Failed to load orders");
+            setLoading(false);
+            return;
+          }
+          const customerMap: { [userid: string]: Customer } = {};
+          (ordersData || []).forEach((order: any) => {
+            if (!customerMap[order.userid]) {
+              customerMap[order.userid] = {
+                userid: order.userid,
+                first_order: order.created_at,
+                orders: 1,
+                total_spent: order.totalprice || 0,
+              };
+            } else {
+              customerMap[order.userid].orders += 1;
+              customerMap[order.userid].total_spent += order.totalprice || 0;
+              if (new Date(order.created_at) < new Date(customerMap[order.userid].first_order)) {
+                customerMap[order.userid].first_order = order.created_at;
+              }
+            }
+          });
+          setCustomers(Object.values(customerMap));
+          setLoading(false);
+        } else {
+          setIsLoggedIn(false);
+          setCustomers([]);
+          setLoading(false);
+        }
+      });
+    }, 10000);
+    return () => clearInterval(interval);
   }, [liveUpdates]);
 
   const handleUserClick = async (customer: Customer) => {
