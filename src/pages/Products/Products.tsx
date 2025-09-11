@@ -3,6 +3,8 @@ import { supabase } from "@/supabaseClient";
 import { Package, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import AddProductDrawer from "./AddProductDrawer";
+import type { IProduct } from "@/interfaces/IProduct";
 
 
 interface ProductRow {
@@ -82,6 +84,74 @@ export default function Products() {
     }
   }
 
+  async function handleAddProduct(data: Partial<IProduct>) {
+    // Insert product into Supabase
+    const { data: inserted, error } = await supabase.from("products").insert({
+      name: data.name,
+      price: data.price,
+      category: data.category,
+      labels: data.labels,
+      ispublished: data.ispublished,
+      discount: data.discount,
+      tax: data.tax,
+    }).select().single();
+    if (error) {
+      alert("Error adding product: " + error.message);
+      return;
+    }
+    // Insert images if present
+    if (data.imageUrls && data.imageUrls.length > 0) {
+      for (const url of data.imageUrls) {
+        await supabase.from("productimages").insert({
+          productid: inserted.id,
+          url,
+        });
+      }
+    }
+    // Insert product descriptions if present
+    if (data.productdescriptions && data.productdescriptions.length > 0) {
+      for (const desc of data.productdescriptions) {
+        await supabase.from("productdescriptions").insert({
+          productid: inserted.id,
+          title: desc.title,
+          content: desc.content,
+        });
+      }
+    }
+    // Insert variants and options if present
+    if (data.productvariants && data.productvariants.length > 0) {
+      for (const variant of data.productvariants) {
+        const { id, ...variantInsert } = variant; // omit id
+        const { data: variantRow, error: variantError } = await supabase.from("productvariants").insert({
+          productid: inserted.id,
+          name: variantInsert.name,
+          ispublished: variantInsert.ispublished,
+        }).select().single();
+        if (variantError || !variantRow) continue;
+        if (variant.productvariantoptions && variant.productvariantoptions.length > 0) {
+          for (const option of variant.productvariantoptions) {
+            const { id: optId, ...optionInsert } = option; // omit id
+            await supabase.from("productvariantoptions").insert({
+              variantid: variantRow.id,
+              name: optionInsert.name,
+              price: optionInsert.price,
+              ispublished: optionInsert.ispublished,
+              isoutofstock: optionInsert.isoutofstock,
+              isdefault: optionInsert.isdefault,
+            });
+          }
+        }
+      }
+    }
+    // Reload the product with relations to ensure UI is up to date
+    const { data: fullProduct } = await supabase
+      .from("products")
+      .select(`*, productimages(url)`) // add more relations if needed
+      .eq("id", inserted.id)
+      .single();
+    setProducts((prev) => [...prev, { ...fullProduct, imageUrls: (fullProduct?.productimages || []).map((img: any) => img.url) }]);
+  }
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[200px] p-8">
@@ -143,7 +213,7 @@ export default function Products() {
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={()=>setAddOpen(true)} className="bg-green-600 text-white">+ Add Product</Button>
+          <Button onClick={() => setAddOpen(true)} className="bg-green-600 text-white">+ Add Product</Button>
         </div>
       </div>
 
@@ -199,18 +269,8 @@ export default function Products() {
         <Button variant="outline" size="sm" disabled={currentPage===totalPages} onClick={()=>setCurrentPage((p)=>Math.min(totalPages,p+1))}>Next <ChevronRight size={16} /></Button>
       </div>
 
-      {/* Add Product Drawer placeholder */}
-      {addOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-start justify-end" onClick={()=>setAddOpen(false)}>
-          <div className="w-full max-w-md bg-white dark:bg-zinc-900 p-6">
-            <h3 className="text-lg font-semibold">Add Product (placeholder)</h3>
-            <p className="text-sm text-gray-500 mt-2">Implement create product flow here.</p>
-            <div className="mt-4">
-              <Button onClick={()=>setAddOpen(false)}>Close</Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Add Product Drawer */}
+      <AddProductDrawer open={addOpen} onClose={() => setAddOpen(false)} onAdd={handleAddProduct} />
     </div>
   );
 }
