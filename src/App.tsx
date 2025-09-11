@@ -9,6 +9,7 @@ import Orders from './pages/Orders/Orders'
 import Categories from './pages/Categories/Categories'
 import Settings from './pages/Settings'
 import Header from './components/Header'
+import Products from './pages/Products/Products'
 import { useState, useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppSettingsActions } from './store/AppSettingsSlice';
@@ -49,6 +50,7 @@ function AppContent() {
           <Routes>
             <Route path="/dashboard" element={<Dashboard key={refreshKey} />} />
             <Route path="/orders" element={<Orders refreshKey={refreshKey} />} />
+            <Route path="/products" element={<Products />} />
             <Route path="/categories" element={<Categories refreshKey={refreshKey} />} />
             <Route path="/settings" element={<Settings refreshKey={refreshKey} />} />
             <Route path="/customers" element={<Customers refreshKey={refreshKey} />} />
