@@ -22,7 +22,7 @@ export default function AddProductDrawer({ open, onClose, onAdd }: AddProductDra
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isPublished, setIsPublished] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [description, setDescription] = useState("");
+  // Removed unused description state
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [variants, setVariants] = useState<IVariant[]>([]);
   const [descriptions, setDescriptions] = useState<{ id?: number; title: string; content: string }[]>([]);
@@ -71,7 +71,7 @@ export default function AddProductDrawer({ open, onClose, onAdd }: AddProductDra
     setImageUrl("");
     setSelectedFiles([]);
     setIsPublished(true);
-    setDescription("");
+  // Removed unused setDescription
     setVariants([]);
     setDescriptions([]);
     onClose();
