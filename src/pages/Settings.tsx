@@ -34,12 +34,28 @@ export default function Settings({ refreshKey }: SettingsProps) {
         setIsLoggedIn(true);
         getAppSettings()
           .then((data: IAppSettings) => {
-            setSettings(data || {});
-            prevLogoUrl.current = data?.logoUrl;
-            setLogoPreview(data?.logoUrl || "");
+            // Defensive: ensure all array fields exist and are arrays
+            const safeData = {
+              ...data,
+              branding: {
+                ...data?.branding,
+                nav: {
+                  contact: Array.isArray(data?.branding?.nav?.contact) ? data.branding.nav.contact : [],
+                  faq: Array.isArray(data?.branding?.nav?.faq) ? data.branding.nav.faq : [],
+                },
+                slides: Array.isArray(data?.branding?.slides) ? data.branding.slides : [],
+                features: Array.isArray(data?.branding?.features) ? data.branding.features : [],
+                homeCarousels: Array.isArray(data?.branding?.homeCarousels) ? data.branding.homeCarousels : [],
+              },
+            };
+            setSettings(safeData);
+            prevLogoUrl.current = safeData?.logoUrl;
+            setLogoPreview(safeData?.logoUrl || "");
             setLoading(false);
           })
           .catch(() => {
+            // If failed, still set an empty object so UI is editable
+            setSettings({});
             setError("Failed to load settings");
             setLoading(false);
           });
@@ -287,32 +303,47 @@ export default function Settings({ refreshKey }: SettingsProps) {
               Nav (Contact & FAQ)
             </AccordionTrigger>
             <AccordionContent className="p-4 space-y-4 bg-white dark:bg-zinc-900">
-              {(["contact", "faq"] as const).map((navType) => (
+              {["contact", "faq"].map((navType) => (
                 <div key={navType}>
-                  <h4 className="text-sm font-semibold mb-2">
-                    {navType.toUpperCase()}
-                  </h4>
-                  {(settings?.branding?.nav?.[navType] || []).map(
-                    (item: any, idx: number) => (
-                      <div
-                        key={idx}
-                        className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2"
-                      >
-                        {(["title", "href", "description"] as const).map((field) => (
-                          <Input
-                            key={field}
-                            value={item[field] || ""}
-                            onChange={handleChange}
-                            placeholder={field}
-                            data-section="nav"
-                            data-navtype={navType}
-                            data-idx={idx}
-                            data-field={field}
-                          />
-                        ))}
-                      </div>
-                    )
-                  )}
+                  <h4 className="text-sm font-semibold mb-2">{navType.toUpperCase()}</h4>
+                  {(settings?.branding?.nav?.[navType] || []).map((item: any, idx: number) => (
+                    <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
+                      {["title", "href", "description"].map((field) => (
+                        <Input
+                          key={field}
+                          value={item[field] || ""}
+                          onChange={handleChange}
+                          placeholder={field}
+                          data-section="nav"
+                          data-navtype={navType}
+                          data-idx={idx}
+                          data-field={field}
+                        />
+                      ))}
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => {
+                      setSettings((prev) => ({
+                        ...prev!,
+                        branding: {
+                          ...prev!.branding,
+                          nav: {
+                            ...prev!.branding?.nav,
+                            [navType]: [
+                              ...(prev!.branding?.nav?.[navType] || []),
+                              { title: "", href: "", description: "" },
+                            ],
+                          },
+                        },
+                      }));
+                    }}
+                  >
+                    + Add {navType.charAt(0).toUpperCase() + navType.slice(1)}
+                  </Button>
                 </div>
               ))}
             </AccordionContent>
@@ -342,6 +373,25 @@ export default function Settings({ refreshKey }: SettingsProps) {
                   ))}
                 </div>
               ))}
+              <Button
+                type="button"
+                size="sm"
+                className="mt-2"
+                onClick={() => {
+                  setSettings((prev) => ({
+                    ...prev!,
+                    branding: {
+                      ...prev!.branding,
+                      slides: [
+                        ...(prev!.branding?.slides || []),
+                        { image: "", headerText: "", contentText: "" },
+                      ],
+                    },
+                  }));
+                }}
+              >
+                + Add Slide
+              </Button>
             </AccordionContent>
           </AccordionItem>
 
@@ -369,6 +419,25 @@ export default function Settings({ refreshKey }: SettingsProps) {
                   ))}
                 </div>
               ))}
+              <Button
+                type="button"
+                size="sm"
+                className="mt-2"
+                onClick={() => {
+                  setSettings((prev) => ({
+                    ...prev!,
+                    branding: {
+                      ...prev!.branding,
+                      features: [
+                        ...(prev!.branding?.features || []),
+                        { title: "", description: "", icon: "" },
+                      ],
+                    },
+                  }));
+                }}
+              >
+                + Add Feature
+              </Button>
             </AccordionContent>
           </AccordionItem>
 
@@ -396,6 +465,25 @@ export default function Settings({ refreshKey }: SettingsProps) {
                   ))}
                 </div>
               ))}
+              <Button
+                type="button"
+                size="sm"
+                className="mt-2"
+                onClick={() => {
+                  setSettings((prev) => ({
+                    ...prev!,
+                    branding: {
+                      ...prev!.branding,
+                      homeCarousels: [
+                        ...(prev!.branding?.homeCarousels || []),
+                        { heading: "", label: "" },
+                      ],
+                    },
+                  }));
+                }}
+              >
+                + Add Carousel
+              </Button>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

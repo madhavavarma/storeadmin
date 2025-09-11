@@ -88,17 +88,24 @@ export const getAppSettings = async (): Promise<IAppSettings> => {
     const { data, error } = await supabase
       .from("branding")
       .select("data")
-      .order("created_at", { ascending: false }) // latest first
+      .order("created_at", { ascending: false })
       .limit(1)
-      .single(); // get only the latest row
+      .single();
 
-    if (error) {
+    if (error && error.code !== 'PGRST116') { // PGRST116: No rows found
       console.error("Error fetching app settings:", error.message);
       throw new Error(error.message);
     }
 
     if (!data) {
-      throw new Error("No branding data found");
+      // Insert a default empty object
+      const defaultSettings = {};
+      const { error: insertError } = await supabase.from("branding").insert([{ data: defaultSettings }]);
+      if (insertError) {
+        console.error("Error inserting default app settings:", insertError.message);
+        throw new Error(insertError.message);
+      }
+      return defaultSettings as IAppSettings;
     }
 
     // data.data is JSONB column
