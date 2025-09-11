@@ -9,11 +9,7 @@ interface ProductRow {
   id: number;
   name: string;
   ispublished?: boolean;
-  category?: string;
-  labels?: string[];
   price: number;
-  discount?: number;
-  tax?: number;
   imageUrls?: string[];
   orderCount?: number;
 }
@@ -59,13 +55,8 @@ export default function Products() {
         id: Number(p.id),
         name: p.name,
         ispublished: p.ispublished,
-        category: p.category,
-        labels: p.labels,
         price: Number(p.price || 0),
-        discount: p.discount,
-        tax: p.tax,
         imageUrls: imagesByProduct[Number(p.id)] || [],
-        orderCount: counts[Number(p.id)] || 0,
       }));
 
       if (!mounted) return;
@@ -77,6 +68,19 @@ export default function Products() {
       mounted = false;
     };
   }, []);
+
+  async function setPublished(productId: number, publish: boolean) {
+    try {
+      const { error } = await supabase.from('products').update({ ispublished: publish }).eq('id', productId);
+      if (error) {
+        console.error(publish ? 'Publish failed' : 'Unpublish failed', error);
+        return;
+      }
+      setProducts((prev) => prev.map(p => p.id === productId ? { ...p, ispublished: publish } : p));
+    } catch (err) {
+      console.error('Error updating publish status:', err);
+    }
+  }
 
   if (loading) {
     return (
@@ -149,10 +153,8 @@ export default function Products() {
           <thead>
             <tr className="bg-green-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
               <th className="p-3 font-medium">Product</th>
-              <th className="p-3 font-medium">Category</th>
               <th className="p-3 font-medium">Price</th>
-              <th className="p-3 font-medium">Orders</th>
-              <th className="p-3 font-medium">Published</th>
+              <th className="p-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -164,10 +166,16 @@ export default function Products() {
                     <div className="font-medium text-gray-800 dark:text-gray-200">{p.name}</div>
                   </div>
                 </td>
-                <td className="p-3 align-top">{p.category}</td>
                 <td className="p-3 align-top">₹{p.price}</td>
-                <td className="p-3 align-top">{p.orderCount || 0}</td>
-                <td className="p-3 align-top">{p.ispublished ? "Yes" : "No"}</td>
+                <td className="p-3 align-top">
+                  <div className="flex items-center gap-2">
+                    {p.ispublished ? (
+                      <Button size="sm" className="bg-red-600 text-white" onClick={() => setPublished(p.id, false)}>Unpublish</Button>
+                    ) : (
+                      <Button size="sm" className="bg-green-600 text-white" onClick={() => setPublished(p.id, true)}>Publish</Button>
+                    )}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -179,7 +187,6 @@ export default function Products() {
         {paginated.map((p, idx) => (
           <div key={p.id} className="rounded-2xl p-3 shadow-md cursor-pointer transition hover:shadow-lg border border-green-100 dark:border-zinc-800 flex flex-col justify-center text-center bg-white dark:bg-zinc-900 animate-fadein-slideup min-h-[120px]" style={{ animationDelay: `${idx * 60}ms` }}>
             <span className="font-semibold text-gray-900 dark:text-gray-100 text-base mb-1">{p.name}</span>
-            <div className="text-xs text-gray-500 dark:text-gray-400">{p.category}</div>
             <div className="text-sm font-medium text-emerald-700 dark:text-emerald-400 mt-1">₹{p.price}</div>
             <div className="text-xs text-gray-500 mt-1">Orders: {p.orderCount || 0}</div>
           </div>
