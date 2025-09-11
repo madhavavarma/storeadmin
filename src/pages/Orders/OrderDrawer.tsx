@@ -20,6 +20,8 @@ import type { ICheckout } from "@/interfaces/ICheckout";
 import { ProductActions } from "@/store/ProductSlice";
 import type { IState } from "@/store/interfaces/IState";
 import { updateOrder } from "../api";
+import { supabase } from "@/supabaseClient";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { OrdersActions, type IOrder, OrderStatus } from "@/store/OrdersSlice";
 // import type { IOption } from "@/interfaces/IProduct";
 
@@ -30,21 +32,6 @@ interface OrderSummaryProps {
 }
 
 export default function OrderSummary({ onClose }: OrderSummaryProps) {
-  // Manual update handler for Update Order button
-  const handleUpdateOrder = async () => {
-    if (!cart?.id) return;
-    const updatedOrder: Partial<IOrder> = {
-      ...cart,
-      status: status as OrderStatus,
-      checkoutdata: formData,
-    };
-    await updateOrder(String(cart.id), updatedOrder);
-    toast.success("Order updated successfully!");
-    if (onClose) onClose();
-  };
-
-
-  
   const cart = useSelector((state: IState) => state.Orders.showOrder);
   const cartitems = useSelector((state: IState) => state.Orders.showOrder?.cartitems || []);
   const totalAmount = cartitems?.reduce((acc, item) => acc + item.totalPrice, 0);
@@ -53,8 +40,7 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
   // All fields should be editable regardless of status
   const isPending = true;
   const [status, setStatus] = useState(cart?.status || 'Pending');
-
-    const [formData, setFormData] = useState<ICheckout>(
+  const [formData, setFormData] = useState<ICheckout>(
     checkoutData || {
       phone: "",
       email: "",
@@ -65,7 +51,8 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
       paymentMethod: "cod",
     }
   );
-  
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Status change handler
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -100,7 +87,33 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
     }));
   };
 
-  // ...existing code...
+  // Manual update handler for Update Order button
+  const handleUpdateOrder = async () => {
+    if (!cart?.id) return;
+    const updatedOrder: Partial<IOrder> = {
+      ...cart,
+      status: status as OrderStatus,
+      checkoutdata: formData,
+    };
+    await updateOrder(String(cart.id), updatedOrder);
+    toast.success("Order updated successfully!");
+    if (onClose) onClose();
+  };
+
+  // Delete order and its child order_items
+  const handleDeleteOrder = async () => {
+    if (!cart?.id) return;
+    setDeleting(true);
+    // Remove child order_items first
+    await supabase.from('order_items').delete().eq('order_id', cart.id);
+    // Remove the order itself
+    await supabase.from('orders').delete().eq('id', cart.id);
+    setDeleting(false);
+    toast.success('Order deleted successfully!');
+    setDeleteDialogOpen(false);
+    if (onClose) onClose();
+    // Optionally, dispatch(OrdersActions.removeOrder(cart.id));
+  };
 
   const handleRemoveItem = (item: any) => {
     dispatch(
@@ -110,8 +123,6 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
       })
     );
   };
-
-  // ...existing code...
 
   // Status subtext mapping
   const statusSubtext: Record<string, string> = {
@@ -129,16 +140,36 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
       {/* Sticky Header */}
       <div className="sticky top-0 z-20 bg-white dark:bg-zinc-900 border-b dark:border-zinc-800 flex items-center justify-between px-4 py-3">
         <h1 className="text-lg font-bold text-green-700 dark:text-green-200">Order Details</h1>
-        <button
-          onClick={onClose}
-          className="p-1 bg-transparent border-none shadow-none text-gray-400 hover:text-red-500 transition-colors focus:outline-none"
-          aria-label="Close"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <div className="flex gap-2 items-center">
+          <Button
+            variant="destructive"
+            size="sm"
+            className="flex items-center gap-1"
+            onClick={() => setDeleteDialogOpen(true)}
+            disabled={deleting}
+          >
+            <Trash2 className="w-4 h-4" /> Delete
+          </Button>
+          <button
+            onClick={onClose}
+            className="p-1 bg-transparent border-none shadow-none text-gray-400 hover:text-red-500 transition-colors focus:outline-none"
+            aria-label="Close"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Delete Order?"
+        description="Are you sure you want to delete this order? This will remove the order and all its items. This action cannot be undone."
+        confirmText={deleting ? "Deleting..." : "Yes, Delete"}
+        cancelText="Cancel"
+        onConfirm={handleDeleteOrder}
+        onCancel={() => setDeleteDialogOpen(false)}
+      />
 
       {/* Order Details Card */}
   <Card className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 shadow-sm mb-2">
