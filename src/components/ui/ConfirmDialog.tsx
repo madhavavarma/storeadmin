@@ -1,4 +1,6 @@
-import { Dialog, DialogContent } from "./dialog";
+import { Dialog, DialogContent, DialogTitle } from "./dialog";
+import { DialogDescription } from "./dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "./button";
 
 interface ConfirmDialogProps {
@@ -23,6 +25,12 @@ export function ConfirmDialog({
   return (
     <Dialog open={open} onOpenChange={open => { if (!open) onCancel(); }}>
       <DialogContent showCloseButton={false}>
+        <DialogTitle asChild>
+          <VisuallyHidden>{title}</VisuallyHidden>
+        </DialogTitle>
+        <DialogDescription asChild>
+          <VisuallyHidden>{description}</VisuallyHidden>
+        </DialogDescription>
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">{title}</h2>
           <p className="text-sm text-gray-600">{description}</p>

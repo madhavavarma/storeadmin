@@ -365,12 +365,12 @@ export default function Products() {
                   </div>
                 </td>
                 <td className="p-3 align-top">₹{p.price}</td>
-                <td className="p-3 align-top">
+                <td className="p-3 align-top" onClick={e => e.stopPropagation()}>
                   <div className="flex items-center gap-2">
                     {p.ispublished ? (
-                      <Button size="sm" className="bg-red-600 text-white" onClick={() => setPublished(p.id, false)}>Unpublish</Button>
+                      <Button size="sm" className="bg-red-600 text-white" onClick={e => { e.stopPropagation(); setPublished(p.id, false); }}>Unpublish</Button>
                     ) : (
-                      <Button size="sm" className="bg-green-600 text-white" onClick={() => setPublished(p.id, true)}>Publish</Button>
+                      <Button size="sm" className="bg-green-600 text-white" onClick={e => { e.stopPropagation(); setPublished(p.id, true); }}>Publish</Button>
                     )}
                   </div>
                 </td>
