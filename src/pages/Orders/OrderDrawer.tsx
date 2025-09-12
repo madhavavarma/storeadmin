@@ -597,22 +597,14 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
         </div>
       </div>
       {/* Fixed Update Button */}
-      <div className="fixed left-0 right-0 bottom-0 z-30 bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800 px-4 py-3 flex justify-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.3 }}
-          className="w-full"
+      <div className="fixed left-0 right-0 bottom-0 z-30 bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800 p-0">
+        <Button
+          onClick={handleUpdateOrder}
+          className="w-full h-14 rounded-none bg-green-600 hover:bg-green-700 text-white border-green-700 text-base"
+          disabled={cartitems.length === 0}
         >
-          <Button
-            onClick={handleUpdateOrder}
-            className="w-full bg-[#5DBF13] hover:bg-green-700 text-white rounded-xl focus:bg-green-800"
-            style={{ backgroundColor: '#5DBF13', color: '#fff' }}
-            disabled={cartitems.length === 0}
-          >
-            Update Order
-          </Button>
-        </motion.div>
+          Update Order
+        </Button>
       </div>
     </div>
   );

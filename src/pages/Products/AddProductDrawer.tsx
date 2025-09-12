@@ -130,20 +130,26 @@ export default function AddProductDrawer({ open, onClose, onAdd }: AddProductDra
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="right" className="p-0 w-full max-w-md flex flex-col h-full bg-gray-50 dark:bg-zinc-900">
-        <div className="flex items-center justify-between px-6 pt-6 pb-2 border-b border-gray-200 dark:border-zinc-800">
-          <h2 className="text-xl font-bold text-green-700 dark:text-green-200">Add New Product</h2>
-          <button
+      <SheetContent side="right" className="p-0 w-full max-w-md flex flex-col h-full bg-white dark:bg-zinc-900">
+        {/* Sticky Header with Close */}
+        <div className="sticky top-0 z-20 bg-white dark:bg-zinc-900 border-b dark:border-zinc-800 flex items-center justify-between px-4 py-3">
+          <h2 className="text-lg font-bold text-green-700 dark:text-green-200">Add New Product</h2>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-zinc-700"
+            type="button"
             onClick={onClose}
-            className="p-1 bg-transparent border-none shadow-none text-gray-400 hover:text-red-500 transition-colors focus:outline-none"
-            aria-label="Close"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
-          </button>
+            Close
+          </Button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4 px-6 py-6">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto px-6 py-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">Product Name</label>
             <Input
@@ -340,15 +346,20 @@ export default function AddProductDrawer({ open, onClose, onAdd }: AddProductDra
             </div>
             <Button type="button" size="sm" onClick={addVariant}>+ Add Variant</Button>
           </div>
+          </form>
+        </div>
+        {/* Fixed Add Product Button at Bottom */}
+        <div className="sticky bottom-0 left-0 right-0 z-30 bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800 p-0">
           <Button
             type="submit"
+            form="product-add-form"
             disabled={loading}
-            className="w-full bg-green-600 hover:bg-green-700 text-white border-green-700"
+            className="w-full h-14 rounded-none bg-green-600 hover:bg-green-700 text-white border-green-700 text-base"
             variant="default"
           >
             {loading ? "Adding..." : "Add Product"}
           </Button>
-        </form>
+        </div>
       </SheetContent>
     </Sheet>
   );
