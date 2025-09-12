@@ -7,21 +7,11 @@ import { OrdersActions, OrderStatus } from "@/store/OrdersSlice"
 import OrderSummary from "./OrderDrawer"
 import { updateOrder, getOrders } from "../api"
 import {
-  Package,
-  Truck,
-  Gift,
-  PersonStandingIcon,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-const summaryCardDefs = [
-  { title: "Pending", status: "Pending", icon: PersonStandingIcon, color: "bg-lime-50 text-lime-600" },
-  { title: "In Progress", status: "Processing", icon: Package, color: "bg-lime-50 text-lime-600" },
-  { title: "Order Shipped", status: "Shipped", icon: Truck, color: "bg-green-50 text-green-600" },
-  { title: "Delivered", status: "Delivered", icon: Gift, color: "bg-emerald-50 text-emerald-600" },
-];
 
 export interface OrderRow {
   id: string;
@@ -65,10 +55,17 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function Orders({ refreshKey }: { refreshKey?: number }) {
+  const [mobileView, setMobileView] = useState<'card' | 'table'>('card');
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [search, setSearch] = useState("");
+
+  // Reset page to 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
   const location = useLocation();
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const dispatch = useDispatch();
@@ -220,8 +217,23 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
   }
 
   function getSortedOrders() {
-    if (!sortCol) return orders;
-    const sorted = [...orders].sort((a, b) => {
+    // Filter by search
+    let filtered = orders;
+    if (search && search.trim()) {
+      const q = search.trim().toLowerCase();
+      filtered = orders.filter(o => {
+        const customer = o.customer ? o.customer.toLowerCase() : "";
+        const id = o.id ? String(o.id).toLowerCase() : "";
+        const status = o.orderStatus ? o.orderStatus.toLowerCase() : "";
+        return (
+          customer.includes(q) ||
+          id.includes(q) ||
+          status.includes(q)
+        );
+      });
+    }
+    if (!sortCol) return filtered;
+    const sorted = [...filtered].sort((a, b) => {
       let aVal = a[sortCol];
       let bVal = b[sortCol];
       // Numeric sort for total
@@ -268,31 +280,21 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
   }
 
   return (
-  <div className="p-2 md:p-6 space-y-4 md:space-y-8 pb-24 md:pb-0">
-      {/* Top Summary Cards */}
-  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-        {summaryCardDefs.map((card, idx) => {
-          const Icon = card.icon;
-          const value = orders.filter((o) => o.orderStatus === card.status).length;
-          return (
-            <div
-              key={card.title}
-              className="rounded-2xl p-4 shadow-sm cursor-pointer transition hover:shadow-md border flex flex-col items-center justify-center text-center bg-gradient-to-tr from-green-50 to-white dark:from-zinc-900 dark:to-zinc-800 animate-fadein-slideup"
-              style={{ animationDelay: `${idx * 80}ms` }}
-            >
-              <div className={`p-3 rounded-md ${card.color} dark:bg-zinc-800 dark:text-green-300 mb-3`}>
-                <Icon className="w-6 h-6" />
-              </div>
-              <span className="text-sm text-gray-700 dark:text-gray-200">{card.title}</span>
-              <span className="text-xl font-bold text-gray-900 dark:text-gray-100">{value}</span>
-            </div>
-          );
-        })}
-      </div>
+  <div className="flex flex-col min-h-screen p-2 md:p-6 space-y-4 md:space-y-8 pb-0">
+  {/* Search Bar */}
+    <div className="mb-2 flex justify-end">
+      <input
+        type="text"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        placeholder="Search orders by customer, ID..."
+        className="w-full md:w-80 px-3 py-2 border border-gray-300 dark:border-zinc-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white dark:bg-zinc-900 text-sm"
+      />
+    </div>
 
 
 
-      {/* Desktop Table */}
+  {/* Desktop Table */}
   <div className="hidden md:block bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-zinc-800 overflow-x-auto">
   <table className="w-full text-sm border-collapse rounded-xl shadow-md overflow-hidden bg-white dark:bg-zinc-900">
           <thead>
@@ -405,9 +407,25 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
         </table>
       </div>
 
-      {/* Mobile Card View */}
-  <div className="grid grid-cols-2 gap-3 md:hidden pb-6">
-        {paginatedOrders.map((order, idx) => {
+      {/* Mobile Table View */}
+  <div className="md:hidden bg-transparent p-0">
+    <div className="flex justify-end mb-2">
+      <button
+        className={`px-3 py-1 rounded-l-lg border border-r-0 text-xs font-semibold transition-all ${mobileView === 'card' ? 'bg-green-600 text-white' : 'bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200'}`}
+        onClick={() => setMobileView('card')}
+      >
+        Card View
+      </button>
+      <button
+        className={`px-3 py-1 rounded-r-lg border text-xs font-semibold transition-all ${mobileView === 'table' ? 'bg-green-600 text-white' : 'bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200'}`}
+        onClick={() => setMobileView('table')}
+      >
+        Table View
+      </button>
+    </div>
+    {mobileView === 'card' ? (
+      <div className="flex flex-col gap-4">
+        {paginatedOrders.map((order) => {
           const statusFlow = [
             "Pending",
             "Confirmed",
@@ -427,46 +445,120 @@ export default function Orders({ refreshKey }: { refreshKey?: number }) {
           return (
             <div
               key={order.id}
-              className="rounded-2xl p-3 shadow-md cursor-pointer transition hover:shadow-lg border border-green-100 dark:border-zinc-800 flex flex-col justify-center text-center bg-white dark:bg-zinc-900 animate-fadein-slideup min-h-[120px]"
-              style={{ animationDelay: `${idx * 60}ms` }}
-              onClick={() => {
+              className="rounded-xl shadow-md border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 flex flex-col gap-2 cursor-pointer hover:shadow-lg transition"
+              onClick={(e) => {
+                if ((e.target as HTMLElement).tagName === "BUTTON") return;
                 dispatch(OrdersActions.showOrderDetail(order.raw));
                 setDrawerOpen(true);
                 setTimeout(() => setDrawerVisible(true), 10);
               }}
             >
-              <span className="font-semibold text-gray-900 dark:text-gray-100 text-base mb-1">#{order.id}</span>
-              <StatusBadge status={order.orderStatus} />
-              <div className="flex flex-col items-center gap-0.5 mt-1">
-                <span className="text-xs text-gray-500 dark:text-gray-400">{order.customer}</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">{order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}</span>
+              <div className="flex flex-row items-center justify-between w-full mb-1">
+                <span className="font-semibold text-gray-900 dark:text-gray-100 text-base">#{order.id}</span>
+                <StatusBadge status={order.orderStatus} />
               </div>
-              <div className="flex flex-col items-center gap-0.5 text-sm font-medium text-emerald-700 dark:text-emerald-400 mt-1">
-                <span>{order.total}</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">{productCount} products{itemCount > 1 ? `, ${itemCount} items` : ""}</span>
+              <div className="flex flex-row items-center justify-between w-full">
+                <span className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate max-w-[60%]" title={order.customer}>{order.customer}</span>
+                <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 text-right">{order.total}</span>
+              </div>
+              <div className="flex flex-row items-center justify-between w-full mt-1">
+                <span className="text-[11px] text-gray-500 dark:text-gray-400">{order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}</span>
+                <span className="text-[11px] text-gray-500 dark:text-gray-400 text-right">{productCount} prod{itemCount > 1 ? `, ${itemCount} items` : ""}</span>
               </div>
               {nextStatus && (
-                <div className="flex items-center gap-2 mt-2 justify-center">
-                  <span className="text-xs text-gray-500">Move to</span>
-                  <button
-                    className="px-3 py-1 text-xs font-semibold rounded-md bg-green-600 text-white shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all min-w-[80px] text-center w-fit"
-                    onClick={async e => {
-                      e.stopPropagation();
-                      await updateOrder(order.id, { status: nextStatus as OrderStatus });
-                      fetchOrders();
-                    }}
-                  >
-                    {nextStatus}
-                  </button>
-                </div>
+                <button
+                  className="mt-2 px-3 py-1 text-xs font-semibold rounded bg-green-600 text-white shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all min-w-[80px] text-center"
+                  onClick={async e => {
+                    e.stopPropagation();
+                    await updateOrder(order.id, { status: nextStatus as OrderStatus });
+                    fetchOrders();
+                  }}
+                >
+                  {nextStatus}
+                </button>
               )}
             </div>
           );
         })}
       </div>
+    ) : (
+      <table className="w-full text-xs bg-white dark:bg-zinc-900">
+        <thead>
+          <tr className="bg-green-50 dark:bg-zinc-800 text-left text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-zinc-700">
+            <th className="py-2 px-2 font-semibold text-left">Order</th>
+            <th className="py-2 px-2 font-semibold text-left">Customer &amp; Total</th>
+            <th className="py-2 px-2 font-semibold text-left">Status &amp; Next</th>
+          </tr>
+        </thead>
+        <tbody>
+          {paginatedOrders.map((order) => {
+            const statusFlow = [
+              "Pending",
+              "Confirmed",
+              "Processing",
+              "Shipped",
+              "Delivered",
+              "Cancelled",
+              "Returned",
+            ];
+            const currentIdx = statusFlow.indexOf(order.orderStatus);
+            const nextStatus =
+              currentIdx >= 0 && currentIdx < statusFlow.length - 1
+                ? statusFlow[currentIdx + 1]
+                : null;
+            const productCount = order.raw?.cartitems ? order.raw.cartitems.length : 0;
+            const itemCount = order.raw?.cartitems ? order.raw.cartitems.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0) : 0;
+            return (
+              <tr
+                key={order.id}
+                className={`border-b bg-white dark:bg-zinc-900 hover:bg-green-50 dark:hover:bg-zinc-800 cursor-pointer transition`}
+                onClick={(e) => {
+                  if ((e.target as HTMLElement).tagName === "BUTTON") return;
+                  dispatch(OrdersActions.showOrderDetail(order.raw));
+                  setDrawerOpen(true);
+                  setTimeout(() => setDrawerVisible(true), 10);
+                }}
+              >
+                <td className="py-2 px-2 align-top font-semibold text-gray-900 dark:text-gray-100 text-left">#{order.id}</td>
+                <td className="py-2 px-2 align-top">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex flex-row items-center justify-between w-full">
+                      <span className="text-xs font-medium text-gray-800 dark:text-gray-200 truncate max-w-[60%]" title={order.customer}>{order.customer}</span>
+                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 text-right min-w-[40%]">{order.total}</span>
+                    </div>
+                    <div className="flex flex-row items-center justify-between w-full">
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400">{order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}</span>
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400 text-right">{productCount} prod{itemCount > 1 ? `, ${itemCount} items` : ""}</span>
+                    </div>
+                  </div>
+                </td>
+                <td className="py-2 px-2 align-top">
+                  <div className="flex flex-col gap-1 items-start">
+                    <StatusBadge status={order.orderStatus} />
+                    {nextStatus && (
+                      <button
+                        className="mt-1 px-2 py-1 text-[10px] font-semibold rounded bg-green-600 text-white shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all min-w-[60px] text-center"
+                        onClick={async e => {
+                          e.stopPropagation();
+                          await updateOrder(order.id, { status: nextStatus as OrderStatus });
+                          fetchOrders();
+                        }}
+                      >
+                        {nextStatus}
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    )}
+  </div>
 
-      {/* Pagination */}
-      <div className="flex flex-col items-center gap-4 mt-4">
+      {/* Pagination (below tables) */}
+      <div className="flex flex-col items-center gap-4 mt-2 mb-2">
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
