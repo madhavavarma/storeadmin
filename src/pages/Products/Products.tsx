@@ -1,7 +1,7 @@
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useEffect, useState } from "react";
 import { supabase } from "@/supabaseClient";
-import { Package, ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import AddProductDrawer from "./AddProductDrawer";
@@ -21,11 +21,6 @@ interface ProductRow {
 export default function Products() {
   // Card/Table view switch (like Orders)
   const [viewMode, setViewMode] = useState<'card'|'table'>('table');
-  useEffect(() => {
-    const onResize = () => setViewMode(window.innerWidth < 768 ? 'card' : 'table');
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number|null>(null);
   const [products, setProducts] = useState<ProductRow[]>([]);

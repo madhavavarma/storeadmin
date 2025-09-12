@@ -36,7 +36,7 @@ export default function Customers({ refreshKey }: CustomersProps) {
   const [sortCol, setSortCol] = useState<keyof Customer | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [query, setQuery] = useState("");
-  const [viewMode, setViewMode] = useState<'card'|'table'>(window.innerWidth < 768 ? 'card' : 'table');
+  const [viewMode, setViewMode] = useState<'card'|'table'>('table');
   const perPage = 6;
   // Drawer state and handler
   const [drawerOpen, setDrawerOpen] = useState(false);

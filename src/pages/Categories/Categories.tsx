@@ -11,7 +11,7 @@ import { supabase } from "@/supabaseClient"
 
 
 export default function Categories({ refreshKey: parentRefreshKey }: { refreshKey: number }) {
-  const [viewMode, setViewMode] = useState<'card'|'table'>(window.innerWidth < 768 ? 'card' : 'table');
+  const [viewMode, setViewMode] = useState<'card'|'table'>('table');
   useEffect(() => {
     const onResize = () => setViewMode(window.innerWidth < 768 ? 'card' : 'table');
     window.addEventListener('resize', onResize);
@@ -28,19 +28,11 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-  const [sortCol, setSortCol] = useState<keyof ICategory | null>(null);
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [sortCol] = useState<keyof ICategory | null>(null);
+  const [sortDir] = useState<'asc' | 'desc'>('asc');
   const perPage = 6;
   const totalPages = Math.ceil(categories.length / perPage);
-  // Sorting logic
-  function handleSort(col: keyof ICategory) {
-    if (sortCol === col) {
-      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortCol(col);
-      setSortDir('asc');
-    }
-  }
+
 
   function getSortedCategories() {
     if (!sortCol) return categories;
@@ -159,6 +151,7 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
                 <tr
                   key={cat.id}
                   className="border-b hover:bg-green-50 dark:hover:bg-zinc-800 cursor-pointer transition"
+                  onClick={() => handleRowClick(cat)}
                 >
                   {/* Category cell: image + name */}
                   <td className="p-3 align-top">
