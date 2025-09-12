@@ -379,19 +379,32 @@ export default function Products() {
 
       {/* Card View */}
       {viewMode === 'card' && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pb-6">
+        <div className="flex flex-col gap-3 pb-6">
           {paginated.map((p, idx) => (
-            <div key={p.id} className="rounded-2xl p-3 shadow-md cursor-pointer transition hover:shadow-lg border border-green-100 dark:border-zinc-800 flex flex-col justify-center text-center bg-white dark:bg-zinc-900 animate-fadein-slideup min-h-[120px]" style={{ animationDelay: `${idx * 60}ms` }} onClick={() => handleRowClick(p.id)}>
-              <span className="font-semibold text-gray-900 dark:text-gray-100 text-base mb-1">{p.name}</span>
-              <div className="text-sm font-medium text-emerald-700 dark:text-emerald-400 mt-1">₹{p.price}</div>
-              <div className="flex items-center justify-center gap-2 mt-2">
+            <div
+              key={p.id}
+              className="rounded-xl shadow-md border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 flex flex-col gap-2 cursor-pointer hover:shadow-lg transition animate-fadein-slideup min-h-[120px] w-full"
+              style={{ animationDelay: `${idx * 60}ms` }}
+              onClick={() => handleRowClick(p.id)}
+            >
+              <div className="flex flex-row items-center justify-between w-full mb-1">
+                <span className="font-semibold text-gray-900 dark:text-gray-100 text-base truncate max-w-[70%]">{p.name}</span>
+                <span className="text-base font-bold text-emerald-600 dark:text-emerald-400">₹{p.price}</span>
+              </div>
+              <div className="flex flex-row items-center gap-3 w-full">
+                <img
+                  src={p.imageUrls?.[0] || "/vite.svg"}
+                  alt={p.name}
+                  className="h-12 w-12 object-contain rounded-xl border border-green-100 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-sm"
+                />
+                <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full shadow-sm transition-all ${p.ispublished ? 'bg-green-600 text-white border border-green-600' : 'bg-rose-600 text-white border border-rose-600'}`}>{p.ispublished ? 'Published' : 'Unpublished'}</span>
                 {p.ispublished ? (
-                  <Button size="sm" className="bg-red-600 text-white flex items-center gap-1" onClick={e => { e.stopPropagation(); setPublished(p.id, false); }}>
+                  <Button size="sm" className="bg-red-600 text-white flex items-center gap-1 ml-auto" onClick={e => { e.stopPropagation(); setPublished(p.id, false); }}>
                     <EyeOff size={16} />
                     <span className="hidden xs:inline">Unpublish</span>
                   </Button>
                 ) : (
-                  <Button size="sm" className="bg-green-600 text-white flex items-center gap-1" onClick={e => { e.stopPropagation(); setPublished(p.id, true); }}>
+                  <Button size="sm" className="bg-green-600 text-white flex items-center gap-1 ml-auto" onClick={e => { e.stopPropagation(); setPublished(p.id, true); }}>
                     <Eye size={16} />
                     <span className="hidden xs:inline">Publish</span>
                   </Button>

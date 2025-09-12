@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react"
+import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { ICategory } from "@/interfaces/ICategory"
 import { getCategories } from "../api"
@@ -9,7 +11,14 @@ import { supabase } from "@/supabaseClient"
 
 
 export default function Categories({ refreshKey: parentRefreshKey }: { refreshKey: number }) {
+  const [viewMode, setViewMode] = useState<'card'|'table'>(window.innerWidth < 768 ? 'card' : 'table');
+  useEffect(() => {
+    const onResize = () => setViewMode(window.innerWidth < 768 ? 'card' : 'table');
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const [editDrawerOpen, setEditDrawerOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<ICategory | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -78,11 +87,18 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
     return () => window.removeEventListener("clearOrders", clear);
   }, [refreshKey, drawerOpen, parentRefreshKey]);
 
-  const paginated = categories.slice((currentPage - 1) * perPage, currentPage * perPage);
+  const filtered = categories.filter(cat => cat.name.toLowerCase().includes(query.toLowerCase()));
+  const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
 
   const handleRowClick = (category: ICategory) => {
     setSelectedCategory(category);
     setEditDrawerOpen(true);
+  };
+
+  // Toggle published status
+  const setPublished = async (cat: ICategory, publish: boolean) => {
+    await supabase.from('categories').update({ is_published: publish }).eq('id', cat.id);
+    setCategories((prev) => prev.map(c => c.id === cat.id ? { ...c, is_published: publish } : c));
   };
 
   if (loading) {
@@ -103,104 +119,113 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
     return <div className="p-8 text-center text-red-500">{error}</div>;
   }
   return (
-  <div className="p-2 md:p-4 space-y-4 md:space-y-6 pb-24 md:pb-0">
-      {/* Top Category Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-        {categories.slice(0, 4).map((cat, idx) => (
-          <div
-            key={cat.id}
-            className="rounded-2xl p-4 shadow-md cursor-pointer transition hover:shadow-lg border border-green-100 dark:border-zinc-800 flex flex-col items-center justify-center text-center bg-green-50 dark:bg-zinc-900 animate-fadein-slideup min-h-[120px]"
-            style={{ animationDelay: `${idx * 80}ms` }}
-            onClick={() => handleRowClick(cat)}
-          >
-            <img
-              src={cat.image_url}
-              alt={cat.name}
-              className="h-14 w-14 object-contain mb-2 rounded-xl border border-green-100 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-sm"
-            />
-            <p className="text-base font-semibold text-gray-700 dark:text-green-200 truncate w-full">{cat.name}</p>
-          </div>
-        ))}
+    <div className="p-2 md:p-4 space-y-4 md:space-y-6 pb-24 md:pb-0">
+      {/* Search and Add Button Row */}
+      <div className="flex items-center gap-2 mb-2">
+        <Input placeholder="Search categories..." value={query} onChange={e => { setQuery(e.target.value); setCurrentPage(1); }} className="flex-1" />
+        <Button onClick={() => setDrawerOpen(true)} className="bg-green-600 text-white">Add</Button>
       </div>
 
-      {/* Categories List */}
-  <div className="bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
-          <h2 className="text-lg font-semibold">All Categories List</h2>
-          <Button
-            variant="default"
-            size="sm"
-            className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white border-green-700"
-            onClick={() => setDrawerOpen(true)}
+      {/* Card/Table View Switch Row (right-aligned, mobile only) */}
+      <div className="flex justify-end md:hidden mb-2">
+        <div className="flex">
+          <button
+            className={`px-3 py-1 rounded-l-lg border border-r-0 text-xs font-semibold transition-all ${viewMode === 'card' ? 'bg-green-600 text-white' : 'bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200'}`}
+            onClick={() => setViewMode('card')}
           >
-            + Add New
-          </Button>
+            Card View
+          </button>
+          <button
+            className={`px-3 py-1 rounded-r-lg border text-xs font-semibold transition-all ${viewMode === 'table' ? 'bg-green-600 text-white' : 'bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200'}`}
+            onClick={() => setViewMode('table')}
+          >
+            Table View
+          </button>
         </div>
+      </div>
 
-        {/* Desktop Table */}
-        <div className="hidden md:block bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-zinc-800 overflow-x-auto">
+      {/* Table View */}
+      {(viewMode === 'table' || window.innerWidth >= 768) && (
+        <div className="bg-white dark:bg-zinc-900 shadow-sm rounded-xl border border-gray-200 dark:border-zinc-800 overflow-x-auto">
           <table className="w-full text-sm border-collapse rounded-xl shadow-md overflow-hidden bg-white dark:bg-zinc-900">
             <thead>
               <tr className="bg-green-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
-                <th className="p-3 font-medium cursor-pointer select-none" onClick={() => handleSort('name')}>
-                  Category {sortCol === 'name' && (sortDir === 'asc' ? '↑' : '↓')}
-                </th>
-                <th className="p-3 font-medium cursor-pointer select-none" onClick={() => handleSort('is_published')}>
-                  Published {sortCol === 'is_published' && (sortDir === 'asc' ? '↑' : '↓')}
-                </th>
+                <th className="p-3 font-medium">Category</th>
+                <th className="p-3 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
               {getSortedCategories().slice((currentPage - 1) * perPage, currentPage * perPage).map((cat) => (
                 <tr
                   key={cat.id}
-                  className={"border-b hover:bg-green-50 dark:hover:bg-zinc-800 cursor-pointer transition bg-white dark:bg-zinc-900"}
-                  onClick={() => handleRowClick(cat)}
+                  className="border-b hover:bg-green-50 dark:hover:bg-zinc-800 cursor-pointer transition"
                 >
-                  <td className="p-3 flex items-center gap-3 align-top">
-                    <img
-                      src={cat.image_url}
-                      alt={cat.name}
-                      className="h-10 w-10 rounded-md object-contain border"
-                    />
-                    <span className="font-medium text-gray-800 dark:text-green-200">{cat.name}</span>
-                  </td>
+                  {/* Category cell: image + name */}
                   <td className="p-3 align-top">
-                    {cat.is_published ? (
-                      <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full shadow-sm transition-all bg-green-700 text-white border border-green-700" style={{ minWidth: 80, textAlign: 'center', letterSpacing: 0.5 }}>
-                        Published
-                      </span>
-                    ) : (
-                      <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full shadow-sm transition-all bg-rose-700 text-white border border-rose-700" style={{ minWidth: 80, textAlign: 'center', letterSpacing: 0.5 }}>
-                        Unpublished
-                      </span>
-                    )}
+                    <div className="flex items-center gap-3">
+                      <img src={cat.image_url || "/vite.svg"} alt={cat.name} className="h-12 w-12 rounded-md object-cover" />
+                      <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm tracking-wide">{cat.name}</span>
+                    </div>
+                  </td>
+                  {/* Actions: Publish/Unpublish button (like Products) */}
+                  <td className="p-3 align-top" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center gap-2">
+                      {cat.is_published ? (
+                        <Button size="sm" className="bg-red-600 text-white flex items-center gap-1" onClick={e => { e.stopPropagation(); setPublished(cat, false); }}>
+                          <EyeOff size={16} />
+                          <span className="hidden xs:inline">Unpublish</span>
+                        </Button>
+                      ) : (
+                        <Button size="sm" className="bg-green-600 text-white flex items-center gap-1" onClick={e => { e.stopPropagation(); setPublished(cat, true); }}>
+                          <Eye size={16} />
+                          <span className="hidden xs:inline">Publish</span>
+                        </Button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      )}
 
-        {/* Mobile Card List */}
-  <div className="grid grid-cols-2 gap-3 md:hidden pb-6">
+      {/* Card View */}
+      {viewMode === 'card' && (
+        <div className="flex flex-col gap-3 pb-6">
           {paginated.map((cat, idx) => (
             <div
               key={cat.id}
-              className="flex flex-col items-center justify-center p-3 rounded-2xl border border-green-100 dark:border-zinc-800 shadow-md bg-white dark:bg-zinc-900 hover:bg-green-50 dark:hover:bg-zinc-800 cursor-pointer transition animate-fadein-slideup min-h-[100px] text-center"
+              className="rounded-xl shadow-md border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 flex flex-col gap-2 cursor-pointer hover:shadow-lg transition animate-fadein-slideup min-h-[120px] w-full"
               style={{ animationDelay: `${idx * 60}ms` }}
               onClick={() => handleRowClick(cat)}
             >
-              <img
-                src={cat.image_url}
-                alt={cat.name}
-                className="h-12 w-12 object-contain rounded-xl border border-green-100 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-sm mb-2"
-              />
-              <p className="font-semibold text-gray-800 dark:text-green-200 truncate w-full">{cat.name}</p>
-              <span className={`inline-block mt-1 px-2 py-0.5 text-xs font-semibold rounded-full shadow-sm transition-all ${cat.is_published ? 'bg-green-600 text-white border border-green-600' : 'bg-rose-600 text-white border border-rose-600'}`}>{cat.is_published ? 'Published' : 'Unpublished'}</span>
+              <div className="flex flex-row items-center w-full mb-1">
+                <span className="font-semibold text-gray-900 dark:text-gray-100 text-base truncate max-w-[70%]">{cat.name}</span>
+              </div>
+              <div className="flex flex-row items-center gap-3 w-full">
+                <img
+                  src={cat.image_url}
+                  alt={cat.name}
+                  className="h-12 w-12 object-contain rounded-xl border border-green-100 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-sm"
+                />
+                <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full shadow-sm transition-all ${cat.is_published ? 'bg-green-600 text-white border border-green-600' : 'bg-rose-600 text-white border border-rose-600'}`}>{cat.is_published ? 'Published' : 'Unpublished'}</span>
+                {cat.is_published ? (
+                  <Button size="sm" className="bg-red-600 text-white flex items-center gap-1 ml-auto" onClick={e => { e.stopPropagation(); setPublished(cat, false); }}>
+                    <EyeOff size={16} />
+                    <span className="hidden xs:inline">Unpublish</span>
+                  </Button>
+                ) : (
+                  <Button size="sm" className="bg-green-600 text-white flex items-center gap-1 ml-auto" onClick={e => { e.stopPropagation(); setPublished(cat, true); }}>
+                    <Eye size={16} />
+                    <span className="hidden xs:inline">Publish</span>
+                  </Button>
+                )}
+              </div>
             </div>
           ))}
         </div>
+      )}
 
         {/* Pagination */}
         {/* Pagination */}
@@ -229,6 +254,9 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
             </Button>
           </div>
         </div>
+      <div className="bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4">
+        {/* Categories List and Table/Card UI ...existing code... */}
+        {/* ...existing code for table, mobile cards, pagination... */}
         <AddCategoryDrawer
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
@@ -282,8 +310,7 @@ export default function Categories({ refreshKey: parentRefreshKey }: { refreshKe
             setRefreshKey((k) => k + 1);
           }}
         />
-        </div>
       </div>
-    
+    </div>
   );
 }
