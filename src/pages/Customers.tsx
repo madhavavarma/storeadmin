@@ -1,11 +1,13 @@
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Users } from "lucide-react";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Card } from "@/components/ui/card";
+// ...existing code...
+import { Input } from "@/components/ui/input";
 
 interface Customer {
   userid: string;
@@ -31,14 +33,21 @@ export default function Customers({ refreshKey }: CustomersProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortCol, setSortCol] = useState<keyof Customer | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [query, setQuery] = useState("");
+  const [viewMode, setViewMode] = useState<'card'|'table'>(window.innerWidth < 768 ? 'card' : 'table');
+  const perPage = 6;
+  // Drawer state and handler
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Customer | null>(null);
   const [userOrders, setUserOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
-  const [sortCol, setSortCol] = useState<keyof Customer | null>(null);
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
-  const perPage = 6;
   const navigate = useNavigate();
+
+  // Handler to open drawer and load customer orders
+  // ...existing code...
+
   // Sorting logic
   function handleSort(col: keyof Customer) {
     if (sortCol === col) {
@@ -169,7 +178,7 @@ export default function Customers({ refreshKey }: CustomersProps) {
         setLoading(false);
       }
     });
-  }, [dateRange, refreshKey]);
+  }, [dateRange]);
 
   // Only poll if liveUpdates is enabled
   useEffect(() => {
@@ -229,8 +238,10 @@ export default function Customers({ refreshKey }: CustomersProps) {
     setOrdersLoading(false);
   };
 
-  const totalPages = Math.ceil(customers.length / perPage);
-  const paginated = customers.slice((currentPage - 1) * perPage, currentPage * perPage);
+  // Filter customers by search query
+  const filtered = customers.filter(c => c.userid.toLowerCase().includes(query.toLowerCase()));
+  const totalPages = Math.ceil(filtered.length / perPage);
+  const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
 
   if (loading) {
     return (
@@ -250,11 +261,34 @@ export default function Customers({ refreshKey }: CustomersProps) {
     return <div className="p-8 text-center text-red-500">{error}</div>;
   }
 
+  // Place search input at the very top, before any other content
   return (
-  <div className="p-2 md:p-4 space-y-4 md:space-y-6 pb-24 md:pb-0">
-      <h2 className="text-lg font-semibold mb-4">All Customers</h2>
-      <div className="bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4">
-        <div className="hidden md:block bg-white dark:bg-zinc-900 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-zinc-800 overflow-x-auto">
+    <div className="p-2 md:p-4 space-y-4 md:space-y-6 pb-24 md:pb-0">
+      {/* Search and Add Button Row */}
+      <div className="flex items-center gap-2 mb-2">
+        <Input placeholder="Search customers..." value={query} onChange={e => { setQuery(e.target.value); setCurrentPage(1); }} className="flex-1" />
+        <Button className="bg-green-600 text-white" onClick={() => alert('Add customer functionality coming soon!')}>Add</Button>
+      </div>
+      {/* Card/Table View Switch Row (right-aligned, mobile only) */}
+      <div className="flex justify-end md:hidden mb-2">
+        <div className="flex">
+          <button
+            className={`px-3 py-1 rounded-l-lg border border-r-0 text-xs font-semibold transition-all ${viewMode === 'card' ? 'bg-green-600 text-white' : 'bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200'}`}
+            onClick={() => setViewMode('card')}
+          >
+            Card View
+          </button>
+          <button
+            className={`px-3 py-1 rounded-r-lg border text-xs font-semibold transition-all ${viewMode === 'table' ? 'bg-green-600 text-white' : 'bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200'}`}
+            onClick={() => setViewMode('table')}
+          >
+            Table View
+          </button>
+        </div>
+      </div>
+  {/* Table View */}
+  {(viewMode === 'table' || window.innerWidth >= 768) && (
+        <div className="bg-white dark:bg-zinc-900 shadow-sm rounded-xl border border-gray-200 dark:border-zinc-800 overflow-x-auto">
           <table className="w-full text-sm border-collapse rounded-xl shadow-md overflow-hidden bg-white dark:bg-zinc-900">
             <thead>
               <tr className="bg-green-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-200">
@@ -292,68 +326,75 @@ export default function Customers({ refreshKey }: CustomersProps) {
             </tbody>
           </table>
         </div>
-        {/* Mobile Card List */}
-  <div className="grid md:hidden gap-3 pb-6">
+      )}
+  {/* Card View */}
+  {viewMode === 'card' && (
+        <div className="flex flex-col gap-3 pb-6">
           {paginated.map((customer, idx) => (
             <div
               key={customer.userid}
-              className="flex flex-col gap-1 md:gap-2 p-2 md:p-3 rounded-xl border shadow-sm hover:bg-green-50 cursor-pointer transition animate-fadein-slideup"
+              className="rounded-xl shadow-md border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 flex flex-col gap-2 cursor-pointer hover:shadow-lg transition animate-fadein-slideup min-h-[120px] w-full"
               style={{ animationDelay: `${idx * 60}ms` }}
               onClick={() => handleUserClick(customer)}
             >
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex flex-row items-center w-full mb-1">
+                <span className="font-semibold text-gray-900 dark:text-gray-100 text-base truncate max-w-[70%]">{customer.userid}</span>
+              </div>
+              <div className="flex flex-row items-center gap-3 w-full">
                 <div className="bg-gradient-to-tr from-blue-400 to-blue-600 dark:from-blue-700 dark:to-blue-900 rounded-full p-2 flex items-center justify-center shadow-md">
                   <Users className="w-5 h-5 text-white" />
                 </div>
-                <div className="font-medium text-gray-700">User: {customer.userid}</div>
+                <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full shadow-sm transition-all bg-green-600 text-white border border-green-600">Orders: {customer.orders}</span>
+                <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full shadow-sm transition-all bg-blue-600 text-white border border-blue-600">₹{customer.total_spent.toLocaleString()}</span>
+                <span className="ml-auto text-xs text-gray-500">First Order: {customer.first_order ? new Date(customer.first_order).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}</span>
               </div>
-              <div className="text-xs text-gray-500">First Order: {customer.first_order ? new Date(customer.first_order).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}</div>
-              <div className="text-xs">Orders: {customer.orders}</div>
-              <div className="text-xs">Total Spent: ₹{customer.total_spent.toLocaleString()}</div>
             </div>
           ))}
         </div>
-        {/* Pagination */}
-        <div className="flex flex-col items-center gap-4 mt-4">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="default"
-              size="sm"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="rounded-md"
-            >
-              <ChevronLeft size={16} /> Previous
-            </Button>
-            <span className="px-3 text-sm font-medium">
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              variant="default"
-              size="sm"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="rounded-md"
-            >
-              Next <ChevronRight size={16} />
-            </Button>
-          </div>
+      )}
+      {/* Pagination */}
+      <div className="flex items-center justify-between gap-4 mt-4">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="default"
+            size="sm"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            className="rounded-md"
+          >
+            <ChevronLeft size={16} /> Previous
+          </Button>
+          <span className="px-3 text-sm font-medium">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="default"
+            size="sm"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            className="rounded-md"
+          >
+            Next <ChevronRight size={16} />
+          </Button>
         </div>
       </div>
-      {/* User Drawer */}
+      {/* Customer Details Drawer */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
         <SheetContent side="right" className="p-0 w-full max-w-md flex flex-col h-full bg-gray-50 dark:bg-zinc-900">
           <div className="flex items-center justify-between px-6 pt-6 pb-2 border-b border-gray-200 dark:border-zinc-800">
             <div className="text-xl font-bold text-green-700 dark:text-green-200">Customer Details</div>
-            <button
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-zinc-700"
+              type="button"
               onClick={() => setDrawerOpen(false)}
-              className="p-1 bg-transparent border-none shadow-none text-gray-400 hover:text-red-500 transition-colors focus:outline-none"
-              aria-label="Close"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
-            </button>
+              Close
+            </Button>
           </div>
           <div className="flex flex-col gap-8 h-full px-6 py-6">
             {selectedUser && (
