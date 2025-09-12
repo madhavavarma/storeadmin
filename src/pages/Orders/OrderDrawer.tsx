@@ -1,3 +1,5 @@
+import { getProducts } from "../api";
+import type { IProduct, IOption } from "@/interfaces/IProduct";
 // ...existing code...
 // StatusBadge copied from Orders.tsx for direct use
 function StatusBadge({ status }: { status: string }) {
@@ -61,6 +63,42 @@ interface OrderSummaryProps {
 }
 
 export default function OrderSummary({ onClose }: OrderSummaryProps) {
+  // Product modification state
+  const [allProducts, setAllProducts] = useState<IProduct[]>([]);
+  const [productSearch, setProductSearch] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<IProduct | null>(null);
+  const [selectedVariants, setSelectedVariants] = useState<{ [variantName: string]: IOption }>({});
+  const [addQuantity, setAddQuantity] = useState(1);
+
+  useEffect(() => {
+    getProducts().then(setAllProducts);
+  }, []);
+
+  const handleAddProduct = () => {
+    if (!selectedProduct) return;
+    const newItem = {
+      product: selectedProduct,
+      selectedOptions: { ...selectedVariants },
+      quantity: addQuantity,
+      totalPrice: (selectedProduct.price + Object.values(selectedVariants).reduce((sum, o) => sum + (o?.price || 0), 0)) * addQuantity,
+    };
+    dispatch(OrdersActions.showOrderDetail({
+      ...cart,
+      id: cart?.id ? String(cart.id) : '',
+      created_at: cart?.created_at ? String(cart.created_at) : '',
+      cartitems: [...cartitems, newItem],
+      totalquantity: (cart?.totalquantity || 0) + addQuantity,
+      totalprice: (cart?.totalprice || 0) + newItem.totalPrice,
+    }));
+    setSelectedProduct(null);
+    setSelectedVariants({});
+    setAddQuantity(1);
+    setProductSearch("");
+  };
+
+  // Removed unused handleRemoveProduct
+
+  // Removed unused handleEditQuantity
   const cart = useSelector((state: IState) => state.Orders.showOrder);
   const cartitems = useSelector((state: IState) => state.Orders.showOrder?.cartitems || []);
   const totalAmount = cartitems?.reduce((acc, item) => acc + item.totalPrice, 0);
@@ -123,6 +161,9 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
       ...cart,
       status: status as OrderStatus,
       checkoutdata: formData,
+      cartitems: cartitems,
+      totalquantity: cartitems.reduce((sum, item) => sum + (item.quantity || 0), 0),
+      totalprice: cartitems.reduce((sum, item) => sum + (item.totalPrice || 0), 0),
     };
     await updateOrder(String(cart.id), updatedOrder);
     toast.success("Order updated successfully!");
@@ -205,6 +246,7 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
       {/* Scrollable Content */}
   <div className="flex-1 overflow-y-auto px-2 pb-28">{/* Add bottom padding for button and minor side padding */}
         {/* Order Details Card */}
+  {/* All product editing will be done in the main order items card below. */}
         <Card className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 shadow-sm mb-2">
           <CardContent className="p-4 flex flex-col gap-2">
             <div className="flex flex-col gap-1">
@@ -293,12 +335,48 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
                         <p className="font-medium text-gray-800 dark:text-gray-100 truncate">
                           {item.product.name}
                         </p>
-                        {item.selectedOptions &&
-                          Object.entries(item.selectedOptions).map(([variantName, option]) => (
-                            <p key={variantName} className="text-gray-500 dark:text-gray-400 text-xs">
-                              {variantName}: <span className="font-medium">{option?.name}</span>
-                            </p>
-                          ))}
+                        {/* Inline variant/option editing */}
+                        {item.product.productvariants && item.product.productvariants.length > 0 && (
+                          <div className="flex flex-col gap-1 mt-1">
+                            {item.product.productvariants.map(variant => (
+                              <div key={variant.id} className="flex items-center gap-2">
+                                <span className="text-xs w-24">{variant.name}:</span>
+                                <select
+                                  className="border rounded px-1 py-0.5 text-xs"
+                                  value={item.selectedOptions[variant.name]?.id || ''}
+                                  onChange={e => {
+                                    const opt = variant.productvariantoptions.find(o => o.id === Number(e.target.value));
+                                    if (!opt) return;
+                                    // Update selectedOptions for this item
+                                    const newSelectedOptions = { ...item.selectedOptions, [variant.name]: opt };
+                                    // Recalculate totalPrice
+                                    const basePrice = item.product.price;
+                                    const optionsPrice = Object.values(newSelectedOptions).reduce((sum, o) => sum + (o?.price || 0), 0);
+                                    const newTotalPrice = (basePrice + optionsPrice) * item.quantity;
+                                    // Update cart item in Redux
+                                    const newItems = [...cartitems];
+                                    newItems[idx] = { ...item, selectedOptions: newSelectedOptions, totalPrice: newTotalPrice };
+                                    dispatch(OrdersActions.showOrderDetail({
+                                      ...cart,
+                                      id: cart?.id ? String(cart.id) : '',
+                                      created_at: cart?.created_at ? String(cart.created_at) : '',
+                                      cartitems: newItems,
+                                      totalquantity: newItems.reduce((sum, it) => sum + (it.quantity || 0), 0),
+                                      totalprice: newItems.reduce((sum, it) => sum + (it.totalPrice || 0), 0),
+                                    }));
+                                  }}
+                                >
+                                  <option value="">Select</option>
+                                  {variant.productvariantoptions.map(opt => (
+                                    <option key={opt.id} value={opt.id} disabled={!opt.ispublished || opt.isoutofstock}>
+                                      {opt.name} {opt.price ? `(+₹${opt.price})` : ''} {opt.isoutofstock ? '(Out of stock)' : ''}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                         {/* Quantity & Price Section */}
                         <div className="flex justify-between items-center mt-3 flex-wrap gap-2">
                           {/* Quantity Controls */}
@@ -338,6 +416,64 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
                       </Button>
                     </div>
                   ))}
+                    {/* Inline Add Product Section */}
+                    <div className="mt-4 border-t pt-4">
+                      <details>
+                        <summary className="cursor-pointer text-green-700 font-semibold mb-2">+ Add Product</summary>
+                        <div className="flex flex-col gap-2 mt-2">
+                          <input
+                            className="border rounded px-2 py-1 text-sm"
+                            placeholder="Search product..."
+                            value={productSearch}
+                            onChange={e => setProductSearch(e.target.value)}
+                          />
+                          <div className="max-h-32 overflow-y-auto border rounded bg-white dark:bg-zinc-900">
+                            {allProducts.filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase())).slice(0, 8).map(p => (
+                              <div key={p.id} className={`px-2 py-1 cursor-pointer hover:bg-green-50 dark:hover:bg-zinc-800 ${selectedProduct?.id === p.id ? 'bg-green-100 dark:bg-zinc-700' : ''}`} onClick={() => setSelectedProduct(p)}>
+                                {p.name}
+                              </div>
+                            ))}
+                          </div>
+                          {selectedProduct && (
+                            <div className="flex flex-col gap-2 mt-2 border-t pt-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{selectedProduct.name}</span>
+                                <span className="text-xs text-emerald-600">₹{selectedProduct.price}</span>
+                              </div>
+                              {selectedProduct.productvariants && selectedProduct.productvariants.length > 0 && (
+                                <div className="flex flex-col gap-1">
+                                  {selectedProduct.productvariants.map(variant => (
+                                    <div key={variant.id} className="flex items-center gap-2">
+                                      <span className="text-xs w-24">{variant.name}:</span>
+                                      <select
+                                        className="border rounded px-1 py-0.5 text-xs"
+                                        value={selectedVariants[variant.name]?.id || ''}
+                                        onChange={e => {
+                                          const opt = variant.productvariantoptions.find(o => o.id === Number(e.target.value));
+                                          setSelectedVariants(v => ({ ...v, [variant.name]: opt! }));
+                                        }}
+                                      >
+                                        <option value="">Select</option>
+                                        {variant.productvariantoptions.map(opt => (
+                                          <option key={opt.id} value={opt.id} disabled={!opt.ispublished || opt.isoutofstock}>
+                                            {opt.name} {opt.price ? `(+₹${opt.price})` : ''} {opt.isoutofstock ? '(Out of stock)' : ''}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-xs">Qty:</span>
+                                <input type="number" min={1} value={addQuantity} onChange={e => setAddQuantity(Number(e.target.value))} className="border rounded px-1 py-0.5 text-xs w-16" />
+                                <Button size="sm" className="ml-2 px-3 py-1 text-xs" onClick={handleAddProduct}>Add</Button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </details>
+                    </div>
                   <div className="pt-2 flex items-center justify-between text-green-800 dark:text-green-200 font-semibold gap-4 flex-wrap sm:flex-nowrap border-t border-zinc-200 dark:border-zinc-800 mt-2 pt-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                       {/* Label */}
@@ -346,6 +482,13 @@ export default function OrderSummary({ onClose }: OrderSummaryProps) {
                     {/* Amount */}
                     <span className="text-sm font-extrabold text-white bg-green-500 dark:bg-green-700 px-3 py-1 rounded-md shadow-sm">
                       ₹{totalAmount}
+                    </span>
+                  </div>
+                  {/* Pending Amount */}
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-base text-yellow-700 dark:text-yellow-300 font-semibold">Pending Amount</span>
+                    <span className="text-sm font-bold text-yellow-800 dark:text-yellow-200 bg-yellow-100 dark:bg-yellow-900 px-3 py-1 rounded-md">
+                      ₹{(totalAmount - ((cart?.checkoutdata as any)?.paid ?? 0)).toFixed(2)}
                     </span>
                   </div>
                 </CardContent>

@@ -177,10 +177,16 @@ export async function updateOrder(id: string, updates: Partial<IOrder>): Promise
     return null;
   }
 
-  console.log("Updating order:", id, updates);
+  // Remove id from updates to avoid updating identity column
+  const { id: _id, ...rest } = updates;
+  const updatesToSend = {
+    ...rest,
+    cartitems: updates.cartitems,
+  };
+  console.log("Updating order:", id, updatesToSend);
   const { data, error } = await supabase
     .from("orders")
-    .update(updates)
+    .update(updatesToSend)
     .eq("id", id)
     .select()
     .single();
