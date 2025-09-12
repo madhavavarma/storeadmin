@@ -306,7 +306,7 @@ export default function Settings({ refreshKey }: SettingsProps) {
               {["contact", "faq"].map((navType) => (
                 <div key={navType}>
                   <h4 className="text-sm font-semibold mb-2">{navType.toUpperCase()}</h4>
-                  {(settings?.branding?.nav?.[navType] || []).map((item: any, idx: number) => (
+                  {((settings?.branding?.nav as Record<"contact" | "faq", any[]>)[navType as "contact" | "faq"] || []).map((item: any, idx: number) => (
                     <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
                       {["title", "href", "description"].map((field) => (
                         <Input
@@ -334,7 +334,7 @@ export default function Settings({ refreshKey }: SettingsProps) {
                           nav: {
                             ...prev!.branding?.nav,
                             [navType]: [
-                              ...(prev!.branding?.nav?.[navType] || []),
+                              ...((prev!.branding?.nav as Record<"contact" | "faq", any[]>)[navType as "contact" | "faq"] || []),
                               { title: "", href: "", description: "" },
                             ],
                           },
