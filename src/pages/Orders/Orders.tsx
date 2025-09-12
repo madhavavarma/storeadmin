@@ -55,7 +55,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function Orders({ refreshKey }: { refreshKey?: number }) {
-  const [mobileView, setMobileView] = useState<'card' | 'table'>('card');
+  const [mobileView, setMobileView] = useState<'card' | 'table'>('table');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [search, setSearch] = useState("");
 
